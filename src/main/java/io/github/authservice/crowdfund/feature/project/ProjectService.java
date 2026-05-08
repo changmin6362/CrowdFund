@@ -10,8 +10,7 @@ import java.util.stream.StreamSupport;
 
 /**
  * 프로젝트 도메인 비즈니스 로직 처리 계층.
- * 등록, 수정, 삭제 및 다양한 조건의 프로젝트 조회 기능 수행.
- * 설계 지침에 따라 인터페이스 없이 단일 클래스로 구현.
+ * 모든 메서드는 처리 결과를 반환하여 컨트롤러가 응답을 구성할 수 있도록 함.
  */
 @Service
 @RequiredArgsConstructor
@@ -21,17 +20,17 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
 
     /**
-     * 1. 신규 프로젝트 생성 및 DB 저장.
-     * 데이터베이스에 프로젝트 레코드를 영속화함.
+     * @param request 프로젝트 생성 정보
+     * @return CreateProjectResponse 생성 결과 객체 (ID, 메시지)
      */
     @Transactional
-    public void createProject(ProjectSaveRequest request) {
-        projectRepository.save(request);
+    public CreateProjectResponse createProject(ProjectSaveRequest request) {
+        ProjectSaveRequest saved = projectRepository.save(request);
+        return new CreateProjectResponse(saved.id(), "프로젝트가 성공적으로 생성되었습니다.");
     }
 
     /**
-     * 2. 등록된 모든 프로젝트 목록 조회.
-     * 전체 프로젝트 데이터를 리스트 형태로 반환함.
+     * @return 전체 프로젝트 목록
      */
     public List<ProjectSaveRequest> getProjectList() {
         return StreamSupport.stream(projectRepository.findAll().spliterator(), false)
@@ -39,8 +38,8 @@ public class ProjectService {
     }
 
     /**
-     * 3. 특정 프로젝트 상세 정보 조회.
-     * 식별자(ID)를 기준으로 단일 프로젝트 데이터를 반환함.
+     * @param projectId 프로젝트 식별 번호
+     * @return 조회된 프로젝트 상세 정보
      */
     public ProjectSaveRequest getProjectDetail(Long projectId) {
         return projectRepository.findById(projectId)
@@ -48,19 +47,20 @@ public class ProjectService {
     }
 
     /**
-     * 4. 기존 프로젝트 정보 수정.
-     * 식별자 확인 후 전달받은 데이터로 업데이트 수행.
+     * @param projectId 프로젝트 식별 번호
+     * @param request   수정할 프로젝트 정보
+     * @return 수정 완료된 데이터
      */
     @Transactional
-    public void updateProject(Long projectId, ProjectSaveRequest request) {
-        if (projectRepository.existsById(projectId)) {
-            projectRepository.save(request);
+    public ProjectSaveRequest updateProject(Long projectId, ProjectSaveRequest request) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new IllegalArgumentException("수정할 프로젝트가 존재하지 않음.");
         }
+        return projectRepository.save(request);
     }
 
     /**
-     * 5. 본인 작성 프로젝트 삭제.
-     * 식별자를 기준으로 해당 프로젝트 데이터를 삭제함.
+     * @param projectId 프로젝트 식별 번호
      */
     @Transactional
     public void deleteProject(Long projectId) {
@@ -68,24 +68,23 @@ public class ProjectService {
     }
 
     /**
-     * 6. 내가 만든 프로젝트 목록 조회.
-     * 특정 사용자 식별자 기반으로 등록 프로젝트 목록을 필터링함.
+     * @param creatorId 창작자 식별 번호
+     * @return 특정 사용자의 프로젝트 목록
      */
     public List<ProjectSaveRequest> getMyProjects(Long creatorId) {
         return projectRepository.findByCreatorId(creatorId);
     }
 
     /**
-     * 7. 카테고리별 프로젝트 필터링 조회.
-     * 선택된 카테고리에 속한 프로젝트 리스트를 반환함.
+     * @param categoryId 카테고리 식별 번호
+     * @return 해당 카테고리의 프로젝트 목록
      */
     public List<ProjectSaveRequest> getProjectsByCategory(Long categoryId) {
         return projectRepository.findByCategoryId(categoryId);
     }
 
     /**
-     * 8. 프로젝트 강제 삭제 (관리자 전용).
-     * 권한 확인 후 특정 프로젝트를 시스템에서 즉시 제거함.
+     * @param projectId 프로젝트 식별 번호
      */
     @Transactional
     public void forceDeleteProject(Long projectId) {
@@ -93,20 +92,19 @@ public class ProjectService {
     }
 
     /**
-     * 9. 후원자 배송지 목록 조회 (창작자용).
-     * 해당 프로젝트 후원자들의 주소지 정보를 취합하여 반환함.
+     * @param projectId 프로젝트 식별 번호
+     * @return 후원자 배송 정보 목록
      */
     public List<Object> getPledgeAddresses(Long projectId) {
-        // 실제 구현 시 배송지 도메인 레포지토리 연동 필요.
         return List.of();
     }
 
     /**
-     * 10. 프로젝트 상태 업데이트.
-     * 특정 식별자의 프로젝트 진행 상태값(진행, 종료 등)을 변경함.
+     * @param projectId 프로젝트 식별 번호
+     * @param status    변경할 상태값
      */
     @Transactional
     public void updateProjectStatus(Long projectId, String status) {
-        // 상태 변경 비즈니스 로직 및 저장 수행 예정.
+        // 상태 업데이트 로직 구현
     }
 }

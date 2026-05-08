@@ -1,31 +1,32 @@
 package io.github.authservice.crowdfund.feature.project;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
 /**
  * 프로젝트 데이터 영속화 및 요청 매핑용 객체.
- * 데이터베이스 테이블 구조와 1:1로 대응되는 핵심 데이터 모델.
- * Spring Data JDBC의 식별자 매핑을 위해 @Id 어노테이션 사용.
- * 설계 지침 준수를 위한 Record 타입 구성.
+ *
+ * @Id를 통한 식별자 매핑 및 @NotBlank 등을 통한 데이터 유효성 검증 수행.
  */
 public record ProjectSaveRequest(
         @Id
-        Long id,                // 프로젝트 식별 번호 (Primary Key)
+        Long id,
 
-        String title,           // 프로젝트 제목
+        @NotBlank(message = "프로젝트 제목은 필수임")
+        String title,
 
-        String description,     // 프로젝트 상세 설명
+        @NotBlank(message = "프로젝트 설명은 필수임")
+        String description,
 
-        Long goalAmount,        // 목표 펀딩 금액
+        @NotNull(message = "목표 금액은 필수임")
+        Long goalAmount,
 
-        LocalDateTime startAt,  // 펀딩 시작 일시
-
-        LocalDateTime endAt,    // 펀딩 종료 일시
-
-        Long categoryId,        // 소속 카테고리 식별 번호
-
-        Long creatorId          // 프로젝트 생성자(User) 식별 번호
+        LocalDateTime startAt,
+        LocalDateTime endAt,
+        Long categoryId,
+        Long creatorId
 ) {
 }

@@ -1,5 +1,6 @@
 package io.github.authservice.crowdfund.feature.project;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -7,7 +8,7 @@ import java.util.List;
 
 /**
  * 프로젝트 도메인 HTTP 요청 수신 및 응답 처리 계층.
- * 프로젝트 생성, 수정, 삭제 및 다중 조건 조회 API 제공.
+ * 모든 요청에 대해 유효성 검증을 수행하며 처리 결과를 객체 형태로 반환함.
  */
 @RestController
 @RequestMapping("/api/projects")
@@ -17,15 +18,16 @@ public class ProjectController {
     private final ProjectService projectService;
 
     /**
-     * 1. 신규 프로젝트 생성
+     * @param request 프로젝트 생성 정보
+     * @return CreateProjectResponse 생성된 프로젝트 결과 정보 (ID, 메시지)
      */
     @PostMapping
-    public void createProject(@RequestBody ProjectSaveRequest request) {
-        projectService.createProject(request);
+    public CreateProjectResponse createProject(@Valid @RequestBody ProjectSaveRequest request) {
+        return projectService.createProject(request);
     }
 
     /**
-     * 2. 전체 프로젝트 목록 조회
+     * @return 전체 프로젝트 목록 리스트
      */
     @GetMapping
     public List<ProjectSaveRequest> getProjectList() {
@@ -33,7 +35,8 @@ public class ProjectController {
     }
 
     /**
-     * 3. 특정 프로젝트 상세 조회
+     * @param projectId 프로젝트 식별 번호
+     * @return 특정 프로젝트 상세 정보
      */
     @GetMapping("/{projectId}")
     public ProjectSaveRequest getProjectDetail(@PathVariable Long projectId) {
@@ -41,23 +44,28 @@ public class ProjectController {
     }
 
     /**
-     * 4. 프로젝트 내용 수정
+     * @param projectId 프로젝트 식별 번호
+     * @param request   수정할 프로젝트 정보 데이터
+     * @return 수정 완료된 프로젝트 데이터
      */
     @PutMapping("/{projectId}")
-    public void updateProject(@PathVariable Long projectId, @RequestBody ProjectSaveRequest request) {
-        projectService.updateProject(projectId, request);
+    public ProjectSaveRequest updateProject(@PathVariable Long projectId, @Valid @RequestBody ProjectSaveRequest request) {
+        return projectService.updateProject(projectId, request);
     }
 
     /**
-     * 5. 본인 프로젝트 삭제
+     * @param projectId 프로젝트 식별 번호
+     * @return 삭제 완료 메시지
      */
     @DeleteMapping("/{projectId}")
-    public void deleteProject(@PathVariable Long projectId) {
+    public String deleteProject(@PathVariable Long projectId) {
         projectService.deleteProject(projectId);
+        return "프로젝트 삭제 완료";
     }
 
     /**
-     * 6. 내가 만든 프로젝트 조회 (URL: /api/projects/me)
+     * @param userId 사용자(창작자) 식별 번호
+     * @return 해당 사용자의 프로젝트 목록
      */
     @GetMapping("/me")
     public List<ProjectSaveRequest> getMyProjects(@RequestParam Long userId) {
@@ -65,7 +73,8 @@ public class ProjectController {
     }
 
     /**
-     * 7. 카테고리별 프로젝트 조회
+     * @param categoryId 카테고리 식별 번호
+     * @return 해당 카테고리 소속 프로젝트 목록
      */
     @GetMapping("/category/{categoryId}")
     public List<ProjectSaveRequest> getProjectsByCategory(@PathVariable Long categoryId) {
@@ -73,15 +82,18 @@ public class ProjectController {
     }
 
     /**
-     * 8. 프로젝트 강제 삭제 (관리자용)
+     * @param projectId 프로젝트 식별 번호
+     * @return 관리자 강제 삭제 결과 메시지
      */
     @DeleteMapping("/{projectId}/force")
-    public void forceDeleteProject(@PathVariable Long projectId) {
+    public String forceDeleteProject(@PathVariable Long projectId) {
         projectService.forceDeleteProject(projectId);
+        return "관리자 권한 강제 삭제 성공";
     }
 
     /**
-     * 9. 후원자 배송지 목록 조회
+     * @param projectId 프로젝트 식별 번호
+     * @return 후원자 배송지 목록 데이터
      */
     @GetMapping("/{projectId}/pledge-addresses")
     public List<Object> getPledgeAddresses(@PathVariable Long projectId) {
@@ -89,10 +101,13 @@ public class ProjectController {
     }
 
     /**
-     * 10. 프로젝트 상태 업데이트
+     * @param projectId 프로젝트 식별 번호
+     * @param status    변경할 상태값
+     * @return 상태 변경 완료 메시지
      */
     @PatchMapping("/{projectId}/status")
-    public void updateProjectStatus(@PathVariable Long projectId, @RequestParam String status) {
+    public String updateProjectStatus(@PathVariable Long projectId, @RequestParam String status) {
         projectService.updateProjectStatus(projectId, status);
+        return "상태 업데이트 성공: " + status;
     }
 }
