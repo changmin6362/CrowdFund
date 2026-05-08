@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.project;
+package io.github.authservice.crowdfund.feature.project.dto;
 
 /**
  * 프로젝트 생성 결과 응답 객체.

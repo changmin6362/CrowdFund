@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.project;
+package io.github.authservice.crowdfund.feature.project.dto;
 
 import java.time.LocalDateTime;
 

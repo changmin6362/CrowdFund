@@ -1,5 +1,6 @@
-package io.github.authservice.crowdfund.feature.project;
+package io.github.authservice.crowdfund.feature.project.repository;
 
+import io.github.authservice.crowdfund.feature.project.dto.ProjectSaveRequest;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
