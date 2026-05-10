@@ -50,7 +50,7 @@ public class UserController {
      */
     @PutMapping("/me/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public UpdateUserDataResponse updateUserData(@Valid @PathVariable String userId, @RequestBody UserUpdateRequest request) {
+    public UpdateUserDataResponse updateUserData(@PathVariable String userId, @Valid @RequestBody UserUpdateRequest request) {
         return service.updateUserData(userId, request);
     }
 
@@ -63,6 +63,6 @@ public class UserController {
     @DeleteMapping("/me/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public DeleteUserResponse deleteUser(@PathVariable String userId) {
-        service.deleteUser(userId);
+        return service.deleteUser(userId);
     }
 }
