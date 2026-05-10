@@ -1,17 +1,14 @@
 package io.github.authservice.crowdfund.feature.user;
 
 import io.github.authservice.crowdfund.feature.user.request.UserUpdateRequest;
-import io.github.authservice.crowdfund.feature.user.response.DeleteUserResponse;
-import io.github.authservice.crowdfund.feature.user.response.GetUserDataResponse;
-import io.github.authservice.crowdfund.feature.user.response.GetUserNickNameResponse;
-import io.github.authservice.crowdfund.feature.user.response.UpdateUserDataResponse;
+import io.github.authservice.crowdfund.feature.user.response.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/users/me")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -23,7 +20,7 @@ public class UserController {
      * @param userId 사용자 ID
      * @return message, nickname
      */
-    @GetMapping("/me/{userId}/nickname")
+    @GetMapping("/nickname/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public GetUserNickNameResponse getUserNickName(@PathVariable Long userId) {
         return service.getUserNickName(userId);
@@ -35,7 +32,7 @@ public class UserController {
      * @param userId 사용자 ID
      * @return message, user
      */
-    @GetMapping("/me/{userId}/data")
+    @GetMapping("/data/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public GetUserDataResponse getUserData(@PathVariable Long userId) {
         return service.getUserData(userId);
@@ -48,7 +45,7 @@ public class UserController {
      * @param request 수정할 데이터
      * @return message
      */
-    @PutMapping("/me/{userId}")
+    @PutMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public UpdateUserDataResponse updateUserData(@PathVariable Long userId, @Valid @RequestBody UserUpdateRequest request) {
         return service.updateUserData(userId, request);
@@ -60,9 +57,21 @@ public class UserController {
      * @param userId 사용자 ID
      * @return message
      */
-    @DeleteMapping("/me/{userId}")
+    @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public DeleteUserResponse deleteUser(@PathVariable Long userId) {
         return service.deleteUser(userId);
+    }
+
+    /**
+     * 내가 참여한 펀딩 내역 조회
+     *
+     * @param userId 사용자 ID
+     * @return message, fundingList
+     */
+    @GetMapping("/pledges/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public getMyFundingListResponse getMyFundingList(@PathVariable Long userId) {
+        return service.getMyFundingList(userId);
     }
 }

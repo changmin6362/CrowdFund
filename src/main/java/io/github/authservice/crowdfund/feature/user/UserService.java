@@ -1,10 +1,7 @@
 package io.github.authservice.crowdfund.feature.user;
 
 import io.github.authservice.crowdfund.feature.user.request.UserUpdateRequest;
-import io.github.authservice.crowdfund.feature.user.response.DeleteUserResponse;
-import io.github.authservice.crowdfund.feature.user.response.GetUserDataResponse;
-import io.github.authservice.crowdfund.feature.user.response.GetUserNickNameResponse;
-import io.github.authservice.crowdfund.feature.user.response.UpdateUserDataResponse;
+import io.github.authservice.crowdfund.feature.user.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -58,4 +55,15 @@ public class UserService {
 
         return new DeleteUserResponse("회원 탈퇴에 성공했습니다.");
     }
+
+    /**
+     * 내가 참여한 펀딩 내역 조회
+     *
+     * @param userId 사용자 ID
+     * @return message, fundingList
+     */
+    public getMyFundingListResponse getMyFundingList(Long userId) {
+        return new getMyFundingListResponse("내가 참여한 펀딩 내역 조회에 성공했습니다.", repository.getMyFundingList(userId));
+    }
+
 }
