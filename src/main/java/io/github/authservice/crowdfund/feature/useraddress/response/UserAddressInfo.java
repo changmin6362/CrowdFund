@@ -6,7 +6,7 @@ public record UserAddressInfo(
         Long addressId,
         String recipientName,
         String phone,
-        String postal_code,
+        String postalCode,
         String addressMain,
         String addressDetail,
         boolean isDefault,

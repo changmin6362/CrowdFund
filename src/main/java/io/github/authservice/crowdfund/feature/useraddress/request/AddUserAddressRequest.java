@@ -12,7 +12,7 @@ public record AddUserAddressRequest(
         String phone,
 
         @NotBlank(message = "우편번호는 필수 입력 항목입니다.")
-        String postal_code,
+        String postalCode,
 
         @NotBlank(message = "기본 주소는 필수 입력 항목입니다.")
         String addressMain,
