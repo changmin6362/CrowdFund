@@ -20,7 +20,7 @@ public class UserService {
      * @param userId 사용자 ID
      * @return message, nickname
      */
-    public GetUserNickNameResponse getUserNickName(String userId) {
+    public GetUserNickNameResponse getUserNickName(Long userId) {
         return new GetUserNickNameResponse("닉네임 조회에 성공했습니다.", repository.getUserNickName(userId));
     }
 
@@ -28,9 +28,9 @@ public class UserService {
      * 내 정보 조회 도메인 로직
      *
      * @param userId 사용자 ID
-     * @return message, nickname, email, phone
+     * @return message, user
      */
-    public GetUserDataResponse getUserData(String userId) {
+    public GetUserDataResponse getUserData(Long userId) {
         return new GetUserDataResponse("내 정보 조회에 성공했습니다.", repository.getUserData(userId));
     }
 
@@ -39,9 +39,9 @@ public class UserService {
      *
      * @param userId  사용자 ID
      * @param request 수정할 사용자 정보
-     * @return message, nickname, email, phone
+     * @return message
      */
-    public UpdateUserDataResponse updateUserData(String userId, UserUpdateRequest request) {
+    public UpdateUserDataResponse updateUserData(Long userId, UserUpdateRequest request) {
         repository.updateUserData(userId, request);
 
         return new UpdateUserDataResponse("내 정보 수정에 성공했습니다.");
@@ -53,7 +53,7 @@ public class UserService {
      * @param userId 사용자 ID
      * @return message
      */
-    public DeleteUserResponse deleteUser(String userId) {
+    public DeleteUserResponse deleteUser(Long userId) {
         repository.deleteUser(userId);
 
         return new DeleteUserResponse("회원 탈퇴에 성공했습니다.");

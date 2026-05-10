@@ -47,7 +47,7 @@ public class UserAddressService {
      *
      * @param addressId 배송지 ID
      * @param request 배송지 정보
-     * @return message, addressId
+     * @return message
      */
     public UpdateUserAddressResponse updateUserAddress(Long addressId, UpdateUserAddressRequest request) {
         repository.updateUserAddress(addressId, request);

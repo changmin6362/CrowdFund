@@ -25,7 +25,7 @@ public class UserController {
      */
     @GetMapping("/me/{userId}/nickname")
     @ResponseStatus(HttpStatus.OK)
-    public GetUserNickNameResponse getUserNickName(@PathVariable String userId) {
+    public GetUserNickNameResponse getUserNickName(@PathVariable Long userId) {
         return service.getUserNickName(userId);
     }
 
@@ -37,7 +37,7 @@ public class UserController {
      */
     @GetMapping("/me/{userId}/data")
     @ResponseStatus(HttpStatus.OK)
-    public GetUserDataResponse getUserData(@PathVariable String userId) {
+    public GetUserDataResponse getUserData(@PathVariable Long userId) {
         return service.getUserData(userId);
     }
 
@@ -50,7 +50,7 @@ public class UserController {
      */
     @PutMapping("/me/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public UpdateUserDataResponse updateUserData(@PathVariable String userId, @Valid @RequestBody UserUpdateRequest request) {
+    public UpdateUserDataResponse updateUserData(@PathVariable Long userId, @Valid @RequestBody UserUpdateRequest request) {
         return service.updateUserData(userId, request);
     }
 
@@ -62,7 +62,7 @@ public class UserController {
      */
     @DeleteMapping("/me/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public DeleteUserResponse deleteUser(@PathVariable String userId) {
+    public DeleteUserResponse deleteUser(@PathVariable Long userId) {
         return service.deleteUser(userId);
     }
 }

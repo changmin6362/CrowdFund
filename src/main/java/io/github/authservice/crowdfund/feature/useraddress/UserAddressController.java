@@ -56,7 +56,7 @@ public class UserAddressController {
      *
      * @param addressId 배송지 ID
      * @param request 배송지 정보
-     * @return message, addressId
+     * @return message
      */
     @PutMapping("/address/{addressId}")
     @ResponseStatus(HttpStatus.OK)

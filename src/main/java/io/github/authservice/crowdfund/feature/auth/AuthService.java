@@ -29,7 +29,7 @@ public class AuthService {
      * 로그인 도메인 로직
      *
      * @param request 로그인에 사용할 정보
-     * @return message, nickname, accessToken, refreshToken
+     * @return message, accessToken, refreshToken
      */
     public SignInResponse login(SignInRequest request) {
         return new SignInResponse("로그인에 성공했습니다.", repository.login(request));
