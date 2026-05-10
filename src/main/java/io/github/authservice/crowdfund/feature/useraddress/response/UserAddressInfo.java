@@ -3,7 +3,7 @@ package io.github.authservice.crowdfund.feature.useraddress.response;
 import java.time.LocalDateTime;
 
 public record UserAddressInfo(
-        Integer id,
+        Long addressId,
         String recipientName,
         String phone,
         String postal_code,
