@@ -8,6 +8,6 @@ import java.util.List;
 @Repository
 public interface ProjectRepository extends ListCrudRepository<Project, Long> {
     List<Project> findByCreatorId(Long creatorId);
-    List<Project> findByCategoryId(Long categoryId);
-    List<Project> findByStatus(String status);
+    List<Project> findByCategoryId(Integer categoryId);
+    List<Project> findByStatus(ProjectStatus status);
 }

@@ -3,6 +3,8 @@ package io.github.authservice.crowdfund.domain.pledgeaddress;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.LocalDateTime;
+
 @Table("pledge_address")
 public record PledgeAddress(
     @Id Long id,
@@ -11,5 +13,9 @@ public record PledgeAddress(
     String recipientName,
     String phone,
     String postalCode,
-    String addressMain
+    String addressMain,
+    String addressDetail,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt
+
 ) {}

@@ -3,6 +3,8 @@ package io.github.authservice.crowdfund.domain.reward;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.LocalDateTime;
+
 @Table("reward")
 public record Reward(
     @Id Long id,
@@ -10,5 +12,6 @@ public record Reward(
     String title,
     String description,
     Long amount,
-    Integer stock
+    Integer stock,
+    LocalDateTime createdAt
 ) {}

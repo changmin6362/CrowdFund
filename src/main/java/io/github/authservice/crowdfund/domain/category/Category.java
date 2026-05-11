@@ -5,8 +5,10 @@ import org.springframework.data.relational.core.mapping.Table;
 
 @Table("category")
 public record Category(
-    @Id Long id,
-    Long parentId,
+    @Id Integer id,
+    Integer parentId,
     String name,
-    Integer level
+    Integer depth,
+    Integer sortOrder,
+    boolean isActive
 ) {}

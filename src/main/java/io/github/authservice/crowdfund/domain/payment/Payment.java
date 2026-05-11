@@ -11,5 +11,6 @@ public record Payment(
     String paymentMethod,
     Long amount,
     String status,
-    LocalDateTime paidAt
+    LocalDateTime paidAt,
+    LocalDateTime createdAt
 ) {}

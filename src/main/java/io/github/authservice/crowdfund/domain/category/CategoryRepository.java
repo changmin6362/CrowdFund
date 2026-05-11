@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CategoryRepository extends ListCrudRepository<Category, Long> {
-    List<Category> findByParentId(Long parentId);
+public interface CategoryRepository extends ListCrudRepository<Category, Integer> {
+    List<Category> findByParentId(Integer parentId);
 }
