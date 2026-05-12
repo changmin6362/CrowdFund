@@ -6,9 +6,9 @@ import java.math.BigDecimal;
 
 public record getMyFundingListResponse(
         String message,
-        List<FundingList> fundingList
+        List<UserPledgeResponse> fundingList
 ) {
-    public record FundingList(
+    public record UserPledgeResponse(
             Long pledgeId,
             Long projectId,
             String projectTitle,
