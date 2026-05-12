@@ -16,19 +16,19 @@ public class PledgeService {
     private final PledgeRepository pledgeRepository;
 
     /**
-     * 특정 펀딩 상세 조회 도메인 로직
+     * 특정 후원 상세 조회 도메인 로직
      *
-     * @param pledgeId 해당 펀딩 아이디
-     * @return 메세지, 해당 펀딩 상세 정보
+     * @param pledgeId 해당 후원 아이디
+     * @return 메세지, 해당 후원 상세 정보
      */
     public PledgeDetailResponse getPledgeDetail(Long pledgeId) {
         return new PledgeDetailResponse("펀딩 상세 정보를 성공적으로 불러왔습니다.", pledgeRepository.getPledgeDetail(pledgeId));
     }
 
     /**
-     * 특정 펀딩 삭제 도메인 로직
+     * 특정 후원 삭제 도메인 로직
      *
-     * @param pledgeId 해당 펀딩 아이디
+     * @param pledgeId 해당 후원 아이디
      * @return 메세지
      */
     public PledgeDeleteResponse deletePledge(Long pledgeId) {
@@ -38,16 +38,16 @@ public class PledgeService {
     }
 
     /**
-     * 펀딩 정보 리스트 조회 도메인 로직
+     * 후원 정보 리스트 조회 도메인 로직
      *
-     * @return 메세지, 모든 펀딩 정보
+     * @return 메세지, 모든 후원 정보
      */
     public PledgeListResponse getAllPledges() {
         return new PledgeListResponse("펀딩 리스트를 성공적으로 불러왔습니다.", pledgeRepository.getAllPledges());
     }
 
     /**
-     * 펀딩 주문 생성 도메인 로직
+     * 후원 주문 생성 도메인 로직
      *
      * @param userId 현재 로그인 되어있는 유저 아이디
      * @param projectId 해당 프로젝트 아이디

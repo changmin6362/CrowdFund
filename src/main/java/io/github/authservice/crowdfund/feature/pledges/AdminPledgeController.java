@@ -16,9 +16,9 @@ public class AdminPledgeController {
     private final PledgeService pledgeService;
 
     /**
-     * 전체 펀딩 목록 조회
+     * 전체 후원 목록 조회
      *
-     * @return 메세지와 펀딩 정보 리스트
+     * @return 메세지와 후원 정보 리스트
      */
     @GetMapping("/pledge")
     @ResponseStatus(HttpStatus.OK)
