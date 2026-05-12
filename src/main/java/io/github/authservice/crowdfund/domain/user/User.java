@@ -1,5 +1,6 @@
 package io.github.authservice.crowdfund.domain.user;
 
+import org.apache.ibatis.type.Alias;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
  * @param createdAt 생성일시
  */
 @Table("user")
+@Alias("User")
 public record User(
     @Id Long id,
     String email,
