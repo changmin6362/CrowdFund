@@ -18,6 +18,8 @@ public record UpdateUserAddressRequest(
         String addressMain,
 
         @NotBlank(message = "상세 주소는 필수 입력 항목입니다.")
-        String addressDetail
+        String addressDetail,
+
+        boolean isDefault
 ) {
 }

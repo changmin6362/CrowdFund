@@ -1,5 +1,6 @@
 package io.github.authservice.crowdfund.feature.auth;
 
+import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.feature.auth.request.LogoutRequest;
 import io.github.authservice.crowdfund.feature.auth.request.SignInRequest;
 import io.github.authservice.crowdfund.feature.auth.request.SignUpRequest;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final AuthRepository repository;
+    private final UserRepository repository;
 
     /**
      * 회원가입 도메인 로직
@@ -22,7 +23,9 @@ public class AuthService {
      * @return message
      */
     public SignUpResponse signup(SignUpRequest request) {
-        return new SignUpResponse("회원가입에 성공했습니다.", repository.signup(request));
+        // User savedUser = repository.save(request);
+        //         return new SignUpResponse("회원가입에 성공했습니다.", repository.signup(request));
+        return new SignUpResponse("회원가입 기능은 구현되지 않았습니다.", null);
     }
 
     /**
@@ -32,7 +35,9 @@ public class AuthService {
      * @return message, accessToken, refreshToken
      */
     public SignInResponse login(SignInRequest request) {
-        return new SignInResponse("로그인에 성공했습니다.", repository.login(request));
+        // TODO: 로그인 로직 구현 (비밀번호 확인, 토큰 생성 등)
+        // return new SignInResponse("로그인에 성공했습니다.", repository.login(request));
+        return new SignInResponse("로그인 기능은 아직 구현되지 않았습니다.", null, null);
     }
 
     /**
@@ -44,8 +49,10 @@ public class AuthService {
      * @return message
      */
     public LogoutResponse logout(LogoutRequest request) {
-        repository.logout(request);
+        // TODO: 로그아웃 로직 구현 (토큰 무효화 등)
+        // repository.logout(request);
 
-        return new LogoutResponse("로그아웃에 성공했습니다.");
+        // return new LogoutResponse("로그아웃에 성공했습니다.");
+        return new LogoutResponse("로그아웃 기능은 아직 구현되지 않았습니다.");
     }
 }

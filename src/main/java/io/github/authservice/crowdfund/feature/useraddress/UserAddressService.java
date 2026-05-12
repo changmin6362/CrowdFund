@@ -1,5 +1,6 @@
 package io.github.authservice.crowdfund.feature.useraddress;
 
+import io.github.authservice.crowdfund.domain.useraddress.UserAddressRepository;
 import io.github.authservice.crowdfund.feature.useraddress.request.AddUserAddressRequest;
 import io.github.authservice.crowdfund.feature.useraddress.request.UpdateUserAddressRequest;
 import io.github.authservice.crowdfund.feature.useraddress.response.*;
@@ -19,7 +20,9 @@ public class UserAddressService {
      * @return message, addressId
      */
     public AddUserAddressResponse addUserAddress(AddUserAddressRequest request) {
-        return new AddUserAddressResponse("주소 추가에 성공했습니다.", repository.addUserAddress(request));
+        // UserAddress saved = repository.save(request);
+        // return new AddUserAddressResponse("주소 추가에 성공했습니다.", repository.addUserAddress(request));
+        return new AddUserAddressResponse("주소 추가 기능은 구현되지 않았습니다.", null);
     }
 
     /**
@@ -29,7 +32,8 @@ public class UserAddressService {
      * @return message, addressList
      */
     public GetUserAddressListResponse getUserAddresses(Long userId) {
-        return new GetUserAddressListResponse("주소를 성공적으로 조회했습니다.", repository.getUserAddresses(userId));
+        //         return new GetUserAddressListResponse("주소를 성공적으로 조회했습니다.", repository.getUserAddresses(userId));
+        return new GetUserAddressListResponse("내 배송지 목록 조회 기능은 구현되지 않았습니다.", null);
     }
 
     /**
@@ -39,20 +43,22 @@ public class UserAddressService {
      * @return message, address
      */
     public GetUserAddressResponse getUserAddress(Long addressId) {
-        return new GetUserAddressResponse("배송지 정보를 성공적으로 조회했습니다.", repository.getUserAddress(addressId));
+        //         return new GetUserAddressResponse("배송지 정보를 성공적으로 조회했습니다.", repository.getUserAddress(addressId));
+        return new GetUserAddressResponse("내 배송지 단일 조회 기능은 구현되지 않았습니다.", null);
     }
 
     /**
      * 내 배송지 수정
      *
      * @param addressId 배송지 ID
-     * @param request 배송지 정보
+     * @param request   배송지 정보
      * @return message
      */
     public UpdateUserAddressResponse updateUserAddress(Long addressId, UpdateUserAddressRequest request) {
-        repository.updateUserAddress(addressId, request);
+        // repository.updateUserAddress(addressId, request);
 
-        return new UpdateUserAddressResponse("주소 수정에 성공했습니다.");
+        // return new UpdateUserAddressResponse("주소 수정에 성공했습니다.");
+        return new UpdateUserAddressResponse("내 배송지 수정 기능은 구현되지 않았습니다.");
     }
 
     /**
@@ -62,8 +68,9 @@ public class UserAddressService {
      * @return message
      */
     public DeleteUserAddressResponse deleteUserAddress(Long addressId) {
-        repository.deleteUserAddress(addressId);
+        // repository.deleteById(addressId);
 
-        return new DeleteUserAddressResponse("주소 삭제에 성공했습니다.");
+        // return new DeleteUserAddressResponse("주소 삭제에 성공했습니다.");
+        return new DeleteUserAddressResponse("내 배송지 삭제 기능은 구현되지 않았습니다.");
     }
 }

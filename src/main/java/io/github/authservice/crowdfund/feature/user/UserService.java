@@ -1,5 +1,7 @@
 package io.github.authservice.crowdfund.feature.user;
 
+import io.github.authservice.crowdfund.domain.user.User;
+import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.feature.user.request.UserUpdateRequest;
 import io.github.authservice.crowdfund.feature.user.response.*;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +20,10 @@ public class UserService {
      * @return message, nickname
      */
     public GetUserNickNameResponse getUserNickName(Long userId) {
-        return new GetUserNickNameResponse("닉네임 조회에 성공했습니다.", repository.getUserNickName(userId));
+        String nickname = repository.findById(userId)
+                .map(User::nickname)
+                .orElse("알 수 없음");
+        return new GetUserNickNameResponse("닉네임 조회에 성공했습니다.", nickname);
     }
 
     /**
@@ -28,7 +33,17 @@ public class UserService {
      * @return message, user
      */
     public GetUserDataResponse getUserData(Long userId) {
-        return new GetUserDataResponse("내 정보 조회에 성공했습니다.", repository.getUserData(userId));
+        UserDataInfo userData = repository.findById(userId)
+                .map(user -> new UserDataInfo(
+                        user.email(),
+                        user.nickname(),
+                        user.name(),
+                        user.phone(),
+                        user.role()
+                ))
+                .orElse(null);
+
+        return new GetUserDataResponse("내 정보 조회에 성공했습니다.", userData);
     }
 
     /**
@@ -39,9 +54,9 @@ public class UserService {
      * @return message
      */
     public UpdateUserDataResponse updateUserData(Long userId, UserUpdateRequest request) {
-        repository.updateUserData(userId, request);
-
-        return new UpdateUserDataResponse("내 정보 수정에 성공했습니다.");
+        //  repository.updateUserData(userId, request);
+        // return new UpdateUserDataResponse("내 정보 수정에 성공했습니다.");
+        return new UpdateUserDataResponse("내 정보 수정 기능은 구현되지 않았습니다.");
     }
 
     /**
@@ -51,19 +66,23 @@ public class UserService {
      * @return message
      */
     public DeleteUserResponse deleteUser(Long userId) {
-        repository.deleteUser(userId);
+        // repository.deleteById(userId);
 
-        return new DeleteUserResponse("회원 탈퇴에 성공했습니다.");
+        // return new DeleteUserResponse("회원 탈퇴에 성공했습니다.");
+        return new DeleteUserResponse("회원 탈퇴 기능은 구현되지 않았습니다.");
     }
 
     /**
-     * 내가 참여한 펀딩 내역 조회
+     * 내가 후원한 프로젝트 목록 조회
      *
      * @param userId 사용자 ID
      * @return message, fundingList
      */
     public getMyFundingListResponse getMyFundingList(Long userId) {
-        return new getMyFundingListResponse("내가 참여한 펀딩 내역 조회에 성공했습니다.", repository.getMyFundingList(userId));
+        // TODO: PledgeRepository를 사용하여 실제 데이터 조회 및 UserPledgeResponse 변환 로직 구현 필요
+
+        //         return new getMyFundingListResponse("내가 후원한 프로젝트 목록 조회에 성공했습니다.", repository.getMyFundingList(userId));
+        return new getMyFundingListResponse("내가 후원한 프로젝트 목록 조회 기능은 구현되지 않았습니다.", null);
     }
 
 }

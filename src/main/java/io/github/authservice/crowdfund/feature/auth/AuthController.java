@@ -6,11 +6,13 @@ import io.github.authservice.crowdfund.feature.auth.request.SignUpRequest;
 import io.github.authservice.crowdfund.feature.auth.response.LogoutResponse;
 import io.github.authservice.crowdfund.feature.auth.response.SignInResponse;
 import io.github.authservice.crowdfund.feature.auth.response.SignUpResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Auth", description = "인증 관련 API")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
