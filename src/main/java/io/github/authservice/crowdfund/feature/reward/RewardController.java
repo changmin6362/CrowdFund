@@ -1,8 +1,8 @@
 package io.github.authservice.crowdfund.feature.reward;
 
-import io.github.authservice.crowdfund.feature.reward.request.AddRequest;
+import io.github.authservice.crowdfund.feature.reward.request.AddRewardRequest;
 import io.github.authservice.crowdfund.feature.reward.request.ModifyRequest;
-import io.github.authservice.crowdfund.feature.reward.response.AddResponse;
+import io.github.authservice.crowdfund.feature.reward.response.AddRewardResponse;
 import io.github.authservice.crowdfund.feature.reward.response.DeleteResponse;
 import io.github.authservice.crowdfund.feature.reward.response.GetResponse;
 import io.github.authservice.crowdfund.feature.reward.response.ModifyResponse;
@@ -27,7 +27,7 @@ public class RewardController {
      */
     @PostMapping("/projects/{projectId}/rewards")
     @ResponseStatus(HttpStatus.CREATED)
-    public AddResponse addReward(@Valid @PathVariable Long projectId, @RequestBody AddRequest request) {
+    public AddRewardResponse addReward(@Valid @PathVariable Long projectId, @RequestBody AddRewardRequest request) {
         return rewardService.addReward(projectId, request);
     }
 

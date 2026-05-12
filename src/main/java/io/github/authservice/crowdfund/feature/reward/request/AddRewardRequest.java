@@ -1,9 +1,12 @@
 package io.github.authservice.crowdfund.feature.reward.request;
 
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+
+import java.math.BigDecimal;
 
 /**
  * 리워드 생성 요청 데이터
@@ -14,15 +17,15 @@ import lombok.Getter;
  * @param price 가격
  * @param stock 재고
  */
-public record AddRequest(
-        @NotBlank
+public record AddRewardRequest(
+        @NotBlank (message = "제목은 필수 입력 항목입니다.")
         String title,
         String description,
-        @NotNull
-        @Min(0)
-        Integer price,
+        @NotNull (message = "가격은 필수입니다.")
+        @Min (value = 0, message = "가격은 0원으로 설정할 수 없습니다.")
+        BigDecimal price,
         @NotNull
         @Min(1)
         Integer stock
 ) {
-    }
+}

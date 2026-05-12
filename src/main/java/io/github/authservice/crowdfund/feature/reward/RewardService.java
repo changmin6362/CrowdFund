@@ -1,8 +1,8 @@
 package io.github.authservice.crowdfund.feature.reward;
 
-import io.github.authservice.crowdfund.feature.reward.request.AddRequest;
+import io.github.authservice.crowdfund.feature.reward.request.AddRewardRequest;
 import io.github.authservice.crowdfund.feature.reward.request.ModifyRequest;
-import io.github.authservice.crowdfund.feature.reward.response.AddResponse;
+import io.github.authservice.crowdfund.feature.reward.response.AddRewardResponse;
 import io.github.authservice.crowdfund.feature.reward.response.DeleteResponse;
 import io.github.authservice.crowdfund.feature.reward.response.GetResponse;
 import io.github.authservice.crowdfund.feature.reward.response.ModifyResponse;
@@ -22,8 +22,8 @@ public class RewardService {
      * @param request
      * @return message
      */
-    public AddResponse addReward(@Valid Long projectId, AddRequest request) {
-        return new AddResponse("리워드가 성공적으로 추가생성되었습니다",
+    public AddRewardResponse addReward(@Valid Long projectId, AddRewardRequest request) {
+        return new AddRewardResponse("리워드가 성공적으로 추가생성되었습니다",
                 repository.addReward(projectId, request));
     }
 

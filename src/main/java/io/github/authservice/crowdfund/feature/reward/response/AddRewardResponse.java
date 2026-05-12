@@ -6,11 +6,11 @@ package io.github.authservice.crowdfund.feature.reward.response;
  * message : 응답 메시지
  * reward : 생성된 리워드 데이터
  */
-public record AddResponse(
+public record AddRewardResponse(
 
         String message,
 
-        Object reward
+        RewardInfo reward
 
 ) {
 }
