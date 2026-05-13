@@ -25,7 +25,7 @@ public record AddRewardRequest(
         @Min (value = 0, message = "가격은 0원으로 설정할 수 없습니다.")
         BigDecimal price,
         @NotNull
-        @Min(1)
+        @Min(value = 1, message = "재고는 1개 이상이어야 합니다.")
         Integer stock
 ) {
 }

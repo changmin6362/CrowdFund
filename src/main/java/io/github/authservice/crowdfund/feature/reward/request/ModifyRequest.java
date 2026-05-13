@@ -21,11 +21,11 @@ public record ModifyRequest(
         String description,
 
         @NotNull
-        @Min(0)
+        @Min(value = 0, message = "가격은 0원일 수 없습니다.")
         Integer price,
 
         @NotNull
-        @Min(1)
+        @Min(value = 1 , message = "재고는 1개 이상이어야 합니다.")
         Integer stock
 
 ) {
