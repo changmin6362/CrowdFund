@@ -1,4 +1,16 @@
 package io.github.authservice.crowdfund.feature.comment.request;
 
-public class CommentAddRequest {
+import jakarta.validation.constraints.NotBlank;
+
+/**
+ * 댓글 작성 요청 데이터
+ *
+ * content : 댓글 내용
+ */
+public record CommentAddRequest(
+
+        @NotBlank(message = "댓글이 존재해야 합니다.")
+        String content
+
+) {
 }
