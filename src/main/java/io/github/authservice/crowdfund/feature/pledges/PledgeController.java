@@ -46,7 +46,7 @@ public class PledgeController {
      * @param request 펀딩 정보
      * @return 메세지
      */
-    @PostMapping("/project/{projectId}/pledges")
+    @PostMapping("/project/pledges")
     @ResponseStatus(HttpStatus.CREATED)
     public PledgeResponse createPledge(@Valid @RequestBody PledgeRequest request) {
         return pledgeService.createPledge(request);

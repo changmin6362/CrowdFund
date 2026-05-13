@@ -49,9 +49,9 @@ public class PledgeService {
     /**
      * 후원 주문 생성 도메인 로직
      *
-     * @param userId 현재 로그인 되어있는 유저 아이디
-     * @param projectId 해당 프로젝트 아이디
-     * @param rewardId 프로젝트에서 선택한 리워드 아이디
+     * @ userId 현재 로그인 되어있는 유저 아이디
+     * @ projectId 해당 프로젝트 아이디
+     * @ rewardId 프로젝트에서 선택한 리워드 아이디
      * @return 메세지
      */
     public PledgeResponse createPledge(@Valid PledgeRequest request) {
