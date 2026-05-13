@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.global.exception;
+package io.github.authservice.crowdfund.global.exception;
 
 
 import lombok.NonNull;
