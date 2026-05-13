@@ -1,17 +1,23 @@
 package io.github.authservice.crowdfund.feature.category.response;
 
+
 import java.util.List;
 
-// 트리 구조 응답
-public record CategoryTreeResponse(
+public record CreateCategoryResponse(
+
         String message,
-        List<CategoryTree> category)
+        List<CategoryInfo> category
+)
 {
-    public record CategoryTree(
+    public record CategoryInfo(
             Long id,
             String name,
+            Long parentId,
             Integer sortOrder,
             Integer level,
-            List<CategoryTree> subCategories
+            boolean isActive
     ) {}
 }
+
+
+

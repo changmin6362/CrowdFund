@@ -2,6 +2,7 @@ package io.github.authservice.crowdfund.feature.category.mapper;
 
 
 import io.github.authservice.crowdfund.feature.category.model.Category;
+import jakarta.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,4 +28,6 @@ public interface CategoryMapper {
 
     // 삭제 (is_active를 0으로 변경)
     void delete(Long id);
+
+    void updateSortOrder(@NotBlank(message = "주문 ID는 필수 값입니다.") Long aLong);
 }

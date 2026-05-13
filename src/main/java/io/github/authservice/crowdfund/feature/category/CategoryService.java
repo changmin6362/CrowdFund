@@ -2,11 +2,12 @@ package io.github.authservice.crowdfund.feature.category;
 
 import io.github.authservice.crowdfund.feature.category.mapper.CategoryMapper;
 import io.github.authservice.crowdfund.feature.category.model.Category;
-import io.github.authservice.crowdfund.feature.category.request.CategoryCreateRequest;
 import io.github.authservice.crowdfund.feature.category.request.CategoryNameRequest;
 import io.github.authservice.crowdfund.feature.category.request.CategoryReorderRequest;
-import io.github.authservice.crowdfund.feature.category.response.CategoryResponse;
+import io.github.authservice.crowdfund.feature.category.request.CreateCategoryRequest;
+import io.github.authservice.crowdfund.feature.category.response.CreateCategoryResponse;
 import io.github.authservice.crowdfund.feature.category.response.CategoryTreeResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +24,11 @@ public class CategoryService {
 
     // 1. 카테고리 생성
     @Transactional
-    public CategoryResponse createCategory(CategoryCreateRequest request) {
+    public CreateCategoryResponse.CategoryInfo createCategory(@org.jetbrains.annotations.UnknownNullability @Valid CreateCategoryRequest request) {
         // 빌더를 사용하여 모델(도메인) 객체 생성
         Category category = Category.builder()
                 .name(request.name())
-                .parentId(request.parentId())
+                .parentId(Long.valueOf(request.parentId()))
                 .level(request.level())
                 .sortOrder(request.sortOrder())
                 .isActive(true)
@@ -39,7 +40,7 @@ public class CategoryService {
     }
 
     // 2. 카테고리 트리 조회 (재귀 조립 로직)
-    public List<CategoryTreeResponse> findCategoryTree() {
+    public List<CategoryTreeResponse.CategoryTree> findCategoryTree() {
         // 1. DB에서 활성화된 모든 카테고리를 평면적으로 가져옴
         List<Category> allCategories = categoryMapper.findAllActive();
 
@@ -49,7 +50,7 @@ public class CategoryService {
 
     // 3. 카테고리 이름 수정
     @Transactional
-    public CategoryResponse updateName(Long id, CategoryNameRequest request) {
+    public CreateCategoryResponse.CategoryInfo updateName(Long id, CategoryNameRequest request) {
         categoryMapper.updateName(id, request.name());
 
         Category updated = categoryMapper.findById(id)
@@ -62,7 +63,7 @@ public class CategoryService {
     @Transactional
     public void reorder(CategoryReorderRequest request) {
         for (var orderUpdate : request.orders()) {
-            categoryMapper.updateSortOrder(orderUpdate.id(), orderUpdate.sortOrder());
+            categoryMapper.updateSortOrder(orderUpdate.id()); //orderUpdate.sortOrder());
         }
     }
 
@@ -75,10 +76,10 @@ public class CategoryService {
     // --- 내부 유틸리티 메서드 ---
 
     // 트리 구조 조립을 위한 재귀 메서드
-    private List<CategoryTreeResponse> buildTree(List<Category> all, Long parentId) {
+    private List<CategoryTreeResponse.CategoryTree> buildTree(List<Category> all, Long parentId) {
         return all.stream()
                 .filter(c -> Objects.equals(c.getParentId(), parentId))
-                .map(c -> new CategoryTreeResponse(
+                .map(c -> new CategoryTreeResponse.CategoryTree(
                         c.getId(),
                         c.getName(),
                         c.getSortOrder(),
@@ -88,8 +89,8 @@ public class CategoryService {
                 .toList();
     }
 
-    private CategoryResponse convertToResponse(Category category) {
-        return new CategoryResponse(
+    private CreateCategoryResponse.CategoryInfo convertToResponse(Category category) {
+        return new CreateCategoryResponse.CategoryInfo(
                 category.getId(),
                 category.getName(),
                 category.getParentId(),
