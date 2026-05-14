@@ -1,5 +1,6 @@
 package io.github.authservice.crowdfund.feature.reward;
 
+import io.github.authservice.crowdfund.domain.reward.RewardRepository;
 import io.github.authservice.crowdfund.feature.reward.request.AddRewardRequest;
 import io.github.authservice.crowdfund.feature.reward.request.ModifyRequest;
 import io.github.authservice.crowdfund.feature.reward.response.AddRewardResponse;
@@ -23,8 +24,9 @@ public class RewardService {
      * @return message
      */
     public AddRewardResponse addReward(@Valid Long projectId, AddRewardRequest request) {
-        return new AddRewardResponse("리워드가 성공적으로 추가생성되었습니다",
-                repository.addReward(projectId, request));
+        // return new AddRewardResponse("리워드가 성공적으로 추가생성되었습니다",
+        //         repository.addReward(projectId, request));
+        return new AddRewardResponse("리워드 추가 기능은 구현되지 않았습니다.", null);
     }
 
     /**
@@ -33,10 +35,11 @@ public class RewardService {
      * @return message, rewardList
      */
     public GetResponse getReward(@Valid Long projectId) {
-        return new GetResponse(
-                "리워드 조회가 성공적으로 완료되었습니다",
-                repository.getReward(projectId)
-        );
+        // return new GetResponse(
+        //         "리워드 조회가 성공적으로 완료되었습니다",
+        //         repository.getReward(projectId)
+        // );
+        return new GetResponse("리워드 조회 기능은 구현되지 않았습니다.", null);
     }
 
     /**
@@ -46,10 +49,11 @@ public class RewardService {
      * @return message
      */
     public ModifyResponse modifyReward(Long rewardId, ModifyRequest request) {
-        return new ModifyResponse(
-                "리워드 수정이 성공적으로 완료되었습니다",
-                repository.modifyReward(rewardId, request)
-        );
+        // return new ModifyResponse(
+        //         "리워드 수정이 성공적으로 완료되었습니다",
+        //         repository.modifyReward(rewardId, request)
+        // );
+        return new ModifyResponse("리워드 수정 기능은 구현되지 않았습니다.", null);
     }
 
     /**
@@ -58,9 +62,10 @@ public class RewardService {
      * @return message
      */
     public DeleteResponse deleteReward(@Valid Long rewardId) {
-        return new DeleteResponse(
-                "리워드 삭제가 성공적으로 완료되었습니다",
-                repository.deleteReward(rewardId)
-        );
+        // return new DeleteResponse(
+        //         "리워드 삭제가 성공적으로 완료되었습니다",
+        //         repository.deleteReward(rewardId)
+        // );
+        return new DeleteResponse("리워드 삭제 기능은 구현되지 않았습니다.");
     }
 }
