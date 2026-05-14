@@ -18,6 +18,9 @@
         JOIN project pj ON p.project_id = pj.id
         LEFT JOIN reward r ON p.reward_id = r.id
         WHERE p.user_id = #{userId}
+        <if test="status != null">
+            AND p.fulfillment_status = #{status}
+        </if>
         ORDER BY p.created_at DESC
     </select>
 

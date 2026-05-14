@@ -1,5 +1,6 @@
 package io.github.authservice.crowdfund.feature.user;
 
+import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.authservice.crowdfund.feature.user.request.UserUpdateRequest;
 import io.github.authservice.crowdfund.feature.user.response.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,19 +68,23 @@ public class UserController {
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public DeleteUserResponse deleteUser(@PathVariable Long userId) {
-        return service.deleteUser(userId);
+        return service.deactivateUser(userId);
     }
 
     /**
      * 내가 후원한 프로젝트 목록 조회
      *
      * @param userId 사용자 ID
-     * @return message, fundingList
+     * @param status 후원 상태 필터 (null인 경우 모든 상태 조회)
+     * @return message, pledgeList
      */
     @Operation(summary = "내가 후원한 프로젝트 목록 조회", description = "사용자가 참여한 후원 내역을 조회합니다.")
     @GetMapping("/pledges/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public getMyFundingListResponse getMyFundingList(@PathVariable Long userId) {
-        return service.getMyFundingList(userId);
+    public getMyFundingListResponse getMyPledgeList(
+            @PathVariable Long userId,
+            @RequestParam(required = false) FulfillmentStatus status
+    ) {
+        return service.getMyPledgeList(userId, status);
     }
 }

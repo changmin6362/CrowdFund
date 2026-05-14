@@ -1,17 +1,27 @@
 package io.github.authservice.crowdfund.feature.user;
 
+import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
+import io.github.authservice.crowdfund.domain.pledge.PledgeMapper;
+import io.github.authservice.crowdfund.domain.pledge.response.UserPledgeResponse;
 import io.github.authservice.crowdfund.domain.user.User;
+import io.github.authservice.crowdfund.domain.user.UserMapper;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.feature.user.request.UserUpdateRequest;
 import io.github.authservice.crowdfund.feature.user.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository repository;
+    private final UserMapper userMapper;
+    private final PledgeMapper pledgeMapper;
 
     /**
      * 내 닉네임 조회 도메인 로직
@@ -21,8 +31,9 @@ public class UserService {
      */
     public GetUserNickNameResponse getUserNickName(Long userId) {
         String nickname = repository.findById(userId)
+                // User에서 nickname을 가져옴
                 .map(User::nickname)
-                .orElse("알 수 없음");
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         return new GetUserNickNameResponse("닉네임 조회에 성공했습니다.", nickname);
     }
 
@@ -34,6 +45,7 @@ public class UserService {
      */
     public GetUserDataResponse getUserData(Long userId) {
         UserDataInfo userData = repository.findById(userId)
+                // 받아온 User 형태의 데이터를 UserDataInfo 형태로 가공
                 .map(user -> new UserDataInfo(
                         user.email(),
                         user.nickname(),
@@ -41,7 +53,7 @@ public class UserService {
                         user.phone(),
                         user.role()
                 ))
-                .orElse(null);
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         return new GetUserDataResponse("내 정보 조회에 성공했습니다.", userData);
     }
@@ -54,9 +66,13 @@ public class UserService {
      * @return message
      */
     public UpdateUserDataResponse updateUserData(Long userId, UserUpdateRequest request) {
-        //  repository.updateUserData(userId, request);
-        // return new UpdateUserDataResponse("내 정보 수정에 성공했습니다.");
-        return new UpdateUserDataResponse("내 정보 수정 기능은 구현되지 않았습니다.");
+        int affectedRows = userMapper.updateUserData(userId, request);
+
+        if (affectedRows == 0) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+
+        return new UpdateUserDataResponse("내 정보 수정에 성공했습니다.");
     }
 
     /**
@@ -65,24 +81,27 @@ public class UserService {
      * @param userId 사용자 ID
      * @return message
      */
-    public DeleteUserResponse deleteUser(Long userId) {
-        // repository.deleteById(userId);
+    public DeleteUserResponse deactivateUser(Long userId) {
+        int affectedRows = userMapper.deactivateUser(userId);
 
-        // return new DeleteUserResponse("회원 탈퇴에 성공했습니다.");
-        return new DeleteUserResponse("회원 탈퇴 기능은 구현되지 않았습니다.");
+        if (affectedRows == 0) {
+            throw new IllegalArgumentException("존재하지 않거나 이미 탈퇴한 사용자입니다.");
+        }
+
+        return new DeleteUserResponse("회원 탈퇴에 성공했습니다.");
     }
 
     /**
      * 내가 후원한 프로젝트 목록 조회
      *
      * @param userId 사용자 ID
-     * @return message, fundingList
+     * @param status 후원 상태 필터 (null인 경우 모든 상태 조회)
+     * @return message, pledgeList
      */
-    public getMyFundingListResponse getMyFundingList(Long userId) {
-        // TODO: PledgeRepository를 사용하여 실제 데이터 조회 및 UserPledgeResponse 변환 로직 구현 필요
+    public getMyFundingListResponse getMyPledgeList(Long userId, FulfillmentStatus status) {
+        List<UserPledgeResponse> pledgeList = pledgeMapper.findPledgesByUserId(userId, status);
 
-        //         return new getMyFundingListResponse("내가 후원한 프로젝트 목록 조회에 성공했습니다.", repository.getMyFundingList(userId));
-        return new getMyFundingListResponse("내가 후원한 프로젝트 목록 조회 기능은 구현되지 않았습니다.", null);
+        return new getMyFundingListResponse("내가 후원한 프로젝트 목록 조회에 성공했습니다.", pledgeList);
     }
 
 }
