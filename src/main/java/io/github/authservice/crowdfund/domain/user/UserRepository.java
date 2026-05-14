@@ -1,5 +1,8 @@
 package io.github.authservice.crowdfund.domain.user;
 
+import org.apache.ibatis.annotations.Param;
+import org.springframework.data.jdbc.repository.query.Modifying;
+import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +20,12 @@ public interface UserRepository extends ListCrudRepository<User, Long> {
      * @return 사용자 정보 (존재하지 않을 경우 빈 Optional)
      */
     Optional<User> findByEmail(String email);
+
+    /**
+     * 닉네임으로 사용자를 조회합니다.
+     *
+     * @param nickname 사용자 닉네임
+     * @return 사용자 정보 (존재하지 않을 경우 빈 Optional)
+     */
+    Optional<User> findByNickname(String nickname);
 }
