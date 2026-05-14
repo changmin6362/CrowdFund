@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.category.mapper;
+package io.github.authservice.crowdfund.domain.category;
 
 
 import io.github.authservice.crowdfund.feature.category.model.Category;

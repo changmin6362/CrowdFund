@@ -1,6 +1,6 @@
 package io.github.authservice.crowdfund.feature.category;
 
-import io.github.authservice.crowdfund.feature.category.mapper.CategoryMapper;
+import io.github.authservice.crowdfund.domain.category.CategoryMapper;
 import io.github.authservice.crowdfund.feature.category.model.Category;
 import io.github.authservice.crowdfund.feature.category.request.CategoryNameRequest;
 import io.github.authservice.crowdfund.feature.category.request.CategoryReorderRequest;
@@ -24,7 +24,7 @@ public class CategoryService {
 
     // 1. 카테고리 생성
     @Transactional
-    public CreateCategoryResponse.CategoryInfo createCategory(@org.jetbrains.annotations.UnknownNullability @Valid CreateCategoryRequest request) {
+    public CreateCategoryResponse.CategoryInfo createCategory(@Valid CreateCategoryRequest request) {
         // 빌더를 사용하여 모델(도메인) 객체 생성
         Category category = Category.builder()
                 .name(request.name())
@@ -63,7 +63,7 @@ public class CategoryService {
     @Transactional
     public void reorder(CategoryReorderRequest request) {
         for (var orderUpdate : request.orders()) {
-            categoryMapper.updateSortOrder(orderUpdate.id()); //orderUpdate.sortOrder());
+            categoryMapper.updateSortOrder(orderUpdate.id(), orderUpdate.sortOrder());
         }
     }
 
