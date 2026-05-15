@@ -81,7 +81,7 @@ public class UserController {
     @Operation(summary = "내가 후원한 프로젝트 목록 조회", description = "사용자가 참여한 후원 내역을 조회합니다.")
     @GetMapping("/pledges/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public getMyFundingListResponse getMyPledgeList(
+    public GetMyPledgeListResponse getMyPledgeList(
             @PathVariable Long userId,
             @RequestParam(required = false) FulfillmentStatus status
     ) {

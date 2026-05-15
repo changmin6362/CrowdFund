@@ -98,10 +98,10 @@ public class UserService {
      * @param status 후원 상태 필터 (null인 경우 모든 상태 조회)
      * @return message, pledgeList
      */
-    public getMyFundingListResponse getMyPledgeList(Long userId, FulfillmentStatus status) {
+    public GetMyPledgeListResponse getMyPledgeList(Long userId, FulfillmentStatus status) {
         List<UserPledgeResponse> pledgeList = pledgeMapper.findPledgesByUserId(userId, status);
 
-        return new getMyFundingListResponse("내가 후원한 프로젝트 목록 조회에 성공했습니다.", pledgeList);
+        return new GetMyPledgeListResponse("내가 후원한 프로젝트 목록 조회에 성공했습니다.", pledgeList);
     }
 
 }

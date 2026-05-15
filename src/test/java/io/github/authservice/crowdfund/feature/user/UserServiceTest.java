@@ -42,7 +42,7 @@ class UserServiceTest {
     void 내_닉네임_조회_테스트() throws Exception {
         // 1. 테스트 데이터 삽입
         User savedUser = userRepository.save(new User(
-                null, "test@test.com", "pass", "tester", "name", "010-1234-5678", "USER", LocalDateTime.now()
+                null, "test@test.com", "pass", "tester", "name", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         // 2. MockMvc를 이용한 요청 및 결과 출력
@@ -55,20 +55,22 @@ class UserServiceTest {
     @Test
     void 내_정보_조회_테스트() throws Exception {
         User savedUser = userRepository.save(new User(
-                null, "data@test.com", "pass", "nick", "홍길동", "010-1111-2222", "USER", LocalDateTime.now()
+                null, "data@test.com", "pass", "nick", "홍길동", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         mockMvc.perform(get("/api/users/me/data/{userId}", savedUser.id()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.user.email").value("data@test.com"))
                 .andExpect(jsonPath("$.user.nickname").value("nick"))
+                .andExpect(jsonPath("$.user.name").value("홍길동"))
+                .andExpect(jsonPath("$.user.phone").value("010-1111-2222"))
                 .andDo(print());
     }
 
     @Test
     void 내_정보_수정_테스트() throws Exception {
         User savedUser = userRepository.save(new User(
-                null, "update@test.com", "pass", "old", "old", "010-0000-0000", "USER", LocalDateTime.now()
+                null, "update@test.com", "pass", "old", "old", "010-0000-0000", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         String updateRequest = """
@@ -90,7 +92,7 @@ class UserServiceTest {
     @Test
     void 회원_탈퇴_테스트() throws Exception {
         User savedUser = userRepository.save(new User(
-                null, "del@test.com", "pass", "del", "del", "010-4444-5555", "USER", LocalDateTime.now()
+                null, "del@test.com", "pass", "del", "del", "010-4444-5555", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         mockMvc.perform(delete("/api/users/me/{userId}", savedUser.id()))
@@ -102,7 +104,7 @@ class UserServiceTest {
     @Test
     void 내_후원_목록_조회_테스트() throws Exception {
         User savedUser = userRepository.save(new User(
-                null, "pledge@test.com", "pass", "pl", "pl", "010-7777-8888", "USER", LocalDateTime.now()
+                null, "pledge@test.com", "pass", "pl", "pl", "010-7777-8888", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         mockMvc.perform(get("/api/users/me/pledges/{userId}", savedUser.id()))
