@@ -1,6 +1,7 @@
 package io.github.authservice.crowdfund.domain.project;
 
 import io.github.authservice.crowdfund.feature.project.command.CreateProjectCommand;
+import io.github.authservice.crowdfund.feature.project.response.ProjectDetail;
 import io.github.authservice.crowdfund.feature.project.response.ProjectElement;
 import io.github.authservice.crowdfund.feature.project.response.ProjectInfo;
 import io.github.authservice.crowdfund.feature.project.response.ShippingInfo;
@@ -25,4 +26,6 @@ public interface ProjectMapper {
     List<ShippingInfo> findShippingInfosByProjectId(Long projectId);
 
     void updateStatus(@Param("projectId") Long projectId, @Param("status") ProjectStatus status);
+
+    ProjectDetail findByIdWithDetail(Long projectId);
 }

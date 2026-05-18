@@ -1,17 +1,11 @@
 package io.github.authservice.crowdfund.feature.project;
 
-import io.github.authservice.crowdfund.domain.category.Category;
-import io.github.authservice.crowdfund.domain.category.CategoryRepository;
 import io.github.authservice.crowdfund.domain.project.*;
-import io.github.authservice.crowdfund.domain.reward.RewardRepository;
-import io.github.authservice.crowdfund.domain.user.User;
-import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.feature.project.command.CreateProjectCommand;
 import io.github.authservice.crowdfund.feature.project.request.CreateProjectRequest;
 import io.github.authservice.crowdfund.feature.project.request.PatchProjectStatusRequest;
 import io.github.authservice.crowdfund.feature.project.request.UpdateProjectRequest;
 import io.github.authservice.crowdfund.feature.project.response.*;
-import io.github.authservice.crowdfund.feature.reward.response.RewardInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,18 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProjectService {
 
-    private final ProjectRepository repository;
     private final ProjectMapper projectMapper;
-    private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
-    private final RewardRepository rewardRepository;
 
     /**
      * 프로젝트 생성 도메인 로직
@@ -85,42 +74,13 @@ public class ProjectService {
      * 프로젝트 상세 조회 도메인 로직
      */
     public GetProjectDetailResponse getProjectDetail(Long projectId) {
-        Project project = repository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
+        ProjectDetail projectDetail = projectMapper.findByIdWithDetail(projectId);
+        
+        if (projectDetail == null) {
+            throw new IllegalArgumentException("존재하지 않는 프로젝트입니다.");
+        }
 
-        String categoryName = categoryRepository.findById(project.categoryId())
-                .map(Category::name)
-                .orElse("미분류");
-
-        String creatorNickname = userRepository.findById(project.creatorId())
-                .map(User::nickname)
-                .orElse("알 수 없음");
-
-        List<RewardInfo> rewardList = rewardRepository.findByProjectId(projectId)
-                .stream()
-                .map(reward -> new RewardInfo(
-                        reward.id(),
-                        reward.title(),
-                        reward.description(),
-                        reward.amount().intValue(),
-                        reward.stock()
-                ))
-                .collect(Collectors.toList());
-
-        ProjectDetailInfo detailInfo = new ProjectDetailInfo(
-                project.id(),
-                categoryName,
-                creatorNickname,
-                project.title(),
-                project.contentBlocks(),
-                project.goalAmount(),
-                project.currentAmount(),
-                project.endAt(),
-                project.status().name(),
-                rewardList
-        );
-
-        return new GetProjectDetailResponse("프로젝트 상세 정보 조회 성공", detailInfo);
+        return new GetProjectDetailResponse("프로젝트 상세 정보 조회 성공", projectDetail);
     }
 
     /**

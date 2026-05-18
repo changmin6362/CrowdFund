@@ -7,7 +7,6 @@ import io.github.authservice.crowdfund.feature.project.request.UpdateProjectRequ
 import io.github.authservice.crowdfund.feature.project.response.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

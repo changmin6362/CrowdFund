@@ -99,4 +99,37 @@ VALUES (
         WHERE id = #{projectId}
     </update>
 
+    <!--  ProjectDetail 자동 매핑  -->
+    <resultMap id="ProjectDetailMap" type="ProjectDetail" autoMapping="true">
+        <id property="projectId" column="projectId"/>
+
+        <!--  RewardInfo 자동 매핑  -->
+        <collection property="rewards" ofType="RewardInfo" autoMapping="true">
+            <id property="rewardId" column="rewardId"/>
+        </collection>
+    </resultMap>
+
+    <select id="findByIdWithDetail" resultMap="ProjectDetailMap">
+        SELECT
+            p.id as projectId,
+            COALESCE(c.name, '미분류') as categoryName,
+            COALESCE(u.nickname, '알 수 없음') as creatorNickname,
+            p.title,
+            p.content_blocks as contentBlocks,
+            p.goal_amount as goalAmount,
+            p.current_amount as currentAmount,
+            p.end_at as endAt,
+            p.status,
+            r.id as rewardId,
+            r.title as rewardTitle,
+            r.description as rewardDescription,
+            r.price as rewardPrice,
+            r.stock as rewardStock
+        FROM project p
+        LEFT JOIN category c ON p.category_id = c.id
+        LEFT JOIN user u ON p.creator_id = u.id
+        LEFT JOIN reward r ON p.id = r.project_id
+        WHERE p.id = #{projectId}
+    </select>
+
 </mapper>

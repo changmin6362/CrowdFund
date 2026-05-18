@@ -47,4 +47,17 @@ public class ProjectServiceTest {
         assertThat(response.projectList()).isNotNull();
         assertThat(response.hasNext()).isNotNull();
     }
+    @Test
+    @DisplayName("프로젝트 상세 정보를 조회한다")
+    void getProjectDetail() {
+        // when
+        try {
+            var response = projectService.getProjectDetail(1L);
+            // then
+            assertThat(response.message()).isEqualTo("프로젝트 상세 정보 조회 성공");
+            assertThat(response.projectDetail()).isNotNull();
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).isEqualTo("존재하지 않는 프로젝트입니다.");
+        }
+    }
 }
