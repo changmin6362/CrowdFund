@@ -14,6 +14,7 @@ import org.springframework.data.relational.core.mapping.Table;
  * @param isActive   활성 여부
  */
 @Table("category")
+@org.apache.ibatis.type.Alias("DomainCategory")
 public record Category(
     @Id Integer id,
     Integer parentId,
