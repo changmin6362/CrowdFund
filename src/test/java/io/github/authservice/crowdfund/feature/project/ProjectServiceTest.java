@@ -40,10 +40,11 @@ public class ProjectServiceTest {
     @DisplayName("프로젝트 목록을 조회한다")
     void getProjects() {
         // when
-        var response = projectService.getProjects(List.of(ProjectStatus.ONGOING), null);
+        var response = projectService.getProjects(List.of(ProjectStatus.ONGOING), null, null, null, 10);
 
         // then
-        assertThat(response.message()).isEqualTo("시스템 대표 프로젝트 조회 성공");
+        assertThat(response.message()).isEqualTo("프로젝트 목록 조회 성공");
         assertThat(response.projectList()).isNotNull();
+        assertThat(response.hasNext()).isNotNull();
     }
 }

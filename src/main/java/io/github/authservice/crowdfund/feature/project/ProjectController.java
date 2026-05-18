@@ -7,13 +7,14 @@ import io.github.authservice.crowdfund.feature.project.request.UpdateProjectRequ
 import io.github.authservice.crowdfund.feature.project.response.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "Project", description = "프로젝트 관련 API")
@@ -38,19 +39,22 @@ public class ProjectController {
     }
 
     /**
-     * 프로젝트 목록 조회
+     * 프로젝트 목록 조회 (복합 커서 기반 페이지네이션, 최신순 정렬)
      *
      * @param statuses   프로젝트 상태 필터링
      * @param categoryId 카테고리 ID 필터링
-     * @return message, projectList
+     * @return message, projectList, hasNext
      */
     @GetMapping("/projects")
     @ResponseStatus(HttpStatus.OK)
     public GetProjectResponse getProjects(
-            @RequestParam(required = false) @NotEmpty(message = "statuses는 비어있을 수 없습니다.") List<ProjectStatus> statuses,
-            @RequestParam(required = false) @Positive(message = "카테고리 ID는 양수여야 합니다.") Integer categoryId
+            @RequestParam(required = false) List<ProjectStatus> statuses,
+            @RequestParam(required = false) @Positive(message = "카테고리 ID는 양수여야 합니다.") Integer categoryId,
+            @RequestParam(required = false) LocalDateTime cursorCreatedAt,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") @Positive Integer limit
     ) {
-        return service.getProjects(statuses, categoryId);
+        return service.getProjects(statuses, categoryId, cursorCreatedAt, cursorId, limit);
     }
 
     /**

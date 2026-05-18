@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,9 +53,23 @@ public class ProjectService {
     /**
      * 프로젝트 목록 조회 도메인 로직
      */
-    public GetProjectResponse getProjects(List<ProjectStatus> statuses, Integer categoryId) {
-        List<ProjectInfo> projectList = projectMapper.findAll(statuses, categoryId);
-        return new GetProjectResponse("프로젝트 목록 조회 성공", projectList);
+    public GetProjectResponse getProjects(List<ProjectStatus> statuses, Integer categoryId, LocalDateTime cursorCreatedAt, Long cursorId, Integer limit) {
+
+        // 복합 커서 검증
+        if ((cursorCreatedAt == null) != (cursorId == null)) {
+            throw new IllegalArgumentException("cursorCreatedAt와 cursorId는 함께 전달되어야 합니다.");
+        }
+
+        // limit + 1개를 조회하여 다음 페이지 존재 여부 확인
+        List<ProjectInfo> projectList = projectMapper.findAll(statuses, categoryId, cursorCreatedAt, cursorId, limit + 1);
+
+        boolean hasNext = false;
+        if (projectList.size() > limit) {
+            hasNext = true;
+            projectList.remove(limit.intValue());
+        }
+
+        return new GetProjectResponse("프로젝트 목록 조회 성공", projectList, hasNext);
     }
 
     /**

@@ -34,7 +34,8 @@ VALUES (
             goal_amount as goalAmount,
             current_amount as currentAmount,
             end_at as endAt,
-            status
+            status,
+            created_at as createdAt
         FROM project
         <where>
             <if test="statuses != null and !statuses.isEmpty()">
@@ -46,8 +47,12 @@ VALUES (
             <if test="categoryId != null">
                 AND category_id = #{categoryId}
             </if>
+            <if test="cursorCreatedAt != null and cursorId != null">
+                AND (created_at &lt; #{cursorCreatedAt} OR (created_at = #{cursorCreatedAt} AND id &lt; #{cursorId}))
+            </if>
         </where>
-        ORDER BY created_at DESC
+        ORDER BY created_at DESC, id DESC
+        LIMIT #{limit}
     </select>
 
     <update id="update">

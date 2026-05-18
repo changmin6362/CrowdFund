@@ -7,13 +7,14 @@ import io.github.authservice.crowdfund.feature.project.response.ShippingInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
 public interface ProjectMapper {
     long insert(@Param("creatorId") Long creatorId, @Param("command") CreateProjectCommand command);
 
-    List<ProjectInfo> findAll(@Param("statuses") List<ProjectStatus> statuses, @Param("categoryId") Integer categoryId);
+    List<ProjectInfo> findAll(@Param("statuses") List<ProjectStatus> statuses, @Param("categoryId") Integer categoryId, @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt, @Param("cursorId") Long cursorId, @Param("limit") Integer limit);
 
     void update(@Param("projectId") Long projectId, @Param("title") String title, @Param("contentBlocks") String contentBlocks);
 
