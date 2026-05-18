@@ -1,6 +1,6 @@
 package io.github.authservice.crowdfund.feature.project.response;
 
-import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
+import io.github.authservice.crowdfund.domain.project.ProjectStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,5 +11,5 @@ public record ProjectInfo(
         BigDecimal goalAmount,
         BigDecimal currentAmount,
         LocalDateTime endAt,
-        FulfillmentStatus status
+        ProjectStatus status
 ) {}

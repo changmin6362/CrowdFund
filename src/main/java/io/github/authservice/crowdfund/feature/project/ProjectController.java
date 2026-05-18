@@ -1,14 +1,17 @@
 package io.github.authservice.crowdfund.feature.project;
 
-import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
+import io.github.authservice.crowdfund.domain.project.ProjectStatus;
 import io.github.authservice.crowdfund.feature.project.request.CreateProjectRequest;
 import io.github.authservice.crowdfund.feature.project.request.PatchProjectStatusRequest;
 import io.github.authservice.crowdfund.feature.project.request.UpdateProjectRequest;
 import io.github.authservice.crowdfund.feature.project.response.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.List;
 @Tag(name = "Project", description = "프로젝트 관련 API")
 @RestController
 @RequestMapping("/api")
+@Validated
 @RequiredArgsConstructor
 public class ProjectController {
 
@@ -43,8 +47,8 @@ public class ProjectController {
     @GetMapping("/projects")
     @ResponseStatus(HttpStatus.OK)
     public GetProjectResponse getProjects(
-            @RequestParam(required = false) List<FulfillmentStatus> statuses,
-            @RequestParam(required = false) Integer categoryId
+            @RequestParam(required = false) @NotEmpty(message = "statuses는 비어있을 수 없습니다.") List<ProjectStatus> statuses,
+            @RequestParam(required = false) @Positive(message = "카테고리 ID는 양수여야 합니다.") Integer categoryId
     ) {
         return service.getProjects(statuses, categoryId);
     }

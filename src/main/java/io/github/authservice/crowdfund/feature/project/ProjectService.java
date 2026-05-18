@@ -2,7 +2,6 @@ package io.github.authservice.crowdfund.feature.project;
 
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
-import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.authservice.crowdfund.domain.project.*;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
 import io.github.authservice.crowdfund.domain.user.User;
@@ -53,9 +52,9 @@ public class ProjectService {
     /**
      * 프로젝트 목록 조회 도메인 로직
      */
-    public GetProjectResponse getProjects(List<FulfillmentStatus> statuses, Integer categoryId) {
+    public GetProjectResponse getProjects(List<ProjectStatus> statuses, Integer categoryId) {
         List<ProjectInfo> projectList = projectMapper.findAll(statuses, categoryId);
-        return new GetProjectResponse("시스템 대표 프로젝트 조회 성공", projectList);
+        return new GetProjectResponse("프로젝트 목록 조회 성공", projectList);
     }
 
     /**
@@ -139,8 +138,7 @@ public class ProjectService {
      */
     @Transactional
     public PatchProjectStatusResponse patchProjectStatus(Long projectId, PatchProjectStatusRequest request) {
-        ProjectStatus status = ProjectStatus.valueOf(request.status().name());
-        projectMapper.updateStatus(projectId, status);
+        projectMapper.updateStatus(projectId, request.status());
         return new PatchProjectStatusResponse("프로젝트 상태가 성공적으로 변경되었습니다.");
     }
 }

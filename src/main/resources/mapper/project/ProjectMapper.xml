@@ -47,6 +47,7 @@ VALUES (
                 AND category_id = #{categoryId}
             </if>
         </where>
+        ORDER BY created_at DESC
     </select>
 
     <update id="update">
