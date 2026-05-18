@@ -1,11 +1,8 @@
 package io.github.authservice.crowdfund.feature.project.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import java.math.BigDecimal;
 
-public record UpdateProjectRequest(
+public record PatchProjectRequest(
         @NotBlank(message = "프로젝트 제목은 필수입니다.")
         String title,
 

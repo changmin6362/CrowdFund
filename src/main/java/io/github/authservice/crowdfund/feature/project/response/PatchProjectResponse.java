@@ -1,6 +1,6 @@
 package io.github.authservice.crowdfund.feature.project.response;
 
-public record UpdateProjectResponse(
+public record PatchProjectResponse(
         String message
 ) {
 }

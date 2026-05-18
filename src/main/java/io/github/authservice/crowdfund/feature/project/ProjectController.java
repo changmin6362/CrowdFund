@@ -3,7 +3,7 @@ package io.github.authservice.crowdfund.feature.project;
 import io.github.authservice.crowdfund.domain.project.ProjectStatus;
 import io.github.authservice.crowdfund.feature.project.request.CreateProjectRequest;
 import io.github.authservice.crowdfund.feature.project.request.PatchProjectStatusRequest;
-import io.github.authservice.crowdfund.feature.project.request.UpdateProjectRequest;
+import io.github.authservice.crowdfund.feature.project.request.PatchProjectRequest;
 import io.github.authservice.crowdfund.feature.project.response.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -77,8 +77,8 @@ public class ProjectController {
      */
     @PatchMapping("/projects/{projectId}")
     @ResponseStatus(HttpStatus.OK)
-    public UpdateProjectResponse updateProject(@PathVariable Long projectId, @Valid @RequestBody UpdateProjectRequest request) {
-        return service.updateProject(projectId, request);
+    public PatchProjectResponse patchProject(@PathVariable Long projectId, @Valid @RequestBody PatchProjectRequest request) {
+        return service.patchProject(projectId, request);
     }
 
     /**

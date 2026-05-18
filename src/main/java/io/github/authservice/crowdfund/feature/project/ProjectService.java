@@ -4,7 +4,7 @@ import io.github.authservice.crowdfund.domain.project.*;
 import io.github.authservice.crowdfund.feature.project.command.CreateProjectCommand;
 import io.github.authservice.crowdfund.feature.project.request.CreateProjectRequest;
 import io.github.authservice.crowdfund.feature.project.request.PatchProjectStatusRequest;
-import io.github.authservice.crowdfund.feature.project.request.UpdateProjectRequest;
+import io.github.authservice.crowdfund.feature.project.request.PatchProjectRequest;
 import io.github.authservice.crowdfund.feature.project.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -87,9 +87,9 @@ public class ProjectService {
      * 프로젝트 제목과 본문 수정 도메인 로직
      */
     @Transactional
-    public UpdateProjectResponse updateProject(Long projectId, UpdateProjectRequest request) {
+    public PatchProjectResponse patchProject(Long projectId, PatchProjectRequest request) {
         projectMapper.update(projectId, request.title(), request.contentBlocks());
-        return new UpdateProjectResponse("프로젝트 정보가 수정되었습니다.");
+        return new PatchProjectResponse("프로젝트 정보가 수정되었습니다.");
     }
 
     /**
