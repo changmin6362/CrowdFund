@@ -93,7 +93,7 @@ public class ProjectService {
     }
 
     /**
-     * 5. 사용자가 생성한 프로젝트를 삭제함.
+     * 프로젝트 삭제 도메인 로직
      */
     @Transactional
     public DeleteProjectResponse deleteProject(Long projectId) {
@@ -122,7 +122,7 @@ public class ProjectService {
      */
     @Transactional
     public PatchProjectStatusResponse patchProjectStatus(Long projectId, PatchProjectStatusRequest request) {
-        projectMapper.updateStatus(projectId, request.status());
+        projectMapper.patchStatus(projectId, request.status());
         return new PatchProjectStatusResponse("프로젝트 상태가 성공적으로 변경되었습니다.");
     }
 }

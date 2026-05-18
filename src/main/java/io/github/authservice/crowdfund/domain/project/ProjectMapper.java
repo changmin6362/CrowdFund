@@ -25,7 +25,7 @@ public interface ProjectMapper {
 
     List<ShippingInfo> findShippingInfosByProjectId(Long projectId);
 
-    void updateStatus(@Param("projectId") Long projectId, @Param("status") ProjectStatus status);
+    void patchStatus(@Param("projectId") Long projectId, @Param("status") ProjectStatus status);
 
     ProjectDetail findByIdWithDetail(Long projectId);
 }

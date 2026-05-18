@@ -4,6 +4,6 @@ import java.util.List;
 
 public record GetShippingInfosResponse(
         String message,
-        List<ShippingInfo> shippingInfoList
+        List<ShippingInfo> shippingInfos
 ) {
 }

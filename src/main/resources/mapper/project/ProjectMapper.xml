@@ -55,50 +55,6 @@ VALUES (
         LIMIT #{limit}
     </select>
 
-    <update id="update">
-        UPDATE project
-        SET title = #{title},
-            content_blocks = #{contentBlocks}
-        WHERE id = #{projectId}
-    </update>
-
-    <delete id="deleteById">
-        DELETE FROM project
-        WHERE id = #{projectId}
-    </delete>
-
-    <select id="findByCreatorId" resultType="io.github.authservice.crowdfund.feature.project.response.ProjectInfo">
-        SELECT
-            id as projectId,
-            title,
-            goal_amount as goalAmount,
-            current_amount as currentAmount,
-            end_at as endAt,
-            status
-        FROM project
-        WHERE creator_id = #{creatorId}
-    </select>
-
-    <select id="findShippingInfosByProjectId" resultType="io.github.authservice.crowdfund.feature.project.response.ShippingInfo">
-        SELECT
-            pa.id as addressId,
-            pa.user_id as userId,
-            pa.recipient_name as recipientName,
-            pa.phone,
-            pa.postal_code as postalCode,
-            pa.address_main as addressMain,
-            pa.address_detail as addressDetail
-        FROM pledge_address pa
-        JOIN pledge p ON pa.pledge_id = p.id
-        WHERE p.project_id = #{projectId}
-    </select>
-
-    <update id="updateStatus">
-        UPDATE project
-        SET status = #{status}
-        WHERE id = #{projectId}
-    </update>
-
     <!--  ProjectDetail 자동 매핑  -->
     <resultMap id="ProjectDetailMap" type="ProjectDetail" autoMapping="true">
         <id property="projectId" column="projectId"/>
@@ -126,10 +82,55 @@ VALUES (
             r.price as rewardPrice,
             r.stock as rewardStock
         FROM project p
-        LEFT JOIN category c ON p.category_id = c.id
-        LEFT JOIN user u ON p.creator_id = u.id
-        LEFT JOIN reward r ON p.id = r.project_id
+                 LEFT JOIN category c ON p.category_id = c.id
+                 LEFT JOIN user u ON p.creator_id = u.id
+                 LEFT JOIN reward r ON p.id = r.project_id
         WHERE p.id = #{projectId}
     </select>
+
+    <update id="update">
+        UPDATE project
+        SET title = #{title},
+            content_blocks = #{contentBlocks}
+        WHERE id = #{projectId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM project
+        WHERE id = #{projectId}
+    </delete>
+
+    <select id="findByCreatorId" resultType="io.github.authservice.crowdfund.feature.project.response.ProjectInfo">
+        SELECT
+            id as projectId,
+            title,
+            goal_amount as goalAmount,
+            current_amount as currentAmount,
+            end_at as endAt,
+            status,
+            created_at as createdAt
+        FROM project
+        WHERE creator_id = #{creatorId}
+    </select>
+
+    <select id="findShippingInfosByProjectId" resultType="io.github.authservice.crowdfund.feature.project.response.ShippingInfo">
+        SELECT
+            pa.id as addressId,
+            pa.user_id as userId,
+            pa.recipient_name as recipientName,
+            pa.phone,
+            pa.postal_code as postalCode,
+            pa.address_main as addressMain,
+            pa.address_detail as addressDetail
+        FROM pledge_address pa
+        JOIN pledge p ON pa.pledge_id = p.id
+        WHERE p.project_id = #{projectId}
+    </select>
+
+    <update id="patchStatus">
+        UPDATE project
+        SET status = #{status}
+        WHERE id = #{projectId}
+    </update>
 
 </mapper>

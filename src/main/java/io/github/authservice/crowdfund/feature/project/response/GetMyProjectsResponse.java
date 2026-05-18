@@ -4,6 +4,6 @@ import java.util.List;
 
 public record GetMyProjectsResponse(
         String message,
-        List<ProjectInfo> projectList
+        List<ProjectInfo> projects
 ) {
 }
