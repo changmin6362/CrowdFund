@@ -43,7 +43,7 @@ public class ProjectController {
      *
      * @param statuses   프로젝트 상태 필터링
      * @param categoryId 카테고리 ID 필터링
-     * @return message, projectList, hasNext
+     * @return message, projectList, hasNext, nextCursor
      */
     @GetMapping("/projects")
     @ResponseStatus(HttpStatus.OK)

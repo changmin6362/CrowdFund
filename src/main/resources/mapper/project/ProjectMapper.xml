@@ -27,7 +27,7 @@ VALUES (
        )
     </insert>
 
-    <select id="findAll" resultType="io.github.authservice.crowdfund.feature.project.response.ProjectInfo">
+    <select id="findAll" resultType="io.github.authservice.crowdfund.feature.project.response.ProjectElement">
         SELECT
             id as projectId,
             title,

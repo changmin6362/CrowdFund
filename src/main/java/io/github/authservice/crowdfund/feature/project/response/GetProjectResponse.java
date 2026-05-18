@@ -4,7 +4,8 @@ import java.util.List;
 
 public record GetProjectResponse(
         String message,
-        List<ProjectInfo> projectList,
-        Boolean hasNext
+        List<ProjectElement> projectList,
+        Boolean hasNext,
+        NextCursor nextCursor
 ) {
 }

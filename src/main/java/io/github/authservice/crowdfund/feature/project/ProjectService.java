@@ -60,16 +60,25 @@ public class ProjectService {
             throw new IllegalArgumentException("cursorCreatedAt와 cursorId는 함께 전달되어야 합니다.");
         }
 
-        // limit + 1개를 조회하여 다음 페이지 존재 여부 확인
-        List<ProjectInfo> projectList = projectMapper.findAll(statuses, categoryId, cursorCreatedAt, cursorId, limit + 1);
+        // 다음 페이지 존재 여부 확인을 위해 limit보다 1개를 더 조회
+        List<ProjectElement> projectList = projectMapper.findAll(statuses, categoryId, cursorCreatedAt, cursorId, limit + 1);
 
         boolean hasNext = false;
+        NextCursor nextCursor = null;
+
+        // 다음 페이지 존재 여부 확인 및 커서 생성 처리
         if (projectList.size() > limit) {
             hasNext = true;
-            projectList.remove(limit.intValue());
+
+            // 실제 표기할 limit 범위 내의 가장 마지막(limit - 1) 아이템 추출
+            ProjectElement last = projectList.get(limit - 1);
+            nextCursor = new NextCursor(last.createdAt(), last.projectId());
+
+            // limit을 초과하여 조회된 N+1번째 가짜 데이터 제거
+            projectList.remove((int) limit);
         }
 
-        return new GetProjectResponse("프로젝트 목록 조회 성공", projectList, hasNext);
+        return new GetProjectResponse("프로젝트 목록 조회 성공", projectList, hasNext, nextCursor);
     }
 
     /**
