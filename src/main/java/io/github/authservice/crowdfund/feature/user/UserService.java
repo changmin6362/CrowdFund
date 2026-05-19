@@ -1,10 +1,10 @@
 package io.github.authservice.crowdfund.feature.user;
 
 import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
-import io.github.authservice.crowdfund.domain.pledge.PledgeMapper;
+import io.github.authservice.crowdfund.domain.pledge.mapper.PledgeMapper;
 import io.github.authservice.crowdfund.domain.pledge.response.UserPledgeResponse;
 import io.github.authservice.crowdfund.domain.user.User;
-import io.github.authservice.crowdfund.domain.user.UserMapper;
+import io.github.authservice.crowdfund.domain.user.mapper.UserMapper;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.feature.user.request.UserUpdateRequest;
 import io.github.authservice.crowdfund.feature.user.response.*;

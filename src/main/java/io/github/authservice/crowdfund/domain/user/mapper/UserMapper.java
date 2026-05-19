@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.domain.user;
+package io.github.authservice.crowdfund.domain.user.mapper;
 
 import io.github.authservice.crowdfund.feature.user.request.UserUpdateRequest;
 import org.apache.ibatis.annotations.Mapper;
