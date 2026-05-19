@@ -1,12 +1,12 @@
 package io.github.authservice.crowdfund.feature.reward;
 
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
-import io.github.authservice.crowdfund.feature.reward.request.AddRewardRequest;
-import io.github.authservice.crowdfund.feature.reward.request.ModifyRequest;
-import io.github.authservice.crowdfund.feature.reward.response.AddRewardResponse;
+import io.github.authservice.crowdfund.feature.reward.request.CreateRewardRequest;
+import io.github.authservice.crowdfund.feature.reward.request.PatchRewardReqeust;
+import io.github.authservice.crowdfund.feature.reward.response.CreateRewardResponse;
 import io.github.authservice.crowdfund.feature.reward.response.DeleteResponse;
-import io.github.authservice.crowdfund.feature.reward.response.GetResponse;
-import io.github.authservice.crowdfund.feature.reward.response.ModifyResponse;
+import io.github.authservice.crowdfund.feature.reward.response.GetRewardsResponse;
+import io.github.authservice.crowdfund.feature.reward.response.PatchRewardResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,49 +17,39 @@ public class RewardService {
 
     private final RewardRepository repository;
 
-    /** 리워드 생성 성공 응답 반환
-     *
-     * @param projectId
-     * @param request
-     * @return message
+    /**
+     * 프로젝트에 리워드 등록 도메인 로직
      */
-    public AddRewardResponse addReward(@Valid Long projectId, AddRewardRequest request) {
+    public CreateRewardResponse createReward(@Valid Long projectId, CreateRewardRequest request) {
         // return new AddRewardResponse("리워드가 성공적으로 추가생성되었습니다",
         //         repository.addReward(projectId, request));
-        return new AddRewardResponse("리워드 추가 기능은 구현되지 않았습니다.", null);
+        return new CreateRewardResponse("리워드 추가 기능은 구현되지 않았습니다.", null);
     }
 
     /**
-     * 리워드 조회 성공 응답 반환
-     * @param projectId
-     * @return message, rewardList
+     * 프로젝트의 리워드 목록 조회
      */
-    public GetResponse getReward(@Valid Long projectId) {
+    public GetRewardsResponse getReward(@Valid Long projectId) {
         // return new GetResponse(
         //         "리워드 조회가 성공적으로 완료되었습니다",
         //         repository.getReward(projectId)
         // );
-        return new GetResponse("리워드 조회 기능은 구현되지 않았습니다.", null);
+        return new GetRewardsResponse("리워드 조회 기능은 구현되지 않았습니다.", null);
     }
 
     /**
-     * 리워드 수정 성공 응답 반환
-     * @param rewardId
-     * @param request
-     * @return message
+     * 리워드 수정 도메인 로직
      */
-    public ModifyResponse modifyReward(Long rewardId, ModifyRequest request) {
+    public PatchRewardResponse patchReward(Long rewardId, PatchRewardReqeust request) {
         // return new ModifyResponse(
         //         "리워드 수정이 성공적으로 완료되었습니다",
         //         repository.modifyReward(rewardId, request)
         // );
-        return new ModifyResponse("리워드 수정 기능은 구현되지 않았습니다.", null);
+        return new PatchRewardResponse("리워드 수정 기능은 구현되지 않았습니다.", null);
     }
 
     /**
-     * 리워드 삭제 성공 응답 반환
-     * @param rewardId
-     * @return message
+     * 리워드 삭제 도메인 로직
      */
     public DeleteResponse deleteReward(@Valid Long rewardId) {
         // return new DeleteResponse(
