@@ -1,5 +1,6 @@
-package io.github.authservice.crowdfund.domain.project;
+package io.github.authservice.crowdfund.domain.project.mapper;
 
+import io.github.authservice.crowdfund.domain.project.ProjectStatus;
 import io.github.authservice.crowdfund.feature.project.command.CreateProjectCommand;
 import io.github.authservice.crowdfund.feature.project.response.ProjectDetail;
 import io.github.authservice.crowdfund.feature.project.response.ProjectElement;

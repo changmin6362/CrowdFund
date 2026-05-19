@@ -1,5 +1,6 @@
-package io.github.authservice.crowdfund.domain.pledge;
+package io.github.authservice.crowdfund.domain.pledge.mapper;
 
+import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.authservice.crowdfund.domain.pledge.response.UserPledgeResponse;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
