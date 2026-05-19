@@ -1,18 +1,15 @@
 package io.github.authservice.crowdfund.feature.category;
 
-import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryMapper;
 import io.github.authservice.crowdfund.feature.category.request.CategoryNameRequest;
-import io.github.authservice.crowdfund.feature.category.request.CategoryReorderRequest;
+import io.github.authservice.crowdfund.feature.category.request.PatchCategoryParentRequest;
+import io.github.authservice.crowdfund.feature.category.request.PatchCategorySortOrderRequest;
 import io.github.authservice.crowdfund.feature.category.request.CreateCategoryRequest;
-import io.github.authservice.crowdfund.feature.category.response.CategoryTreeResponse;
-import io.github.authservice.crowdfund.feature.category.response.CreateCategoryResponse;
+import io.github.authservice.crowdfund.feature.category.response.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,13 +19,27 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
 
     /**
+     * 카테고리 트리 조회 도메인 로직
+     *
+     * @return
+     */
+    public GetCategoryTreeResponse getCategoryTree() {
+        // 1. DB에서 활성화된 모든 카테고리를 평면적으로 가져옴
+//        List<Category> allCategories = categoryMapper.findAllActive();
+
+        // 2. 최상위 카테고리(parentId가 null)를 시작으로 트리 조립
+//        return buildTree(allCategories, null);
+        return null;
+    }
+
+    /**
      * 카테고리 생성 도메인 로직
      *
      * @param request
      * @return
      */
     @Transactional
-    public CreateCategoryResponse.CategoryInfo createCategory(@Valid CreateCategoryRequest request) {
+    public CreateCategoryResponse createCategory(@Valid CreateCategoryRequest request) {
         // 빌더를 사용하여 모델(도메인) 객체 생성
 //        Category category = Category.builder()
 //                .name(request.name())
@@ -45,20 +56,6 @@ public class CategoryService {
     }
 
     /**
-     * 카테고리 트리 조회 도메인 로직
-     *
-     * @return
-     */
-    public List<CategoryTreeResponse.CategoryTree> findCategoryTree() {
-        // 1. DB에서 활성화된 모든 카테고리를 평면적으로 가져옴
-//        List<Category> allCategories = categoryMapper.findAllActive();
-
-        // 2. 최상위 카테고리(parentId가 null)를 시작으로 트리 조립
-//        return buildTree(allCategories, null);
-        return null;
-    }
-
-    /**
      * 카테고리 이름 수정 도메인 로직
      *
      * @param id
@@ -66,7 +63,7 @@ public class CategoryService {
      * @return
      */
     @Transactional
-    public CreateCategoryResponse.CategoryInfo updateName(Long id, CategoryNameRequest request) {
+    public PatchCategoryNameResponse patchCategoryName(Long id, CategoryNameRequest request) {
 //        categoryMapper.updateName(id, request.name());
 
 //        Category updated = categoryMapper.findById(id)
@@ -77,15 +74,27 @@ public class CategoryService {
     }
 
     /**
+     * 카테고리 부모 변경 도메인 로직
+     *
+     * @param categoryId 카테고리 ID
+     * @param request 부모 카테고리 ID
+     * @return
+     */
+    public PatchCategoryParentResponse patchCategoryParent(Long categoryId, PatchCategoryParentRequest request) {
+        return null;
+    }
+
+    /**
      * 카테고리 순서 변경 도메인 로직
      *
      * @param request
      */
     @Transactional
-    public void reorder(CategoryReorderRequest request) {
+    public PatchCategorySortOrderResponse patchCategorySortOrder(PatchCategorySortOrderRequest request) {
 //        for (var orderUpdate : request.orders()) {
 //            categoryMapper.updateSortOrder(orderUpdate.id(), orderUpdate.sortOrder());
 //        }
+        return null;
     }
 
     /**
@@ -94,36 +103,8 @@ public class CategoryService {
      * @param id
      */
     @Transactional
-    public void delete(Long id) {
+    public DeleteCategoryResponse deleteCategory(Long id) {
 //        categoryMapper.delete(id);
-    }
-
-    // --- 내부 유틸리티 메서드 ---
-
-    // 트리 구조 조립을 위한 재귀 메서드
-    private List<CategoryTreeResponse.CategoryTree> buildTree(List<Category> all, Long parentId) {
-//        return all.stream()
-//                .filter(c -> Objects.equals(c.getParentId(), parentId))
-//                .map(c -> new CategoryTreeResponse.CategoryTree(
-//                        c.getId(),
-//                        c.getName(),
-//                        c.getSortOrder(),
-//                        c.getLevel(),
-//                        buildTree(all, c.getId()) // 자식들 다시 찾기 (재귀)
-//                ))
-//                .toList();
-        return null;
-    }
-
-    private CreateCategoryResponse.CategoryInfo convertToResponse(Category category) {
-//        return new CreateCategoryResponse.CategoryInfo(
-//                category.getId(),
-//                category.getName(),
-//                category.getParentId(),
-//                category.getSortOrder(),
-//                category.getLevel(),
-//                category.isActive()
-//        );
         return null;
     }
 }

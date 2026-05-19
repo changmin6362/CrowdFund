@@ -4,6 +4,6 @@ import java.util.List;
 
 public record FindCategoryTreeResponse(
         String message,
-        List<CategoryTreeResponse> categories
+        List<GetCategoryTreeResponse> categories
 
 ) {}

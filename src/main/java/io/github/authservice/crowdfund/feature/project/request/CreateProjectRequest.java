@@ -20,15 +20,8 @@ public record CreateProjectRequest(
         @Positive(message = "목표 금액은 0보다 커야 합니다.")
         BigDecimal goalAmount,
 
-        @NotBlank(message = "프로젝트 시작일은 필수입니다.")
-        LocalDateTime startAt,
-
         @NotBlank(message = "프로젝트 종료일은 필수입니다.")
         LocalDateTime endAt
-
-
-
-
 
 ) {
 }
