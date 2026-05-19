@@ -1,6 +1,8 @@
 package io.github.authservice.crowdfund.global.exception;
 
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
@@ -9,10 +11,26 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+/**
+ * 전역 예외 처리 핸들러
+ */
 @RestControllerAdvice()
 public class GlobalExceptionHandler {
 
-    // 1. 일반적인 검증 에러 (@Valid)
+    // Controller의 @Validated 어노테이션으로 인한 @PathVariable과 @RequestParam 검증 에러 감지
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<@NonNull String> handleConstraintViolationException(ConstraintViolationException e) {
+        // 내부 에러 메시지 중 첫 번째 메시지를 추출합니다.
+        String message = e.getConstraintViolations()
+                .stream()
+                .findFirst()
+                .map(ConstraintViolation::getMessage)
+                .orElse("@PathVariable이나 @RequestParam 검증 에러가 감지되었습니다. (에러 메시지 누락)");
+
+        return ResponseEntity.badRequest().body(message);
+    }
+
+    // Controller의 @Valid 어노테이션으로 인한 @RequestBody 검증 에러 감지
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<@NonNull String> handleValidationException(MethodArgumentNotValidException e) {
         String message = e.getBindingResult()
@@ -20,20 +38,18 @@ public class GlobalExceptionHandler {
                 .stream()
                 .findFirst()
                 .map(ObjectError::getDefaultMessage)
-                .orElse("입력값이 유효하지 않습니다.");
+                .orElse("@RequestBody 검증 에러가 감지되었습니다. (에러 메시지 누락)");
         return ResponseEntity.badRequest().body(message);
     }
 
-    // 2. 타입 변환 에러
+    // 타입 변환 에러 감지 (엔드포인트 파라미터 형식 오류)
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<@NonNull String> handleTypeMismatchException() {
-
-        String message = "잘못된 요청값 입니다.";
-
+        String message = "요청하신 엔드포인트 파라미터의 데이터 형식이 잘못되었습니다.";
         return ResponseEntity.badRequest().body(message);
     }
 
-    // 3. 비즈니스 로직 예외(서비스에서 throw new IllegalArgumentException 사용 시 try catch 문 없이 에러 감지)
+    // IllegalArgumentException로 인한 비즈니스 로직 예외 에러 감지
     @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
     public ResponseEntity<@NonNull String> handleBusinessException(RuntimeException e) {
         return ResponseEntity.badRequest().body(e.getMessage());

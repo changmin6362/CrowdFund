@@ -29,6 +29,7 @@ public class UserService {
      * @param userId 사용자 ID
      * @return message, nickname
      */
+    @Transactional
     public GetUserNickNameResponse getUserNickName(Long userId) {
         String nickname = repository.findById(userId)
                 // User에서 nickname을 가져옴
@@ -43,6 +44,7 @@ public class UserService {
      * @param userId 사용자 ID
      * @return message, user
      */
+    @Transactional
     public GetUserDataResponse getUserData(Long userId) {
         UserDataInfo userData = repository.findById(userId)
                 // 받아온 User 형태의 데이터를 UserDataInfo 형태로 가공
@@ -65,6 +67,7 @@ public class UserService {
      * @param request 수정할 사용자 정보
      * @return message
      */
+    @Transactional
     public UpdateUserDataResponse updateUserData(Long userId, UserUpdateRequest request) {
         int affectedRows = userMapper.updateUserData(userId, request);
 
@@ -81,6 +84,7 @@ public class UserService {
      * @param userId 사용자 ID
      * @return message
      */
+    @Transactional
     public DeleteUserResponse deactivateUser(Long userId) {
         int affectedRows = userMapper.deactivateUser(userId);
 
@@ -98,10 +102,11 @@ public class UserService {
      * @param status 후원 상태 필터 (null인 경우 모든 상태 조회)
      * @return message, pledgeList
      */
-    public getMyFundingListResponse getMyPledgeList(Long userId, FulfillmentStatus status) {
+    @Transactional
+    public GetMyPledgeListResponse getMyPledgeList(Long userId, FulfillmentStatus status) {
         List<UserPledgeResponse> pledgeList = pledgeMapper.findPledgesByUserId(userId, status);
 
-        return new getMyFundingListResponse("내가 후원한 프로젝트 목록 조회에 성공했습니다.", pledgeList);
+        return new GetMyPledgeListResponse("내가 후원한 프로젝트 목록 조회에 성공했습니다.", pledgeList);
     }
 
 }

@@ -1,7 +1,9 @@
 package io.github.authservice.crowdfund.feature.project.response;
 
-public record GetProjectsByUserResponse(
+import java.util.List;
+
+public record GetMyProjectsResponse(
         String message,
-        ProjectInfo project
+        List<ProjectInfo> projects
 ) {
 }

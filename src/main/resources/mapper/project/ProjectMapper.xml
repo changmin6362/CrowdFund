@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.authservice.crowdfund.domain.project.ProjectMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="command.id">
+        INSERT INTO project (
+                     category_id,
+                     creator_id,
+                     title,
+                     content_blocks,
+                     goal_amount,
+                     current_amount,
+                     end_at,
+                     status
+)
+VALUES (
+        #{command.categoryId},
+        #{creatorId},
+        #{command.title},
+        #{command.contentBlocks},
+        #{command.goalAmount},
+        #{command.currentAmount},
+        #{command.endAt},
+        #{command.status}
+       )
+    </insert>
+
+    <select id="findAll" resultType="io.github.authservice.crowdfund.feature.project.response.ProjectElement">
+        SELECT
+            id as projectId,
+            title,
+            goal_amount as goalAmount,
+            current_amount as currentAmount,
+            end_at as endAt,
+            status,
+            created_at as createdAt
+        FROM project
+        <where>
+            <if test="statuses != null and !statuses.isEmpty()">
+                AND status IN
+                <foreach collection="statuses" item="status" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+            <if test="cursorCreatedAt != null and cursorId != null">
+                AND (created_at &lt; #{cursorCreatedAt} OR (created_at = #{cursorCreatedAt} AND id &lt; #{cursorId}))
+            </if>
+        </where>
+        ORDER BY created_at DESC, id DESC
+        LIMIT #{limit}
+    </select>
+
+    <!--  ProjectDetail 자동 매핑  -->
+    <resultMap id="ProjectDetailMap" type="ProjectDetail" autoMapping="true">
+        <id property="projectId" column="projectId"/>
+
+        <!--  RewardInfo 자동 매핑  -->
+        <collection property="rewards" ofType="RewardInfo" javaType="ArrayList" autoMapping="true">
+            <id property="rewardId" column="rewardId"/>
+        </collection>
+    </resultMap>
+
+    <select id="findByIdWithDetail" resultMap="ProjectDetailMap">
+        SELECT
+            p.id as projectId,
+            COALESCE(c.name, '미분류') as categoryName,
+            COALESCE(u.nickname, '알 수 없음') as creatorNickname,
+            p.title,
+            p.content_blocks as contentBlocks,
+            p.goal_amount as goalAmount,
+            p.current_amount as currentAmount,
+            p.end_at as endAt,
+            p.status,
+            r.id as rewardId,
+            r.title as rewardTitle,
+            r.description as rewardDescription,
+            r.price as rewardPrice,
+            r.stock as rewardStock
+        FROM project p
+                 LEFT JOIN category c ON p.category_id = c.id
+                 LEFT JOIN user u ON p.creator_id = u.id
+                 LEFT JOIN reward r ON p.id = r.project_id
+        WHERE p.id = #{projectId}
+    </select>
+
+    <update id="update">
+        UPDATE project
+        SET title = #{title},
+            content_blocks = #{contentBlocks}
+        WHERE id = #{projectId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM project
+        WHERE id = #{projectId}
+    </delete>
+
+    <select id="findByCreatorId" resultType="io.github.authservice.crowdfund.feature.project.response.ProjectInfo">
+        SELECT
+            id as projectId,
+            title,
+            goal_amount as goalAmount,
+            current_amount as currentAmount,
+            end_at as endAt,
+            status,
+            created_at as createdAt
+        FROM project
+        WHERE creator_id = #{creatorId}
+    </select>
+
+    <select id="findShippingInfosByProjectId" resultType="io.github.authservice.crowdfund.feature.project.response.ShippingInfo">
+        SELECT
+            pa.id as addressId,
+            pa.user_id as userId,
+            pa.recipient_name as recipientName,
+            pa.phone,
+            pa.postal_code as postalCode,
+            pa.address_main as addressMain,
+            pa.address_detail as addressDetail
+        FROM pledge_address pa
+        JOIN pledge p ON pa.pledge_id = p.id
+        WHERE p.project_id = #{projectId}
+    </select>
+
+    <update id="patchStatus">
+        UPDATE project
+        SET status = #{status}
+        WHERE id = #{projectId}
+    </update>
+
+</mapper>

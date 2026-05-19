@@ -34,7 +34,7 @@ public class CrowdFundApplication {
                 new PathMatchingResourcePatternResolver()
                         .getResources("classpath:/mapper/**/*.xml")
         );
-        factory.setTypeAliasesPackage("io.github.authservice.crowdfund.domain");
+        factory.setTypeAliasesPackage("io.github.authservice.crowdfund");
 
         return factory;
     }

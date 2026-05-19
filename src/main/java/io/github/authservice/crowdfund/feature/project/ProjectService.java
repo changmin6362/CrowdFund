@@ -1,110 +1,128 @@
 package io.github.authservice.crowdfund.feature.project;
 
-import io.github.authservice.crowdfund.domain.project.ProjectRepository;
-import io.github.authservice.crowdfund.feature.project.request.ProjectCreateRequest;
-import io.github.authservice.crowdfund.feature.project.request.ProjectUpdateRequest;
+import io.github.authservice.crowdfund.domain.project.*;
+import io.github.authservice.crowdfund.feature.project.command.CreateProjectCommand;
+import io.github.authservice.crowdfund.feature.project.request.CreateProjectRequest;
+import io.github.authservice.crowdfund.feature.project.request.PatchProjectStatusRequest;
+import io.github.authservice.crowdfund.feature.project.request.PatchProjectRequest;
 import io.github.authservice.crowdfund.feature.project.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * 프로젝트 도메인 비즈니스 로직 처리 계층.
- */
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProjectService {
 
-    private final ProjectRepository repository;
+    private final ProjectMapper projectMapper;
 
     /**
-     * 1. 신규 프로젝트 생성 기능을 수행함.
+     * 프로젝트 생성 도메인 로직
      */
     @Transactional
-    public CreateProjectResponse createProject(ProjectCreateRequest request) {
-        // 팀장님 피드백: 성공 메시지를 첫 번째 인자로 전달
-        // return new CreateProjectResponse("프로젝트가 성공적으로 생성되었습니다.", repository.save(request));
-        return new CreateProjectResponse("프로젝트 생성 기능은 구현되지 않았습니다.", null);
+    public CreateProjectResponse createProject(Long creatorId, CreateProjectRequest request) {
+        CreateProjectCommand command = new CreateProjectCommand(
+                request.categoryId(),
+                request.title(),
+                request.content_blocks(),
+                request.goalAmount(),
+                BigDecimal.ZERO,
+                request.endAt(),
+                ProjectStatus.ONGOING
+        );
+        Long generatedId = projectMapper.insert(creatorId, command);
+        return new CreateProjectResponse("프로젝트가 성공적으로 생성되었습니다.", generatedId);
     }
 
     /**
-     * 2. 시스템의 대표 프로젝트 정보를 조회함.
+     * 프로젝트 목록 조회 도메인 로직
      */
-    public GetProjectResponse getProjects() {
-        // return new GetProjectResponse("시스템 대표 프로젝트 조회 성공", repository.getProjects());
-        return new GetProjectResponse("시스템 대표 프로젝트 조회 기능은 구현되지 않았습니다.", null);
+    public GetProjectResponse getProjects(List<ProjectStatus> statuses, Integer categoryId, LocalDateTime cursorCreatedAt, Long cursorId, Integer limit) {
+
+        // 복합 커서 검증
+        if ((cursorCreatedAt == null) != (cursorId == null)) {
+            throw new IllegalArgumentException("cursorCreatedAt와 cursorId는 함께 전달되어야 합니다.");
+        }
+
+        // 다음 페이지 존재 여부 확인을 위해 limit보다 1개를 더 조회
+        List<ProjectElement> projectList = projectMapper.findAll(statuses, categoryId, cursorCreatedAt, cursorId, limit + 1);
+
+        boolean hasNext = false;
+        NextCursor nextCursor = null;
+
+        // 다음 페이지 존재 여부 확인 및 커서 생성 처리
+        if (projectList.size() > limit) {
+            hasNext = true;
+
+            // 실제 표기할 limit 범위 내의 가장 마지막(limit - 1) 아이템 추출
+            ProjectElement last = projectList.get(limit - 1);
+            nextCursor = new NextCursor(last.createdAt(), last.projectId());
+
+            // limit을 초과하여 조회된 N+1번째 가짜 데이터 제거
+            projectList.remove((int) limit);
+        }
+
+        return new GetProjectResponse("프로젝트 목록 조회 성공", projectList, hasNext, nextCursor);
     }
 
     /**
-     * 3. 특정 ID를 가진 프로젝트의 상세 데이터를 조회함.
+     * 프로젝트 상세 조회 도메인 로직
      */
     public GetProjectDetailResponse getProjectDetail(Long projectId) {
-        // return new GetProjectDetailResponse("프로젝트 상세 정보 조회 성공", repository.getProjectDetail(projectId));
-        return new GetProjectDetailResponse("프로젝트 상세 정보 조회 기능은 구현되지 않았습니다.", null);
+        ProjectDetail projectDetail = projectMapper.findByIdWithDetail(projectId);
+        
+        if (projectDetail == null) {
+            throw new IllegalArgumentException("존재하지 않는 프로젝트입니다.");
+        }
+
+        return new GetProjectDetailResponse("프로젝트 상세 정보 조회 성공", projectDetail);
     }
 
     /**
-     * 4. 기존 프로젝트의 정보를 수정함.
+     * 프로젝트 제목과 본문 수정 도메인 로직
      */
     @Transactional
-    public UpdateProjectResponse updateProject(Long projectId, ProjectUpdateRequest request) {
-        // repository.update(projectId, request);
-        // return new UpdateProjectResponse("프로젝트 정보가 수정되었습니다.", "진행중", projectId);
-        return new UpdateProjectResponse("프로젝트 수정 기능은 구현되지 않았습니다.");
+    public PatchProjectResponse patchProject(Long projectId, PatchProjectRequest request) {
+        projectMapper.update(projectId, request.title(), request.contentBlocks());
+        return new PatchProjectResponse("프로젝트 정보가 수정되었습니다.");
     }
 
     /**
-     * 5. 사용자가 생성한 프로젝트를 삭제함.
+     * 프로젝트 삭제 도메인 로직
      */
     @Transactional
     public DeleteProjectResponse deleteProject(Long projectId) {
-        // repository.deleteById(projectId);
-        // return new DeleteProjectResponse("프로젝트 삭제 성공", projectId);
+        projectMapper.deleteById(projectId);
         return new DeleteProjectResponse("프로젝트 삭제 성공");
     }
 
     /**
-     * 6. 특정 사용자가 생성한 대표 프로젝트를 조회함.
+     * 내 프로젝트 조회 도메인 로직
      */
-    public GetProjectsByUserResponse getProjectsByUser(Long userId) {
-        // return new GetProjectsByUserResponse("사용자별 프로젝트 조회 성공", repository.findByCreatorId(userId));
-        return new GetProjectsByUserResponse("사용자별 프로젝트 조회 기능은 구현되지 않았습니다.", null);
+    public GetMyProjectsResponse getMyProjects(Long userId) {
+        List<ProjectInfo> projectList = projectMapper.findByCreatorId(userId);
+        return new GetMyProjectsResponse("사용자별 프로젝트 조회 성공", projectList);
     }
 
     /**
-     * 7. 특정 카테고리 내의 대표 프로젝트를 조회함.
+     * 후원자들의 배송 정보 목록 조회 도메인 로직
      */
-    public GetProjectsByCategory getProjectsByCategory(Integer categoryId) {
-        // return new GetProjectsByCategory("카테고리별 프로젝트 조회 성공", repository.findByCategoryId(categoryId));
-        return new GetProjectsByCategory("카테고리별 프로젝트 조회 기능은 구현되지 않았습니다.", null);
+    public GetShippingInfosResponse getShippingInfos(Long projectId) {
+        List<ShippingInfo> shippingInfos = projectMapper.findShippingInfosByProjectId(projectId);
+        return new GetShippingInfosResponse("배송지 정보 조회 성공", shippingInfos);
     }
 
     /**
-     * 8. 관리자 권한으로 특정 프로젝트를 강제 제거함.
+     * 프로젝트 상태 갱신 도메인 로직
      */
     @Transactional
-    public ForceDeleteProjectResponse forceDeleteProject(Long projectId) {
-        // repository.deleteById(projectId);
-        // return new ForceDeleteProjectResponse("관리자 권한으로 프로젝트를 강제 삭제했습니다.", projectId);
-        return new ForceDeleteProjectResponse("관리자 권한으로 프로젝트를 강제 삭제했습니다.");
-    }
-
-    /**
-     * 9. 해당 프로젝트의 후원자 배송지 정보를 조회함.
-     */
-    public GetPledgeAddressResponse getPledgeAddresses(Long projectId) {
-        // return new GetPledgeAddressResponse("배송지 정보 조회 성공", repository.findPledgeAddressByProjectId(projectId));
-        return new GetPledgeAddressResponse("배송지 정보 조회 기능은 구현되지 않았습니다.", null);
-    }
-
-    /**
-     * 10. 프로젝트의 현재 진행 상태를 업데이트함.
-     */
-    @Transactional
-    public UpdateProjectStatusResponse updateProjectStatus(Long projectId, String status) {
-        // repository.updateStatus(projectId, status);
-        // return new UpdateProjectStatusResponse("프로젝트 상태가 성공적으로 변경되었습니다.", status, projectId);
-        return new UpdateProjectStatusResponse("프로젝트 상태 변경 기능은 구현되지 않았습니다.");
+    public PatchProjectStatusResponse patchProjectStatus(Long projectId, PatchProjectStatusRequest request) {
+        projectMapper.patchStatus(projectId, request.status());
+        return new PatchProjectStatusResponse("프로젝트 상태가 성공적으로 변경되었습니다.");
     }
 }

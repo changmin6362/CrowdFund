@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
  * @param phone     전화번호 (최대 13자)
  * @param role      권한 [USER: 일반 사용자, ADMIN: 관리자]
  * @param createdAt 생성일시
+ * @param updatedAt 수정일시
+ * @param deletedAt 삭제일시
  */
 @Table("user")
 @Alias("User")
@@ -28,5 +30,7 @@ public record User(
     String name,
     String phone,
     String role,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt,
+    LocalDateTime deletedAt
 ) {}

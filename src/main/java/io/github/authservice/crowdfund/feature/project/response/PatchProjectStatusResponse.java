@@ -1,6 +1,6 @@
 package io.github.authservice.crowdfund.feature.project.response;
 
-public record ForceDeleteProjectResponse(
+public record PatchProjectStatusResponse(
         String message
 ) {
 }
