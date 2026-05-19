@@ -1,13 +1,15 @@
-package io.github.authservice.crowdfund.domain.category;
+package io.github.authservice.crowdfund.domain.category.mapper;
 
+import io.github.authservice.crowdfund.domain.category.Category;
+import io.github.authservice.crowdfund.feature.category.request.CreateCategoryRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Optional;
-
 @Mapper
 public interface CategoryMapper {
-    void insert(Category category);
+    void insert(CreateCategoryRequest request,
+                @Param("depth") Integer depth,
+                @Param("sortOrder") Integer sortOrder);
 
     void updateName(@Param("id") Long id, @Param("name") String name);
 

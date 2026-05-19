@@ -38,7 +38,7 @@ public class AdminCategoryController {
      */
     @PatchMapping("/{categoryId}/name")
     @ResponseStatus(HttpStatus.OK)
-    public PatchCategoryNameResponse patchCategoryName(@PathVariable Long categoryId, @Valid @RequestBody CategoryNameRequest request) {
+    public PatchCategoryNameResponse patchCategoryName(@PathVariable Integer categoryId, @Valid @RequestBody CategoryNameRequest request) {
         return service.patchCategoryName(categoryId, request);
     }
 
@@ -51,7 +51,7 @@ public class AdminCategoryController {
      */
     @PatchMapping("/{categoryId}/parent")
     @ResponseStatus(HttpStatus.OK)
-    public PatchCategoryParentResponse patchCategoryParent(@PathVariable Long categoryId, @RequestBody PatchCategoryParentRequest request) {
+    public PatchCategoryParentResponse patchCategoryParent(@PathVariable Integer categoryId, @RequestBody PatchCategoryParentRequest request) {
         return service.patchCategoryParent(categoryId, request);
     }
 
@@ -74,7 +74,7 @@ public class AdminCategoryController {
      */
     @DeleteMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.OK)
-    public DeleteCategoryResponse deleteCategory(@PathVariable Long categoryId) {
+    public DeleteCategoryResponse deleteCategory(@PathVariable Integer categoryId) {
         return service.deleteCategory(categoryId);
     }
 }

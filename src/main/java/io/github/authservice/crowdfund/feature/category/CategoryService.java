@@ -1,12 +1,12 @@
 package io.github.authservice.crowdfund.feature.category;
 
 import io.github.authservice.crowdfund.domain.category.Category;
-import io.github.authservice.crowdfund.domain.category.CategoryMapper;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
+import io.github.authservice.crowdfund.domain.category.mapper.CategoryMapper;
 import io.github.authservice.crowdfund.feature.category.request.CategoryNameRequest;
+import io.github.authservice.crowdfund.feature.category.request.CreateCategoryRequest;
 import io.github.authservice.crowdfund.feature.category.request.PatchCategoryParentRequest;
 import io.github.authservice.crowdfund.feature.category.request.PatchCategorySortOrderRequest;
-import io.github.authservice.crowdfund.feature.category.request.CreateCategoryRequest;
 import io.github.authservice.crowdfund.feature.category.response.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -62,16 +62,18 @@ public class CategoryService {
      */
     @Transactional
     public CreateCategoryResponse createCategory(@Valid CreateCategoryRequest request) {
+
+        // 카테고리의 깊이 계산
         int depth = 1;
-        if (request.parentId() != null) {
-            Category parent = categoryRepository.findById(request.parentId())
-                    .orElseThrow(() -> new IllegalArgumentException("부모 카테고리를 찾을 수 없습니다. ID: " + request.parentId()));
+        if (request.getParentId() != null) {
+            Category parent = categoryRepository.findById(request.getParentId())
+                    .orElseThrow(() -> new IllegalArgumentException("부모 카테고리를 찾을 수 없습니다. ID: " + request.getParentId()));
             depth = parent.depth() + 1;
         }
 
-        // 간단한 정렬 순서 계산 (마지막 순서 + 10)
+        // 카테고리의 정렬 순서 계산 (마지막 순서 + 10)
         int sortOrder = 10;
-        List<Category> siblings = categoryRepository.findByParentIdAndIsActiveTrue(request.parentId());
+        List<Category> siblings = categoryRepository.findByParentIdAndIsActiveTrueOrderBySortOrderAsc(request.getParentId());
         if (!siblings.isEmpty()) {
             sortOrder = siblings.stream()
                     .mapToInt(Category::sortOrder)
@@ -79,18 +81,16 @@ public class CategoryService {
                     .orElse(0) + 10;
         }
 
-        Category category = new Category(
-                null,
-                request.parentId(),
-                request.name(),
+        categoryMapper.insert(
+                request,
                 depth,
-                sortOrder,
-                true
+                sortOrder
         );
 
-        categoryMapper.insert(category);
+        Category savedCategory = categoryRepository.findById(request.getId())
+                .orElseThrow(() -> new IllegalStateException("카테고리 생성 후 조회를 실패했습니다."));
 
-        return new CreateCategoryResponse("카테고리가 생성되었습니다.", category);
+        return new CreateCategoryResponse("카테고리가 생성되었습니다.", savedCategory);
     }
 
     /**
@@ -98,11 +98,11 @@ public class CategoryService {
      *
      */
     @Transactional
-    public PatchCategoryNameResponse patchCategoryName(Long id, CategoryNameRequest request) {
-        categoryRepository.findById(id.intValue())
+    public PatchCategoryNameResponse patchCategoryName(Integer id, CategoryNameRequest request) {
+        categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
 
-        categoryMapper.updateName(id, request.name());
+        categoryMapper.updateName(id.longValue(), request.name());
 
         return new PatchCategoryNameResponse("카테고리 이름이 수정되었습니다.");
     }
@@ -112,12 +112,12 @@ public class CategoryService {
      *
      */
     @Transactional
-    public PatchCategoryParentResponse patchCategoryParent(Long categoryId, PatchCategoryParentRequest request) {
-        Category category = categoryRepository.findById(categoryId.intValue())
+    public PatchCategoryParentResponse patchCategoryParent(Integer categoryId, PatchCategoryParentRequest request) {
+        Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + categoryId));
 
         // 자기 자신을 부모로 설정하는지 체크
-        if (request.parentId() != null && request.parentId().equals(categoryId.intValue())) {
+        if (request.parentId() != null && request.parentId().equals(categoryId)) {
             throw new IllegalArgumentException("자기 자신을 부모로 설정할 수 없습니다.");
         }
 
@@ -133,10 +133,10 @@ public class CategoryService {
             // 순환 참조 체크 및 하위 노드 깊이 업데이트를 위해 전체 트리를 활용하거나 
             // 여기서는 단순하게 전체 데이터를 다시 가져와서 정합성을 맞춤
             List<Category> allCategories = categoryRepository.findByIsActiveTrue();
-            
-            // 순환 참조 체크: 이동할 부모가 이동할 카테고리의 자식인지 확인
+
+            // 이동할 부모가 이동할 카테고리의 자식인지 확인
             if (request.parentId() != null) {
-                if (isDescendant(allCategories, categoryId.intValue(), request.parentId())) {
+                if (isDescendant(allCategories, categoryId, request.parentId())) {
                     throw new IllegalArgumentException("자식 카테고리를 부모로 설정할 수 없습니다. (순환 참조)");
                 }
             }
@@ -145,11 +145,11 @@ public class CategoryService {
             int depthDiff = newDepth - category.depth();
 
             // 상위 카테고리 업데이트
-            categoryMapper.updateParentId(categoryId.intValue(), request.parentId(), newDepth);
+            categoryMapper.updateParentId(categoryId, request.parentId(), newDepth);
 
             // 하위 카테고리들의 깊이 일괄 업데이트
             if (depthDiff != 0) {
-                updateDescendantsDepth(allCategories, categoryId.intValue(), depthDiff);
+                updateDescendantsDepth(allCategories, categoryId, depthDiff);
             }
         }
 
@@ -199,11 +199,11 @@ public class CategoryService {
      *
      */
     @Transactional
-    public DeleteCategoryResponse deleteCategory(Long id) {
-        categoryRepository.findById(id.intValue())
+    public DeleteCategoryResponse deleteCategory(Integer id) {
+        categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
 
-        categoryMapper.delete(id);
+        categoryMapper.delete(id.longValue());
         return new DeleteCategoryResponse("카테고리가 삭제되었습니다.");
     }
 }
