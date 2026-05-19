@@ -21,7 +21,12 @@ public class CategoryService {
 
     private final CategoryMapper categoryMapper;
 
-    // 1. 카테고리 생성
+    /**
+     * 카테고리 생성 도메인 로직
+     *
+     * @param request
+     * @return
+     */
     @Transactional
     public CreateCategoryResponse.CategoryInfo createCategory(@Valid CreateCategoryRequest request) {
         // 빌더를 사용하여 모델(도메인) 객체 생성
@@ -39,7 +44,11 @@ public class CategoryService {
         return null;
     }
 
-    // 2. 카테고리 트리 조회 (재귀 조립 로직)
+    /**
+     * 카테고리 트리 조회 도메인 로직
+     *
+     * @return
+     */
     public List<CategoryTreeResponse.CategoryTree> findCategoryTree() {
         // 1. DB에서 활성화된 모든 카테고리를 평면적으로 가져옴
 //        List<Category> allCategories = categoryMapper.findAllActive();
@@ -49,7 +58,13 @@ public class CategoryService {
         return null;
     }
 
-    // 3. 카테고리 이름 수정
+    /**
+     * 카테고리 이름 수정 도메인 로직
+     *
+     * @param id
+     * @param request
+     * @return
+     */
     @Transactional
     public CreateCategoryResponse.CategoryInfo updateName(Long id, CategoryNameRequest request) {
 //        categoryMapper.updateName(id, request.name());
@@ -61,7 +76,11 @@ public class CategoryService {
         return null;
     }
 
-    // 4. 카테고리 순서 변경
+    /**
+     * 카테고리 순서 변경 도메인 로직
+     *
+     * @param request
+     */
     @Transactional
     public void reorder(CategoryReorderRequest request) {
 //        for (var orderUpdate : request.orders()) {
@@ -69,7 +88,11 @@ public class CategoryService {
 //        }
     }
 
-    // 5. 카테고리 삭제 (논리 삭제)
+    /**
+     * 카테고리 삭제 도메인 로직
+     *
+     * @param id
+     */
     @Transactional
     public void delete(Long id) {
 //        categoryMapper.delete(id);
