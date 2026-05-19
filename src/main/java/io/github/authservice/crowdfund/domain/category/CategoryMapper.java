@@ -1,7 +1,5 @@
 package io.github.authservice.crowdfund.domain.category;
 
-
-import io.github.authservice.crowdfund.feature.category.model.Category;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
