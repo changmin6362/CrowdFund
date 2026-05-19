@@ -13,8 +13,7 @@ import org.springframework.data.relational.core.mapping.Table;
  * @param sortOrder  동일한 깊이 내 정렬 순서 [예) 10, 20, 30...]
  * @param isActive   활성 여부
  */
-@Table("category")
-@org.apache.ibatis.type.Alias("DomainCategory")
+@Table("Category")
 public record Category(
     @Id Integer id,
     Integer parentId,

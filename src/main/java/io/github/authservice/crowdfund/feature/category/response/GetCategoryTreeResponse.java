@@ -6,12 +6,4 @@ public record GetCategoryTreeResponse(
         String message,
         List<CategoryNode> categoryTree
 ) {
-    public record CategoryNode(
-            Integer id,
-            String name,
-            int depth,
-            int sortOrder,
-            List<CategoryNode> children
-    ) {
-    }
 }
