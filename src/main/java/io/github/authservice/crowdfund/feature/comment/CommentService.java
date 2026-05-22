@@ -21,7 +21,7 @@ public class CommentService {
     /**
      * 댓글 작성 도메인 로직
      */
-    public CreateCommentResponse createComment(Long projectId, @Valid CreateCommentRequest request) {
+    public CreateCommentResponse createComment(Long projectId, Long userId, @Valid CreateCommentRequest request) {
         // return new CommentAddResponse(
         //         "댓글 작성이 성공적으로 완료되었습니다",
         //         repository.addComment(projectId, request)
@@ -70,6 +70,6 @@ public class CommentService {
         //         "내 댓글 삭제가 성공적으로 완료되었습니다",
         //         repository.deleteMyComment(commentId)
         // );
-        return new DeleteMyCommentResponse("내 댓글 삭제 기능은 구현되지 않았습니다.");
+        return new DeleteMyCommentResponse("내 댓글 삭제 기능은 구현되지 않았습니다.", null);
     }
 }

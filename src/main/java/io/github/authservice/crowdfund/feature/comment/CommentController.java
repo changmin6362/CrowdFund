@@ -23,16 +23,18 @@ public class CommentController {
      * 댓글 작성
      *
      * @param projectId 프로젝트 아이디
+     * @param userId    유저 아이디
      * @param request   댓글 작성 요청 데이터
-     * @return message, commentId 메시지, 댓글 아이디
+     * @return message, createdComment
      */
-    @PostMapping("/projects/{projectId}/comments")
+    @PostMapping("/projects/{projectId}/comments/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
     public CreateCommentResponse createComment(
             @PathVariable Long projectId,
+            @PathVariable Long userId,
             @RequestBody @Valid CreateCommentRequest request) {
 
-        return service.createComment(projectId, request);
+        return service.createComment(projectId, userId, request);
     }
 
     /**
@@ -40,7 +42,7 @@ public class CommentController {
      *
      * @param commentId 댓글 아이디
      * @param request   댓글 수정 요청 데이터
-     * @return message, commentId 메시지, 댓글 아이디
+     * @return message, patchedComment
      */
     @PatchMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)
@@ -55,7 +57,7 @@ public class CommentController {
      * 프로젝트 댓글 목록 조회
      *
      * @param projectId 프로젝트 아이디
-     * @return message, commentList
+     * @return message, comments
      */
     @GetMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.OK)
@@ -68,7 +70,7 @@ public class CommentController {
     /**
      * 내 댓글 목록 조회
      *
-     * @return message, commentList
+     * @return message, myComments
      */
     @GetMapping("/users/me/comments")
     @ResponseStatus(HttpStatus.OK)
@@ -81,7 +83,7 @@ public class CommentController {
      * 내 댓글 삭제
      *
      * @param commentId 댓글 아이디
-     * @return message, commentId 메시지, 댓글 아이디
+     * @return message, deletedCommentId
      */
     @DeleteMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)

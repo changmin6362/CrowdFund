@@ -1,10 +1,10 @@
 package io.github.authservice.crowdfund.feature.comment.response;
 
-public record CommentInfo(
+public record MyCommentInfo(
         Long commentId,
-        String writerName,
+        Long projectId,
+        String projectTitle,
         String content,
-        String createdAt,
-        boolean isEditable
+        String createdAt
 ) {
 }
