@@ -2,6 +2,5 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.github.authservice.crowdfund.domain.project.mapper.ProjectMapper">
-
+<mapper namespace="io.github.authservice.crowdfund.domain.reward.mapper.RewardMapper">
 </mapper>

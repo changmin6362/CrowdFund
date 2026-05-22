@@ -1,5 +1,6 @@
 package io.github.authservice.crowdfund.domain.reward;
 
+import io.github.authservice.crowdfund.feature.reward.response.RewardInfo;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,5 +17,5 @@ public interface RewardRepository extends ListCrudRepository<Reward, Long> {
      * @param projectId 프로젝트 ID
      * @return 보상 목록
      */
-    List<Reward> findByProjectId(Long projectId);
+    List<RewardInfo> findByProjectId(Long projectId);
 }
