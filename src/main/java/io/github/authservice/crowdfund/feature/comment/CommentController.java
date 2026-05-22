@@ -62,9 +62,10 @@ public class CommentController {
     @GetMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.OK)
     public GetCommentsResponse getComments(
-            @PathVariable Long projectId) {
+            @PathVariable Long projectId,
+            @RequestParam(required = false) Long currentUserId) {
 
-        return service.getComments(projectId);
+        return service.getComments(projectId, currentUserId);
     }
 
     /**
@@ -72,24 +73,26 @@ public class CommentController {
      *
      * @return message, myComments
      */
-    @GetMapping("/users/me/comments")
+    @GetMapping("/users/me/comments/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public GetMyCommentsResponse getMyComments() {
+    public GetMyCommentsResponse getMyComments(@PathVariable Long userId) {
 
-        return service.getMyComments();
+        return service.getMyComments(userId);
     }
 
     /**
      * 내 댓글 삭제
      *
      * @param commentId 댓글 아이디
+     * @param userId    유저 아이디
      * @return message, deletedCommentId
      */
-    @DeleteMapping("/comments/{commentId}")
+    @DeleteMapping("/comments/{commentId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public DeleteMyCommentResponse deleteMyComment(
-            @PathVariable Long commentId) {
+            @PathVariable Long commentId,
+            @PathVariable Long userId) {
 
-        return service.deleteMyComment(commentId);
+        return service.deleteMyComment(commentId, userId);
     }
 }
