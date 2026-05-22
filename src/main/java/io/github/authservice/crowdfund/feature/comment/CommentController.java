@@ -1,12 +1,12 @@
 package io.github.authservice.crowdfund.feature.comment;
 
-import io.github.authservice.crowdfund.feature.comment.request.CommentAddRequest;
-import io.github.authservice.crowdfund.feature.comment.request.CommentModifyRequest;
-import io.github.authservice.crowdfund.feature.comment.response.CommentAddResponse;
-import io.github.authservice.crowdfund.feature.comment.response.CommentDeleteResponse;
-import io.github.authservice.crowdfund.feature.comment.response.CommentListResponse;
-import io.github.authservice.crowdfund.feature.comment.response.CommentModifyResponse;
-import io.github.authservice.crowdfund.feature.comment.response.MyCommentListResponse;
+import io.github.authservice.crowdfund.feature.comment.request.CreateCommentRequest;
+import io.github.authservice.crowdfund.feature.comment.request.PatchCommentRequest;
+import io.github.authservice.crowdfund.feature.comment.response.CreateCommentResponse;
+import io.github.authservice.crowdfund.feature.comment.response.DeleteMyCommentResponse;
+import io.github.authservice.crowdfund.feature.comment.response.GetCommentsResponse;
+import io.github.authservice.crowdfund.feature.comment.response.PatchCommentResponse;
+import io.github.authservice.crowdfund.feature.comment.response.GetMyCommentsResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CommentController {
 
-    private final CommentService commentService;
+    private final CommentService service;
 
     /**
      * 댓글 작성
@@ -28,11 +28,11 @@ public class CommentController {
      */
     @PostMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentAddResponse addComment(
+    public CreateCommentResponse createComment(
             @PathVariable Long projectId,
-            @RequestBody @Valid CommentAddRequest request) {
+            @RequestBody @Valid CreateCommentRequest request) {
 
-        return commentService.addComment(projectId, request);
+        return service.createComment(projectId, request);
     }
 
     /**
@@ -44,11 +44,11 @@ public class CommentController {
      */
     @PatchMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)
-    public CommentModifyResponse modifyComment(
+    public PatchCommentResponse patchComment(
             @PathVariable Long commentId,
-            @RequestBody @Valid CommentModifyRequest request) {
+            @RequestBody @Valid PatchCommentRequest request) {
 
-        return commentService.modifyComment(commentId, request);
+        return service.patchComment(commentId, request);
     }
 
     /**
@@ -59,10 +59,10 @@ public class CommentController {
      */
     @GetMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.OK)
-    public CommentListResponse getComments(
+    public GetCommentsResponse getComments(
             @PathVariable Long projectId) {
 
-        return commentService.getComments(projectId);
+        return service.getComments(projectId);
     }
 
     /**
@@ -72,9 +72,9 @@ public class CommentController {
      */
     @GetMapping("/users/me/comments")
     @ResponseStatus(HttpStatus.OK)
-    public MyCommentListResponse getMyComments() {
+    public GetMyCommentsResponse getMyComments() {
 
-        return commentService.getMyComments();
+        return service.getMyComments();
     }
 
     /**
@@ -85,9 +85,9 @@ public class CommentController {
      */
     @DeleteMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)
-    public CommentDeleteResponse deleteMyComment(
+    public DeleteMyCommentResponse deleteMyComment(
             @PathVariable Long commentId) {
 
-        return commentService.deleteMyComment(commentId);
+        return service.deleteMyComment(commentId);
     }
 }

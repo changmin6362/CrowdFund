@@ -5,7 +5,7 @@ package io.github.authservice.crowdfund.feature.comment.response;
  *
  * message : 응답 메시지
  */
-public record CommentDeleteResponse(
+public record DeleteMyCommentResponse(
 
         String message
 

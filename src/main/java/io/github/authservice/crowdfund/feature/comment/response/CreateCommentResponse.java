@@ -6,7 +6,7 @@ package io.github.authservice.crowdfund.feature.comment.response;
  * message : 응답 메시지
  * comment : 생성된 댓글 데이터
  */
-public record CommentAddResponse(
+public record CreateCommentResponse(
 
         String message,
 

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
  *
  * content : 댓글 내용
  */
-public record CommentModifyRequest(
+public record PatchCommentRequest(
 
         @NotBlank(message = "댓글이 존재해야 합니다.")
         String content
