@@ -1,5 +1,6 @@
 package io.github.authservice.crowdfund.domain.reward;
 
+import io.github.authservice.crowdfund.feature.reward.response.RewardInfo;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
