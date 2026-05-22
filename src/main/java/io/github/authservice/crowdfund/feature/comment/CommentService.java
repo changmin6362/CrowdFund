@@ -12,14 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/**
- * 댓글 서비스
- * - 댓글 작성
- * - 댓글 수정
- * - 프로젝트 댓글 목록 조회
- * - 내 댓글 목록 조회
- * - 내 댓글 삭제
- */
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -27,11 +19,7 @@ public class CommentService {
     private final CommentRepository repository;
 
     /**
-     * 댓글 작성 성공 응답 반환
-     *
-     * @param projectId 댓글을 작성할 프로젝트 ID
-     * @param request 댓글 작성 요청 데이터
-     * @return message, comment
+     * 댓글 작성 도메인 로직
      */
     public CommentAddResponse addComment(Long projectId, @Valid CommentAddRequest request) {
         // return new CommentAddResponse(
@@ -42,11 +30,7 @@ public class CommentService {
     }
 
     /**
-     * 댓글 수정 성공 응답 반환
-     *
-     * @param commentId 수정할 댓글 ID
-     * @param request 댓글 수정 요청 데이터
-     * @return message, comment
+     * 댓글 수정 도메인 로직
      */
     public CommentModifyResponse modifyComment(Long commentId, @Valid CommentModifyRequest request) {
         // return new CommentModifyResponse(
@@ -57,10 +41,7 @@ public class CommentService {
     }
 
     /**
-     * 프로젝트 댓글 목록 조회 성공 응답 반환
-     *
-     * @param projectId 댓글 목록을 조회할 프로젝트 ID
-     * @return message, commentList
+     * 프로젝트 댓글 목록 조회 도메인 로직
      */
     public CommentListResponse getComments(Long projectId) {
         // return new CommentListResponse(
@@ -71,9 +52,7 @@ public class CommentService {
     }
 
     /**
-     * 내 댓글 목록 조회 성공 응답 반환
-     *
-     * @return message, commentList
+     * 내 댓글 목록 조회 도메인 로직
      */
     public MyCommentListResponse getMyComments() {
         // return new MyCommentListResponse(
@@ -84,10 +63,7 @@ public class CommentService {
     }
 
     /**
-     * 내 댓글 삭제 성공 응답 반환
-     *
-     * @param commentId 삭제할 댓글 ID
-     * @return message, comment
+     * 내 댓글 삭제 도메인 로직
      */
     public CommentDeleteResponse deleteMyComment(Long commentId) {
         // return new CommentDeleteResponse(

@@ -12,9 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * 댓글 관련 API 컨트롤러
- */
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -24,9 +21,10 @@ public class CommentController {
 
     /**
      * 댓글 작성
-     * - 대상: 프로젝트
-     * - projectId : PathVariable
-     * - 댓글 내용 : RequestBody
+     *
+     * @param projectId 프로젝트 아이디
+     * @param request   댓글 작성 요청 데이터
+     * @return message, commentId 메시지, 댓글 아이디
      */
     @PostMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.CREATED)
@@ -39,9 +37,10 @@ public class CommentController {
 
     /**
      * 댓글 수정
-     * - 대상: 댓글
-     * - commentId : PathVariable
-     * - 수정 내용 : RequestBody
+     *
+     * @param commentId 댓글 아이디
+     * @param request   댓글 수정 요청 데이터
+     * @return message, commentId 메시지, 댓글 아이디
      */
     @PatchMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)
@@ -54,9 +53,9 @@ public class CommentController {
 
     /**
      * 프로젝트 댓글 목록 조회
-     * - 대상: 프로젝트
-     * - projectId : PathVariable
-     * - RequestBody 없음
+     *
+     * @param projectId 프로젝트 아이디
+     * @return message, commentList
      */
     @GetMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.OK)
@@ -68,9 +67,8 @@ public class CommentController {
 
     /**
      * 내 댓글 목록 조회
-     * - 로그인 사용자 기준 조회
-     * - PathVariable 없음
-     * - RequestBody 없음
+     *
+     * @return message, commentList
      */
     @GetMapping("/users/me/comments")
     @ResponseStatus(HttpStatus.OK)
@@ -81,9 +79,9 @@ public class CommentController {
 
     /**
      * 내 댓글 삭제
-     * - 대상: 현재 로그인한 사용자의 댓글
-     * - commentId : PathVariable
-     * - RequestBody 없음
+     *
+     * @param commentId 댓글 아이디
+     * @return message, commentId 메시지, 댓글 아이디
      */
     @DeleteMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)
