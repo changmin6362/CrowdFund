@@ -1,7 +1,7 @@
 package io.github.authservice.crowdfund.feature.reward.response;
 
-public record PatchRewardResponse(
+public record DeleteRewardResponse(
         String message,
-        RewardInfo reward
+        Long deletedRewardId
 ) {
 }

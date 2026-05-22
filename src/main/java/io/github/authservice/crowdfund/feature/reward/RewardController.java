@@ -3,7 +3,7 @@ package io.github.authservice.crowdfund.feature.reward;
 import io.github.authservice.crowdfund.feature.reward.request.CreateRewardRequest;
 import io.github.authservice.crowdfund.feature.reward.request.PatchRewardReqeust;
 import io.github.authservice.crowdfund.feature.reward.response.CreateRewardResponse;
-import io.github.authservice.crowdfund.feature.reward.response.DeleteResponse;
+import io.github.authservice.crowdfund.feature.reward.response.DeleteRewardResponse;
 import io.github.authservice.crowdfund.feature.reward.response.GetRewardsResponse;
 import io.github.authservice.crowdfund.feature.reward.response.PatchRewardResponse;
 import jakarta.validation.Valid;
@@ -64,7 +64,7 @@ public class RewardController {
      */
     @DeleteMapping("/rewards/{rewardId}")
     @ResponseStatus(HttpStatus.OK)
-    public DeleteResponse deleteReward(@PathVariable Long rewardId) {
+    public DeleteRewardResponse deleteReward(@PathVariable Long rewardId) {
         return service.deleteReward(rewardId);
     }
 }
