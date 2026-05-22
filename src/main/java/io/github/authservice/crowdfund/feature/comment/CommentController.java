@@ -1,95 +1,98 @@
 package io.github.authservice.crowdfund.feature.comment;
 
-import io.github.authservice.crowdfund.feature.comment.request.CommentAddRequest;
-import io.github.authservice.crowdfund.feature.comment.request.CommentModifyRequest;
-import io.github.authservice.crowdfund.feature.comment.response.CommentAddResponse;
-import io.github.authservice.crowdfund.feature.comment.response.CommentDeleteResponse;
-import io.github.authservice.crowdfund.feature.comment.response.CommentListResponse;
-import io.github.authservice.crowdfund.feature.comment.response.CommentModifyResponse;
-import io.github.authservice.crowdfund.feature.comment.response.MyCommentListResponse;
+import io.github.authservice.crowdfund.feature.comment.request.CreateCommentRequest;
+import io.github.authservice.crowdfund.feature.comment.request.PatchCommentRequest;
+import io.github.authservice.crowdfund.feature.comment.response.CreateCommentResponse;
+import io.github.authservice.crowdfund.feature.comment.response.DeleteMyCommentResponse;
+import io.github.authservice.crowdfund.feature.comment.response.GetCommentsResponse;
+import io.github.authservice.crowdfund.feature.comment.response.PatchCommentResponse;
+import io.github.authservice.crowdfund.feature.comment.response.GetMyCommentsResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * 댓글 관련 API 컨트롤러
- */
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class CommentController {
 
-    private final CommentService commentService;
+    private final CommentService service;
 
     /**
      * 댓글 작성
-     * - 대상: 프로젝트
-     * - projectId : PathVariable
-     * - 댓글 내용 : RequestBody
+     *
+     * @param projectId 프로젝트 아이디
+     * @param userId    유저 아이디
+     * @param request   댓글 작성 요청 데이터
+     * @return message, createdComment
      */
-    @PostMapping("/projects/{projectId}/comments")
+    @PostMapping("/projects/{projectId}/comments/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentAddResponse addComment(
+    public CreateCommentResponse createComment(
             @PathVariable Long projectId,
-            @RequestBody @Valid CommentAddRequest request) {
+            @PathVariable Long userId,
+            @RequestBody @Valid CreateCommentRequest request) {
 
-        return commentService.addComment(projectId, request);
+        return service.createComment(projectId, userId, request);
     }
 
     /**
      * 댓글 수정
-     * - 대상: 댓글
-     * - commentId : PathVariable
-     * - 수정 내용 : RequestBody
+     *
+     * @param commentId 댓글 아이디
+     * @param request   댓글 수정 요청 데이터
+     * @return message, patchedComment
      */
     @PatchMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)
-    public CommentModifyResponse modifyComment(
+    public PatchCommentResponse patchComment(
             @PathVariable Long commentId,
-            @RequestBody @Valid CommentModifyRequest request) {
+            @RequestBody @Valid PatchCommentRequest request) {
 
-        return commentService.modifyComment(commentId, request);
+        return service.patchComment(commentId, request);
     }
 
     /**
      * 프로젝트 댓글 목록 조회
-     * - 대상: 프로젝트
-     * - projectId : PathVariable
-     * - RequestBody 없음
+     *
+     * @param projectId 프로젝트 아이디
+     * @return message, comments
      */
     @GetMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.OK)
-    public CommentListResponse getComments(
-            @PathVariable Long projectId) {
+    public GetCommentsResponse getComments(
+            @PathVariable Long projectId,
+            @RequestParam(required = false) Long currentUserId) {
 
-        return commentService.getComments(projectId);
+        return service.getComments(projectId, currentUserId);
     }
 
     /**
      * 내 댓글 목록 조회
-     * - 로그인 사용자 기준 조회
-     * - PathVariable 없음
-     * - RequestBody 없음
+     *
+     * @return message, myComments
      */
-    @GetMapping("/users/me/comments")
+    @GetMapping("/users/me/comments/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public MyCommentListResponse getMyComments() {
+    public GetMyCommentsResponse getMyComments(@PathVariable Long userId) {
 
-        return commentService.getMyComments();
+        return service.getMyComments(userId);
     }
 
     /**
      * 내 댓글 삭제
-     * - 대상: 현재 로그인한 사용자의 댓글
-     * - commentId : PathVariable
-     * - RequestBody 없음
+     *
+     * @param commentId 댓글 아이디
+     * @param userId    유저 아이디
+     * @return message, deletedCommentId
      */
-    @DeleteMapping("/comments/{commentId}")
+    @DeleteMapping("/comments/{commentId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public CommentDeleteResponse deleteMyComment(
-            @PathVariable Long commentId) {
+    public DeleteMyCommentResponse deleteMyComment(
+            @PathVariable Long commentId,
+            @PathVariable Long userId) {
 
-        return commentService.deleteMyComment(commentId);
+        return service.deleteMyComment(commentId, userId);
     }
 }

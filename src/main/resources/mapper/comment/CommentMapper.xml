@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.authservice.crowdfund.domain.comment.mapper.CommentMapper">
+
+    <insert id="insert">
+        INSERT INTO comment (user_id, project_id, content, created_at)
+        VALUES (#{userId}, #{projectId}, #{content}, #{createdAt})
+    </insert>
+
+    <update id="update">
+        UPDATE comment
+        SET content = #{content}
+        WHERE id = #{commentId}
+    </update>
+
+    <select id="findAllByProjectId" resultType="io.github.authservice.crowdfund.feature.comment.response.CommentInfo">
+        SELECT
+            c.id AS comment_id,
+            u.nickname AS writer_name,
+            c.content,
+            DATE_FORMAT(c.created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+            CASE WHEN c.user_id = #{currentUserId} THEN 1 ELSE 0 END AS is_editable
+        FROM comment c
+        JOIN user u ON c.user_id = u.id
+        WHERE c.project_id = #{projectId}
+        ORDER BY c.created_at DESC
+    </select>
+
+    <select id="findAllByUserId" resultType="io.github.authservice.crowdfund.feature.comment.response.MyCommentInfo">
+        SELECT
+            c.id AS comment_id,
+            p.id AS project_id,
+            p.title AS project_title,
+            c.content,
+            DATE_FORMAT(c.created_at, '%Y-%m-%d %H:%i:%s') AS created_at
+        FROM comment c
+        JOIN project p ON c.project_id = p.id
+        WHERE c.user_id = #{userId}
+        ORDER BY c.created_at DESC
+    </select>
+
+    <select id="findByIdToCommentInfo"
+            resultType="io.github.authservice.crowdfund.feature.comment.response.CommentInfo">
+        SELECT c.id                                           AS comment_id,
+               u.nickname                                     AS writer_name,
+               c.content,
+               DATE_FORMAT(c.created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+               IF(c.user_id = #{currentUserId}, 1, 0)
+                                                              AS is_editable
+        FROM comment c
+                 JOIN user u ON c.user_id = u.id
+        WHERE c.id = #{commentId}
+    </select>
+
+</mapper>

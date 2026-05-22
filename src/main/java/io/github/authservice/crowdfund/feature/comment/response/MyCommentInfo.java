@@ -2,11 +2,11 @@ package io.github.authservice.crowdfund.feature.comment.response;
 
 import java.time.LocalDateTime;
 
-public record CommentInfo(
+public record MyCommentInfo(
         Long commentId,
-        String writerName,
+        Long projectId,
+        String projectTitle,
         String content,
-        LocalDateTime createdAt,
-        boolean isEditable
+        LocalDateTime createdAt
 ) {
 }
