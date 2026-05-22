@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -33,7 +34,7 @@ public class RewardService {
                 request.description(),
                 request.price(),
                 request.stock(),
-                null
+                LocalDateTime.now()
         );
 
         Reward savedReward = repository.save(reward);
@@ -56,7 +57,17 @@ public class RewardService {
      */
     public GetRewardsResponse getReward(@Valid Long projectId) {
 
-        List<RewardInfo> rewards = repository.findByProjectId(projectId);
+        List<RewardInfo> rewards = repository.findByProjectId(projectId).stream()
+                .map(reward -> new RewardInfo(
+                        reward.id(),
+                        reward.projectId(),
+                        reward.title(),
+                        reward.description(),
+                        reward.price(),
+                        reward.stock(),
+                        reward.createdAt()
+
+                )).toList();
 
         return new GetRewardsResponse(
                 "리워드 목록 조회가 성공적으로 완료되었습니다",

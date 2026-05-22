@@ -17,5 +17,5 @@ public interface RewardRepository extends ListCrudRepository<Reward, Long> {
      * @param projectId 프로젝트 ID
      * @return 보상 목록
      */
-    List<RewardInfo> findByProjectId(Long projectId);
+    List<Reward> findByProjectId(Long projectId);
 }
