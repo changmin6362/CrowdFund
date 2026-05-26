@@ -7,6 +7,8 @@ import io.github.authservice.crowdfund.domain.payment.PaymentRepository;
 import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.authservice.crowdfund.domain.pledge.Pledge;
 import io.github.authservice.crowdfund.domain.pledge.PledgeRepository;
+import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddress;
+import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.authservice.crowdfund.domain.project.Project;
 import io.github.authservice.crowdfund.domain.project.ProjectRepository;
 import io.github.authservice.crowdfund.domain.project.ProjectStatus;
@@ -57,6 +59,9 @@ class PledgeServiceTest {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private PledgeAddressRepository pledgeAddressRepository;
 
     private User savedUser;
     private Project savedProject;
@@ -123,10 +128,24 @@ class PledgeServiceTest {
                 null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
+        paymentRepository.save(new Payment(
+                null, savedPledge.id(), "신용카드", 10000L, "PAID", LocalDateTime.now(), LocalDateTime.now()
+        ));
+
+        pledgeAddressRepository.save(new PledgeAddress(
+                null, savedPledge.id(), savedUser.id(), "홍길동", "010-1234-5678", "12345", "서울특별시 강남구 테헤란로 123", "4층 개발팀", LocalDateTime.now(), LocalDateTime.now()
+        ));
+
         mockMvc.perform(get("/api/pledges/{pledgeId}", savedPledge.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("펀딩 상세 정보를 성공적으로 불러왔습니다."))
-                .andExpect(jsonPath("$.pledgeDetail.id").value(savedPledge.id()))
+                .andExpect(jsonPath("$.message").value("후원 상세 정보를 성공적으로 불러왔습니다."))
+                .andExpect(jsonPath("$.data.pledgeId").value(savedPledge.id()))
+                .andExpect(jsonPath("$.data.projectTitle").value(savedProject.title()))
+                .andExpect(jsonPath("$.data.rewardName").value(savedReward.title()))
+                .andExpect(jsonPath("$.data.paymentMethod").value("신용카드"))
+                .andExpect(jsonPath("$.data.shippingAddress.recipientName").value("홍길동"))
+                .andExpect(jsonPath("$.data.shippingAddress.address").value("서울특별시 강남구 테헤란로 123"))
+                .andExpect(jsonPath("$.data.shippingAddress.postalCode").value("배송 준비중"))
                 .andDo(print());
     }
 

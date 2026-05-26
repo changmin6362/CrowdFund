@@ -1,11 +1,15 @@
 package io.github.authservice.crowdfund.feature.pledges.response;
 
+import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
+
 public record PledgeDetail(
-        Long id,
-        Long userId,
-        Long projectId,
-        Long rewardId,
+        Long pledgeId,
+        String createdAt,
+        FulfillmentStatus fulfillmentStatus,
+        String projectTitle,
         Long amount,
-        String createdAt
+        String paymentMethod,
+        String rewardName,
+        ShippingAddress shippingAddress
 ) {
 }

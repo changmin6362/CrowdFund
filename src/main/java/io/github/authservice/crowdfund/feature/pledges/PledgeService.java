@@ -11,6 +11,8 @@ import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
+import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddress;
+import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.authservice.crowdfund.feature.pledges.request.CreatePledgeRequest;
 import io.github.authservice.crowdfund.feature.pledges.request.UpdateFulfillmentRequest;
 import io.github.authservice.crowdfund.feature.pledges.response.*;
@@ -34,6 +36,7 @@ public class PledgeService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final PaymentRepository paymentRepository;
+    private final PledgeAddressRepository pledgeAddressRepository;
 
     /**
      * 관리자용 후원 목록 조회 도메인 로직
@@ -129,7 +132,47 @@ public class PledgeService {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
-        return new GetPledgeDetailResponse("펀딩 상세 정보를 성공적으로 불러왔습니다.", mapToPledgeDetail(pledge));
+        Project project = projectRepository.findById(pledge.projectId())
+                .orElseThrow(() -> new IllegalStateException("해당 프로젝트를 찾을 수 없습니다. ID: " + pledge.projectId()));
+
+        Reward reward = rewardRepository.findById(pledge.rewardId())
+                .orElseThrow(() -> new IllegalStateException("해당 리워드를 찾을 수 없습니다. ID: " + pledge.rewardId()));
+
+        Optional<Payment> paymentOpt = paymentRepository.findByPledgeId(pledge.id());
+        String paymentMethod = paymentOpt.map(p -> translatePaymentMethod(p.paymentMethod())).orElse("미지정");
+
+        Optional<PledgeAddress> addressOpt = pledgeAddressRepository.findByPledgeId(pledge.id());
+        ShippingAddress shippingAddress = addressOpt.map(addr -> new ShippingAddress(
+                addr.recipientName(),
+                addr.phone(),
+                addr.addressMain(),
+                addr.addressDetail(),
+                // 배송 시작 시(또는 완료 시) 노출될 수 있는 정보로 가정 (여기서는 status가 SHIPPED/COMPLETED일 때만 노출하는 예시 로직)
+                (pledge.fulfillmentStatus() == FulfillmentStatus.READY) ? "배송 준비중" : addr.postalCode()
+        )).orElse(null);
+
+        PledgeDetail pledgeDetail = new PledgeDetail(
+                pledge.id(),
+                pledge.createdAt().toString(),
+                pledge.fulfillmentStatus(),
+                project.title(),
+                pledge.amount(),
+                paymentMethod,
+                reward.title(),
+                shippingAddress
+        );
+
+        return new GetPledgeDetailResponse("후원 상세 정보를 성공적으로 불러왔습니다.", pledgeDetail);
+    }
+
+    private String translatePaymentMethod(String method) {
+        if (method == null) return "미지정";
+        return switch (method.toUpperCase()) {
+            case "CREDIT_CARD" -> "신용카드";
+            case "TRANSFER" -> "계좌이체";
+            case "KAKAOPAY" -> "카카오페이";
+            default -> method;
+        };
     }
 
     /**
@@ -174,16 +217,6 @@ public class PledgeService {
                 new FulfillmentInfo(pledgeId, request.fulfillmentStatus(), fulfilledAt));
     }
 
-    private PledgeDetail mapToPledgeDetail(Pledge pledge) {
-        return new PledgeDetail(
-                pledge.id(),
-                pledge.userId(),
-                pledge.projectId(),
-                pledge.rewardId(),
-                pledge.amount(),
-                pledge.createdAt().toString()
-        );
-    }
 
     private PledgeSummary mapToPledgeSummary(Pledge pledge) {
         String userName = userRepository.findById(pledge.userId())
