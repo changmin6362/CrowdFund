@@ -1,11 +1,11 @@
 package io.github.authservice.crowdfund.feature.pledges;
 
 import io.github.authservice.crowdfund.feature.pledges.request.CreatePledgeRequest;
-import io.github.authservice.crowdfund.feature.pledges.request.UpdateFulfillmentRequest;
+import io.github.authservice.crowdfund.feature.pledges.request.PatchFulfillmentRequest;
 import io.github.authservice.crowdfund.feature.pledges.response.DeletePledgeResponse;
 import io.github.authservice.crowdfund.feature.pledges.response.GetPledgeDetailResponse;
 import io.github.authservice.crowdfund.feature.pledges.response.CreatePledgeResponse;
-import io.github.authservice.crowdfund.feature.pledges.response.UpdateFulfillmentResponse;
+import io.github.authservice.crowdfund.feature.pledges.response.PatchFulfillmentResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -66,10 +66,10 @@ public class PledgeController {
      */
     @PatchMapping("/pledges/{pledgeId}/fulfillment")
     @ResponseStatus(HttpStatus.OK)
-    public UpdateFulfillmentResponse updateFulfillment(
+    public PatchFulfillmentResponse patchFulfillment(
             @PathVariable Long pledgeId,
-            @Valid @RequestBody UpdateFulfillmentRequest request) {
-        return service.updateFulfillment(pledgeId, request);
+            @Valid @RequestBody PatchFulfillmentRequest request) {
+        return service.patchFulfillment(pledgeId, request);
     }
 
 

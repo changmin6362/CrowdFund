@@ -14,7 +14,7 @@ import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddress;
 import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.authservice.crowdfund.feature.pledges.request.CreatePledgeRequest;
-import io.github.authservice.crowdfund.feature.pledges.request.UpdateFulfillmentRequest;
+import io.github.authservice.crowdfund.feature.pledges.request.PatchFulfillmentRequest;
 import io.github.authservice.crowdfund.feature.pledges.response.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -194,7 +194,7 @@ public class PledgeService {
      * 보상 이행 상태 갱신 도메인 로직
      */
     @Transactional
-    public UpdateFulfillmentResponse updateFulfillment(Long pledgeId, @Valid UpdateFulfillmentRequest request) {
+    public PatchFulfillmentResponse patchFulfillment(Long pledgeId, @Valid PatchFulfillmentRequest request) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
@@ -216,7 +216,7 @@ public class PledgeService {
 
         pledgeRepository.save(updatedPledge);
 
-        return new UpdateFulfillmentResponse("보상 이행 상태가 변경되었습니다.",
+        return new PatchFulfillmentResponse("보상 이행 상태가 변경되었습니다.",
                 new FulfillmentInfo(pledgeId, request.fulfillmentStatus(), fulfilledAt));
     }
 
