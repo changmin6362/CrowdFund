@@ -1,9 +1,11 @@
 package io.github.authservice.crowdfund.feature.pledges;
 
 import io.github.authservice.crowdfund.feature.pledges.request.CreatePledgeRequest;
+import io.github.authservice.crowdfund.feature.pledges.request.UpdateFulfillmentRequest;
 import io.github.authservice.crowdfund.feature.pledges.response.DeletePledgeResponse;
 import io.github.authservice.crowdfund.feature.pledges.response.GetPledgeDetailResponse;
 import io.github.authservice.crowdfund.feature.pledges.response.CreatePledgeResponse;
+import io.github.authservice.crowdfund.feature.pledges.response.UpdateFulfillmentResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -53,6 +55,21 @@ public class PledgeController {
     @ResponseStatus(HttpStatus.OK)
     public DeletePledgeResponse deletePledge(@PathVariable Long pledgeId) {
         return service.deletePledge(pledgeId);
+    }
+    
+    /**
+     * 보상 이행 상태 갱신
+     *
+     * @param pledgeId 해당 후원 아이디
+     * @param request  이행 상태 정보
+     * @return message, updatedInfo
+     */
+    @PatchMapping("/pledges/{pledgeId}/fulfillment")
+    @ResponseStatus(HttpStatus.OK)
+    public UpdateFulfillmentResponse updateFulfillment(
+            @PathVariable Long pledgeId,
+            @Valid @RequestBody UpdateFulfillmentRequest request) {
+        return service.updateFulfillment(pledgeId, request);
     }
 
 

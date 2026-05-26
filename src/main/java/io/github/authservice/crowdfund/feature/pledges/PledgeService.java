@@ -2,10 +2,12 @@ package io.github.authservice.crowdfund.feature.pledges;
 
 import io.github.authservice.crowdfund.domain.pledge.PledgeRepository;
 import io.github.authservice.crowdfund.feature.pledges.request.CreatePledgeRequest;
+import io.github.authservice.crowdfund.feature.pledges.request.UpdateFulfillmentRequest;
 import io.github.authservice.crowdfund.feature.pledges.response.DeletePledgeResponse;
 import io.github.authservice.crowdfund.feature.pledges.response.GetPledgeDetailResponse;
 import io.github.authservice.crowdfund.feature.pledges.response.GetAllPledgesResponse;
 import io.github.authservice.crowdfund.feature.pledges.response.CreatePledgeResponse;
+import io.github.authservice.crowdfund.feature.pledges.response.UpdateFulfillmentResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -47,6 +49,16 @@ public class PledgeService {
         // pledgeRepository.deletePledge(pledgeId);
         // return new PledgeDeleteResponse("펀딩 주문을 성공적으로 취소했습니다.");
         return new DeletePledgeResponse("펀딩 주문 취소 기능은 구현되지 않았습니다.");
+    }
+
+    /**
+     * 보상 이행 상태 갱신 도메인 로직
+     */
+    public UpdateFulfillmentResponse updateFulfillment(Long pledgeId, @Valid UpdateFulfillmentRequest request) {
+        // Logic to update fulfillmentStatus and fulfilledAt in DB
+        // If status is COMPLETED, set fulfilledAt to LocalDateTime.now()
+        // return new UpdateFulfillmentResponse("보상 이행 상태가 변경되었습니다.", pledgeId, request.fulfillmentStatus(), LocalDateTime.now());
+        return new UpdateFulfillmentResponse("보상 이행 상태 변경 기능은 구현되지 않았습니다.", pledgeId, request.fulfillmentStatus(), null);
     }
 
 
