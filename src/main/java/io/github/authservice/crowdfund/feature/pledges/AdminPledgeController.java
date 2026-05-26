@@ -1,6 +1,6 @@
 package io.github.authservice.crowdfund.feature.pledges;
 
-import io.github.authservice.crowdfund.feature.pledges.response.PledgeListResponse;
+import io.github.authservice.crowdfund.feature.pledges.response.GetAllPledgesResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,16 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AdminPledgeController {
 
-    private final PledgeService pledgeService;
+    private final PledgeService service;
 
     /**
      * 전체 후원 목록 조회
      *
-     * @return 메세지와 후원 정보 리스트
+     * @return message, pledges
      */
     @GetMapping("/pledge")
     @ResponseStatus(HttpStatus.OK)
-    public PledgeListResponse getAllPledges() {
-        return pledgeService.getAllPledges();
+    public GetAllPledgesResponse getAllPledges() {
+        return service.getAllPledges();
     }
 }
