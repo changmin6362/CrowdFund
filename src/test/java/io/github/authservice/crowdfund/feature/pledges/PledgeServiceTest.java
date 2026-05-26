@@ -2,6 +2,8 @@ package io.github.authservice.crowdfund.feature.pledges;
 
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
+import io.github.authservice.crowdfund.domain.payment.Payment;
+import io.github.authservice.crowdfund.domain.payment.PaymentRepository;
 import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.authservice.crowdfund.domain.pledge.Pledge;
 import io.github.authservice.crowdfund.domain.pledge.PledgeRepository;
@@ -52,6 +54,9 @@ class PledgeServiceTest {
 
     @Autowired
     private RewardRepository rewardRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     private User savedUser;
     private Project savedProject;
@@ -156,6 +161,29 @@ class PledgeServiceTest {
                 .andExpect(jsonPath("$.message").value("보상 이행 상태가 변경되었습니다."))
                 .andExpect(jsonPath("$.updatedInfo.fulfillmentStatus").value("COMPLETED"))
                 .andExpect(jsonPath("$.updatedInfo.fulfilledAt").exists())
+                .andDo(print());
+    }
+
+    @Test
+    void 관리자_후원_상세_조회_테스트() throws Exception {
+        Pledge savedPledge = pledgeRepository.save(new Pledge(
+                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
+        ));
+
+        paymentRepository.save(new Payment(
+                null, savedPledge.id(), "CREDIT_CARD", 10000L, "PAID", LocalDateTime.now(), LocalDateTime.now()
+        ));
+
+        mockMvc.perform(get("/api/admin/pledge/{pledgeId}", savedPledge.id()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("관리자용 후원 상세 정보를 성공적으로 불러왔습니다."))
+                .andExpect(jsonPath("$.pledgeDetail.pledgeId").value(savedPledge.id()))
+                .andExpect(jsonPath("$.pledgeDetail.user.userId").value(savedUser.id()))
+                .andExpect(jsonPath("$.pledgeDetail.user.name").value(savedUser.name()))
+                .andExpect(jsonPath("$.pledgeDetail.payment.amount").value(10000))
+                .andExpect(jsonPath("$.pledgeDetail.payment.paymentMethod").value("CREDIT_CARD"))
+                .andExpect(jsonPath("$.pledgeDetail.project.projectId").value(savedProject.id()))
+                .andExpect(jsonPath("$.pledgeDetail.project.projectTitle").value(savedProject.title()))
                 .andDo(print());
     }
 }

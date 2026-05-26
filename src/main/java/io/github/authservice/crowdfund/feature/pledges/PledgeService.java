@@ -1,5 +1,7 @@
 package io.github.authservice.crowdfund.feature.pledges;
 
+import io.github.authservice.crowdfund.domain.payment.Payment;
+import io.github.authservice.crowdfund.domain.payment.PaymentRepository;
 import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.authservice.crowdfund.domain.pledge.Pledge;
 import io.github.authservice.crowdfund.domain.pledge.PledgeRepository;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,9 +33,10 @@ public class PledgeService {
     private final RewardRepository rewardRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final PaymentRepository paymentRepository;
 
     /**
-     * 후원 목록 조회 도메인 로직
+     * 관리자용 후원 목록 조회 도메인 로직
      */
     public GetAllPledgesResponse getAllPledges() {
         List<Pledge> pledges = pledgeRepository.findAll();
@@ -40,6 +44,51 @@ public class PledgeService {
                 .map(this::mapToPledgeSummary)
                 .collect(Collectors.toList());
         return new GetAllPledgesResponse("펀딩 리스트를 성공적으로 불러왔습니다.", summaries);
+    }
+
+
+    /**
+     * 관리자용 후원 상세 조회 도메인 로직
+     */
+    public GetAdminPledgeDetailResponse getAdminPledgeDetail(Long pledgeId) {
+        Pledge pledge = pledgeRepository.findById(pledgeId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
+
+        User user = userRepository.findById(pledge.userId())
+                .orElseThrow(() -> new IllegalStateException("해당 유저를 찾을 수 없습니다. ID: " + pledge.userId()));
+
+        Project project = projectRepository.findById(pledge.projectId())
+                .orElseThrow(() -> new IllegalStateException("해당 프로젝트를 찾을 수 없습니다. ID: " + pledge.projectId()));
+
+        Optional<Payment> paymentOpt = paymentRepository.findByPledgeId(pledgeId);
+
+        AdminUserDetail userDetail = new AdminUserDetail(
+                user.id(),
+                user.name(),
+                user.nickname(),
+                user.email(),
+                user.phone()
+        );
+
+        AdminPaymentDetail paymentDetail = paymentOpt
+                .map(p -> new AdminPaymentDetail(p.amount(), p.paymentMethod()))
+                .orElse(new AdminPaymentDetail(pledge.amount(), "UNKNOWN"));
+
+        AdminProjectDetail projectDetail = new AdminProjectDetail(
+                project.id(),
+                project.title()
+        );
+
+        AdminPledgeDetail pledgeDetail = new AdminPledgeDetail(
+                pledge.id(),
+                pledge.createdAt().toString(),
+                pledge.fulfillmentStatus(),
+                userDetail,
+                paymentDetail,
+                projectDetail
+        );
+
+        return new GetAdminPledgeDetailResponse("관리자용 후원 상세 정보를 성공적으로 불러왔습니다.", pledgeDetail);
     }
 
     /**
