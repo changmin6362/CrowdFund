@@ -23,7 +23,7 @@ public class PledgeController {
      *
      * @param userId  유저 아이디
      * @param request 후원 정보
-     * @return 메세지
+     * @return message, pledgeId
      */
     @PostMapping("/project/pledges/{userId}")
     @ResponseStatus(HttpStatus.CREATED)

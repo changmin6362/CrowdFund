@@ -31,7 +31,7 @@ public class PledgeService {
      */
     public CreatePledgeResponse createPledge(Long userId, @Valid CreatePledgeRequest request) {
         // return new CreatePledgeResponse("펀딩 후원이 성공하였습니다", pledgeRepository.createPledge(userId, request));
-        return new CreatePledgeResponse("펀딩 후원 기능은 구현되지 않았습니다.", null, null, null);
+        return new CreatePledgeResponse("펀딩 후원 기능은 구현되지 않았습니다.", null);
     }
 
     /**
@@ -57,8 +57,8 @@ public class PledgeService {
     public UpdateFulfillmentResponse updateFulfillment(Long pledgeId, @Valid UpdateFulfillmentRequest request) {
         // Logic to update fulfillmentStatus and fulfilledAt in DB
         // If status is COMPLETED, set fulfilledAt to LocalDateTime.now()
-        // return new UpdateFulfillmentResponse("보상 이행 상태가 변경되었습니다.", pledgeId, request.fulfillmentStatus(), LocalDateTime.now());
-        return new UpdateFulfillmentResponse("보상 이행 상태 변경 기능은 구현되지 않았습니다.", pledgeId, request.fulfillmentStatus(), null);
+        // return new UpdateFulfillmentResponse("보상 이행 상태가 변경되었습니다.", new FulfillmentInfo(pledgeId, request.fulfillmentStatus(), LocalDateTime.now()));
+        return new UpdateFulfillmentResponse("보상 이행 상태 변경 기능은 구현되지 않았습니다.", null);
     }
 
 
