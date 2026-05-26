@@ -72,7 +72,7 @@ class PledgeServiceTest {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
 
         savedUser = userRepository.save(new User(
-                null, "pledger@test.com", "pass", "pledger", "pledger", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+                null, "pledger@test.com", "pass", "pledge", "pledge", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         Category savedCategory = categoryRepository.save(new Category(
@@ -80,7 +80,7 @@ class PledgeServiceTest {
         ));
 
         savedProject = projectRepository.save(new Project(
-                null, savedCategory.id(), savedUser.id(), "테스트 프로젝트", "내용", new BigDecimal("1000000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(30), ProjectStatus.ONGOING, LocalDateTime.now()
+                null, savedCategory.id(), savedUser.id(), "테스트 프로젝트", "[{\"type\":\"text\",\"content\":\"내용\"}]", new BigDecimal("1000000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(30), ProjectStatus.ONGOING, LocalDateTime.now()
         ));
 
         savedReward = rewardRepository.save(new Reward(
@@ -108,7 +108,7 @@ class PledgeServiceTest {
 
     @Test
     void 후원_목록_조회_테스트() throws Exception {
-        pledgeRepository.save(new Pledge(
+        Pledge savedPledge = pledgeRepository.save(new Pledge(
                 null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
@@ -116,9 +116,12 @@ class PledgeServiceTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("펀딩 리스트를 성공적으로 불러왔습니다."))
                 .andExpect(jsonPath("$.pledges").isArray())
-                .andExpect(jsonPath("$.pledges[0].userName").value(savedUser.name()))
-                .andExpect(jsonPath("$.pledges[0].projectTitle").value(savedProject.title()))
-                .andExpect(jsonPath("$.pledges[0].fulfillmentStatus").value("READY"))
+                .andExpect(jsonPath("$.pledges[?(@.id == %d)].userId".formatted(savedPledge.id())).value(savedUser.id().intValue()))
+                .andExpect(jsonPath("$.pledges[?(@.id == %d)].userName".formatted(savedPledge.id())).value(savedUser.name()))
+                .andExpect(jsonPath("$.pledges[?(@.id == %d)].projectId".formatted(savedPledge.id())).value(savedProject.id().intValue()))
+                .andExpect(jsonPath("$.pledges[?(@.id == %d)].projectTitle".formatted(savedPledge.id())).value(savedProject.title()))
+                .andExpect(jsonPath("$.pledges[?(@.id == %d)].amount".formatted(savedPledge.id())).value(10000))
+                .andExpect(jsonPath("$.pledges[?(@.id == %d)].fulfillmentStatus".formatted(savedPledge.id())).value("READY"))
                 .andDo(print());
     }
 
@@ -129,7 +132,7 @@ class PledgeServiceTest {
         ));
 
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), "신용카드", 10000L, "PAID", LocalDateTime.now(), LocalDateTime.now()
+                null, savedPledge.id(), "CREDIT_CARD", 10000L, "PAID", LocalDateTime.now(), LocalDateTime.now()
         ));
 
         pledgeAddressRepository.save(new PledgeAddress(
@@ -139,13 +142,13 @@ class PledgeServiceTest {
         mockMvc.perform(get("/api/pledges/{pledgeId}", savedPledge.id()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("후원 상세 정보를 성공적으로 불러왔습니다."))
-                .andExpect(jsonPath("$.data.pledgeId").value(savedPledge.id()))
-                .andExpect(jsonPath("$.data.projectTitle").value(savedProject.title()))
-                .andExpect(jsonPath("$.data.rewardName").value(savedReward.title()))
-                .andExpect(jsonPath("$.data.paymentMethod").value("신용카드"))
-                .andExpect(jsonPath("$.data.shippingAddress.recipientName").value("홍길동"))
-                .andExpect(jsonPath("$.data.shippingAddress.address").value("서울특별시 강남구 테헤란로 123"))
-                .andExpect(jsonPath("$.data.shippingAddress.postalCode").value("배송 준비중"))
+                .andExpect(jsonPath("$.pledgeDetail.pledgeId").value(savedPledge.id()))
+                .andExpect(jsonPath("$.pledgeDetail.projectTitle").value(savedProject.title()))
+                .andExpect(jsonPath("$.pledgeDetail.rewardName").value(savedReward.title()))
+                .andExpect(jsonPath("$.pledgeDetail.paymentMethod").value("신용카드"))
+                .andExpect(jsonPath("$.pledgeDetail.shippingAddress.recipientName").value("홍길동"))
+                .andExpect(jsonPath("$.pledgeDetail.shippingAddress.address").value("서울특별시 강남구 테헤란로 123"))
+                .andExpect(jsonPath("$.pledgeDetail.shippingAddress.postalCode").value("배송 준비중"))
                 .andDo(print());
     }
 
@@ -196,13 +199,13 @@ class PledgeServiceTest {
         mockMvc.perform(get("/api/admin/pledge/{pledgeId}", savedPledge.id()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("관리자용 후원 상세 정보를 성공적으로 불러왔습니다."))
-                .andExpect(jsonPath("$.pledgeDetail.pledgeId").value(savedPledge.id()))
-                .andExpect(jsonPath("$.pledgeDetail.user.userId").value(savedUser.id()))
-                .andExpect(jsonPath("$.pledgeDetail.user.name").value(savedUser.name()))
-                .andExpect(jsonPath("$.pledgeDetail.payment.amount").value(10000))
-                .andExpect(jsonPath("$.pledgeDetail.payment.paymentMethod").value("CREDIT_CARD"))
-                .andExpect(jsonPath("$.pledgeDetail.project.projectId").value(savedProject.id()))
-                .andExpect(jsonPath("$.pledgeDetail.project.projectTitle").value(savedProject.title()))
+                .andExpect(jsonPath("$.adminPledgeDetail.pledgeId").value(savedPledge.id()))
+                .andExpect(jsonPath("$.adminPledgeDetail.user.userId").value(savedUser.id()))
+                .andExpect(jsonPath("$.adminPledgeDetail.user.name").value(savedUser.name()))
+                .andExpect(jsonPath("$.adminPledgeDetail.payment.amount").value(10000))
+                .andExpect(jsonPath("$.adminPledgeDetail.payment.paymentMethod").value("CREDIT_CARD"))
+                .andExpect(jsonPath("$.adminPledgeDetail.project.projectId").value(savedProject.id()))
+                .andExpect(jsonPath("$.adminPledgeDetail.project.projectTitle").value(savedProject.title()))
                 .andDo(print());
     }
 }
