@@ -106,6 +106,9 @@ class PledgeServiceTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("펀딩 리스트를 성공적으로 불러왔습니다."))
                 .andExpect(jsonPath("$.pledges").isArray())
+                .andExpect(jsonPath("$.pledges[0].userName").value(savedUser.name()))
+                .andExpect(jsonPath("$.pledges[0].projectTitle").value(savedProject.title()))
+                .andExpect(jsonPath("$.pledges[0].fulfillmentStatus").value("READY"))
                 .andDo(print());
     }
 

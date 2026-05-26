@@ -3,8 +3,12 @@ package io.github.authservice.crowdfund.feature.pledges;
 import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.authservice.crowdfund.domain.pledge.Pledge;
 import io.github.authservice.crowdfund.domain.pledge.PledgeRepository;
+import io.github.authservice.crowdfund.domain.project.Project;
+import io.github.authservice.crowdfund.domain.project.ProjectRepository;
 import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
+import io.github.authservice.crowdfund.domain.user.User;
+import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.feature.pledges.request.CreatePledgeRequest;
 import io.github.authservice.crowdfund.feature.pledges.request.UpdateFulfillmentRequest;
 import io.github.authservice.crowdfund.feature.pledges.response.*;
@@ -24,9 +28,11 @@ public class PledgeService {
 
     private final PledgeRepository pledgeRepository;
     private final RewardRepository rewardRepository;
+    private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
 
     /**
-     * 후원 목록 조회 도메인 로직 (Admin용 전체 조회)
+     * 후원 목록 조회 도메인 로직
      */
     public GetAllPledgesResponse getAllPledges() {
         List<Pledge> pledges = pledgeRepository.findAll();
@@ -131,12 +137,23 @@ public class PledgeService {
     }
 
     private PledgeSummary mapToPledgeSummary(Pledge pledge) {
+        String userName = userRepository.findById(pledge.userId())
+                .map(User::name)
+                .orElseThrow(() -> new IllegalStateException("해당 유저를 찾을 수 없습니다. ID: " + pledge.userId()));
+
+        String projectTitle = projectRepository.findById(pledge.projectId())
+                .map(Project::title)
+                .orElseThrow(() -> new IllegalStateException("해당 프로젝트를 찾을 수 없습니다. ID: " + pledge.projectId()));
+
         return new PledgeSummary(
                 pledge.id(),
                 pledge.userId(),
+                userName,
                 pledge.projectId(),
+                projectTitle,
                 pledge.rewardId(),
                 pledge.amount(),
+                pledge.fulfillmentStatus(),
                 pledge.createdAt().toString()
         );
     }
