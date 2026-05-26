@@ -41,6 +41,7 @@ public class PledgeService {
     /**
      * 관리자용 후원 목록 조회 도메인 로직
      */
+    @Transactional
     public GetAllPledgesResponse getAllPledges() {
         List<Pledge> pledges = pledgeRepository.findAll();
         List<PledgeSummary> summaries = pledges.stream()
@@ -53,6 +54,7 @@ public class PledgeService {
     /**
      * 관리자용 후원 상세 조회 도메인 로직
      */
+    @Transactional
     public GetAdminPledgeDetailResponse getAdminPledgeDetail(Long pledgeId) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
@@ -128,6 +130,7 @@ public class PledgeService {
     /**
      * 후원 상세 조회 도메인 로직
      */
+    @Transactional
     public GetPledgeDetailResponse getPledgeDetail(Long pledgeId) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
