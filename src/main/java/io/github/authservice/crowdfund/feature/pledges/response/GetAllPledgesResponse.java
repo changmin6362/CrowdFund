@@ -4,6 +4,6 @@ import java.util.List;
 
 public record GetAllPledgesResponse(
         String message,
-        List<PledgeDetail> pledges
+        List<PledgeSummary> pledges
 ) {
 }

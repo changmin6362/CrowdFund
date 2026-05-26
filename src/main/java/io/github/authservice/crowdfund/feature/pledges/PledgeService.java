@@ -30,10 +30,10 @@ public class PledgeService {
      */
     public GetAllPledgesResponse getAllPledges() {
         List<Pledge> pledges = pledgeRepository.findAll();
-        List<PledgeDetail> details = pledges.stream()
-                .map(this::mapToPledgeDetail)
+        List<PledgeSummary> summaries = pledges.stream()
+                .map(this::mapToPledgeSummary)
                 .collect(Collectors.toList());
-        return new GetAllPledgesResponse("펀딩 리스트를 성공적으로 불러왔습니다.", details);
+        return new GetAllPledgesResponse("펀딩 리스트를 성공적으로 불러왔습니다.", summaries);
     }
 
     /**
@@ -121,6 +121,17 @@ public class PledgeService {
 
     private PledgeDetail mapToPledgeDetail(Pledge pledge) {
         return new PledgeDetail(
+                pledge.id(),
+                pledge.userId(),
+                pledge.projectId(),
+                pledge.rewardId(),
+                pledge.amount(),
+                pledge.createdAt().toString()
+        );
+    }
+
+    private PledgeSummary mapToPledgeSummary(Pledge pledge) {
+        return new PledgeSummary(
                 pledge.id(),
                 pledge.userId(),
                 pledge.projectId(),
