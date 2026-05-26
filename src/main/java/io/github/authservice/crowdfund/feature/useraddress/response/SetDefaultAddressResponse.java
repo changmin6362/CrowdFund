@@ -1,7 +1,7 @@
 package io.github.authservice.crowdfund.feature.useraddress.response;
 
-public record GetUserAddressResponse(
+public record SetDefaultAddressResponse(
         String message,
-        UserAddressInfo address
+        DefaultAddressResult defaultAddressResult
 ) {
 }

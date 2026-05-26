@@ -1,7 +1,7 @@
 package io.github.authservice.crowdfund.feature.useraddress;
 
-import io.github.authservice.crowdfund.feature.useraddress.request.AddUserAddressRequest;
-import io.github.authservice.crowdfund.feature.useraddress.request.UpdateUserAddressRequest;
+import io.github.authservice.crowdfund.feature.useraddress.request.CreateUserAddressRequest;
+import io.github.authservice.crowdfund.feature.useraddress.request.PatchUserAddressRequest;
 import io.github.authservice.crowdfund.feature.useraddress.response.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,37 +24,24 @@ public class UserAddressController {
      * @param request 배송지 정보
      * @return message, addressId
      */
-    @Operation(summary = "배송지 등록", description = "사용자의 배송지를 등록합니다.")
-    @PostMapping("/address")
+    @Operation(summary = "내 배송지 등록", description = "사용자의 배송지를 등록합니다.")
+    @PostMapping("/address/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public AddUserAddressResponse addUserAddress(@Valid @RequestBody AddUserAddressRequest request) {
-        return service.addUserAddress(request);
+    public CreateUserAddressResponse createUserAddress(@PathVariable Long userId, @Valid @RequestBody CreateUserAddressRequest request) {
+        return service.createUserAddress(request);
     }
 
     /**
      * 내 배송지 목록 조회
      *
      * @param userId 사용자 ID
-     * @return message, addressList
+     * @return message, addresses
      */
-    @Operation(summary = "배송지 목록 조회", description = "사용자의 배송지 목록을 조회합니다.")
+    @Operation(summary = "내 배송지 목록 조회", description = "사용자의 배송지 목록을 조회합니다.")
     @GetMapping("/addresses/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public GetUserAddressListResponse getUserAddresses(@PathVariable Long userId) {
+    public GetUserAddressesResponse getUserAddresses(@PathVariable Long userId) {
         return service.getUserAddresses(userId);
-    }
-
-    /**
-     * 내 배송지 단일 조회
-     *
-     * @param addressId 배송지 ID
-     * @return message, address
-     */
-    @Operation(summary = "배송지 단일 조회", description = "사용자의 특정 배송지를 조회합니다.")
-    @GetMapping("/addresses/{addressId}")
-    @ResponseStatus(HttpStatus.OK)
-    public GetUserAddressResponse getUserAddress(@PathVariable Long addressId) {
-        return service.getUserAddress(addressId);
     }
 
     /**
@@ -62,13 +49,26 @@ public class UserAddressController {
      *
      * @param addressId 배송지 ID
      * @param request   배송지 정보
-     * @return message
+     * @return message, updatedAddress
      */
-    @Operation(summary = "배송지 수정", description = "사용자의 특정 배송지를 수정합니다.")
-    @PutMapping("/address/{addressId}")
+    @Operation(summary = "내 배송지 수정", description = "사용자의 특정 배송지를 수정합니다.")
+    @PatchMapping("/address/{addressId}")
     @ResponseStatus(HttpStatus.OK)
-    public UpdateUserAddressResponse updateUserAddress(@PathVariable Long addressId, @Valid @RequestBody UpdateUserAddressRequest request) {
-        return service.updateUserAddress(addressId, request);
+    public PatchUserAddressResponse patchUserAddress(@PathVariable Long addressId, @Valid @RequestBody PatchUserAddressRequest request) {
+        return service.patchUserAddress(addressId, request);
+    }
+
+    /**
+     * 기본 배송지 변경
+     *
+     * @param addressId 배송지 ID
+     * @return message, defaultAddressResult
+     */
+    @Operation(summary = "기본 배송지 변경", description = "사용자의 특정 배송지를 기본 배송지로 변경합니다.")
+    @PatchMapping("/address/{addressId}/default")
+    @ResponseStatus(HttpStatus.OK)
+    public SetDefaultAddressResponse setDefaultAddress(@PathVariable Long addressId) {
+        return service.setDefaultAddress(addressId);
     }
 
     /**
@@ -77,7 +77,7 @@ public class UserAddressController {
      * @param addressId 배송지 ID
      * @return message
      */
-    @Operation(summary = "배송지 삭제", description = "사용자의 특정 배송지를 삭제합니다.")
+    @Operation(summary = "내 배송지 삭제", description = "사용자의 특정 배송지를 삭제합니다.")
     @DeleteMapping("/address/{addressId}")
     @ResponseStatus(HttpStatus.OK)
     public DeleteUserAddressResponse deleteUserAddress(@PathVariable Long addressId) {
