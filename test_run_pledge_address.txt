@@ -1,0 +1,174 @@
+> Task :compileJava
+> Task :processResources UP-TO-DATE
+> Task :classes
+> Task :compileTestJava
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+
+> Task :test
+
+PledgeAddressServiceTest STANDARD_OUT
+    15:27:29.488 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [io.github.authservice.crowdfund.feature.pledgeaddress.PledgeAddressServiceTest]: PledgeAddressServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+    15:27:29.568 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration io.github.authservice.crowdfund.CrowdFundApplication for test class io.github.authservice.crowdfund.feature.pledgeaddress.PledgeAddressServiceTest
+
+      .   ____          _            __ _ _
+     /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+    ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+     \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+      '  |____| .__|_| |_|_| |_\__, | / / / /
+     =========|_|==============|___/=/_/_/_/
+
+     :: Spring Boot ::               (v3.5.14)
+
+    2026-05-26T15:27:29.757+09:00  INFO 26277 --- [CrowdFund] [    Test worker] i.g.a.c.f.p.PledgeAddressServiceTest     : Starting PledgeAddressServiceTest using Java 17.0.17 with PID 26277 (started by gimchangmin in /Users/gimchangmin/portfolio/CrowdFund)
+    2026-05-26T15:27:29.758+09:00  INFO 26277 --- [CrowdFund] [    Test worker] i.g.a.c.f.p.PledgeAddressServiceTest     : No active profile set, falling back to 1 default profile: "default"
+    2026-05-26T15:27:30.047+09:00  INFO 26277 --- [CrowdFund] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+    2026-05-26T15:27:30.076+09:00  INFO 26277 --- [CrowdFund] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 26 ms. Found 9 JDBC repository interfaces.
+    2026-05-26T15:27:30.511+09:00  INFO 26277 --- [CrowdFund] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+    2026-05-26T15:27:30.558+09:00  INFO 26277 --- [CrowdFund] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.mariadb.jdbc.Connection@49631cfb
+    2026-05-26T15:27:30.559+09:00  INFO 26277 --- [CrowdFund] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+    2026-05-26T15:27:31.071+09:00  INFO 26277 --- [CrowdFund] [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+    2026-05-26T15:27:31.071+09:00  INFO 26277 --- [CrowdFund] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+    2026-05-26T15:27:31.072+09:00  INFO 26277 --- [CrowdFund] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+    2026-05-26T15:27:31.096+09:00  INFO 26277 --- [CrowdFund] [    Test worker] i.g.a.c.f.p.PledgeAddressServiceTest     : Started PledgeAddressServiceTest in 1.46 seconds (process running for 2.024)
+
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-05-26T15:27:31.642+09:00  INFO 26277 --- [CrowdFund] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-26T15:27:31.648+09:00  INFO 26277 --- [CrowdFund] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :test
+
+PledgeAddressServiceTest > 후원_주소_교체_테스트() STANDARD_OUT
+
+    >>> 실행테스트: 후원_주소_교체_테스트
+
+    MockHttpServletRequest:
+          HTTP Method = POST
+          Request URI = /api/pledges/52/addresses
+           Parameters = {}
+              Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"24"]
+                 Body = {
+        "addressId": 31
+    }
+
+        Session Attrs = {}
+
+    Handler:
+                 Type = io.github.authservice.crowdfund.feature.pledgeaddress.PledgeAddressController
+               Method = io.github.authservice.crowdfund.feature.pledgeaddress.PledgeAddressController#replacePledgeAddress(Long, ReplacePledgeAddressRequest)
+
+    Async:
+        Async started = false
+         Async result = null
+
+    Resolved Exception:
+                 Type = null
+
+    ModelAndView:
+            View name = null
+                 View = null
+                Model = null
+
+    FlashMap:
+           Attributes = null
+
+    MockHttpServletResponse:
+               Status = 200
+        Error message = null
+              Headers = [Content-Type:"application/json"]
+         Content type = application/json
+                 Body = {"message":"후원 주소가 성공적으로 교체되었습니다.","replacedPledgeAddress":{"pledgeAddressId":12,"pledgeId":52,"userId":228,"recipientName":"새수령인","phone":"010-9999-8888","postalCode":"54321","addressMain":"새로운주소","addressDetail":"새로운상세","createdAt":"2026-05-26T15:27:31","updatedAt":"2026-05-26T15:27:31.547402"}}
+        Forwarded URL = null
+       Redirected URL = null
+              Cookies = []
+
+PledgeAddressServiceTest > 후원_주소_교체_테스트() PASSED
+
+PledgeAddressServiceTest > 존재하지_않는_후원_주소_조회_실패_테스트() STANDARD_OUT
+
+    >>> 실행테스트: 존재하지_않는_후원_주소_조회_실패_테스트
+
+    MockHttpServletRequest:
+          HTTP Method = GET
+          Request URI = /api/pledges/99999/addresses
+           Parameters = {}
+              Headers = []
+                 Body = null
+        Session Attrs = {}
+
+    Handler:
+                 Type = io.github.authservice.crowdfund.feature.pledgeaddress.PledgeAddressController
+               Method = io.github.authservice.crowdfund.feature.pledgeaddress.PledgeAddressController#getPledgeAddress(Long)
+
+    Async:
+        Async started = false
+         Async result = null
+
+    Resolved Exception:
+                 Type = java.lang.IllegalArgumentException
+
+    ModelAndView:
+            View name = null
+                 View = null
+                Model = null
+
+    FlashMap:
+           Attributes = null
+
+    MockHttpServletResponse:
+               Status = 400
+        Error message = null
+              Headers = [Content-Type:"text/plain;charset=UTF-8", Content-Length:"58"]
+         Content type = text/plain;charset=UTF-8
+                 Body = 해당 후원의 주소 정보를 찾을 수 없습니다.
+        Forwarded URL = null
+       Redirected URL = null
+              Cookies = []
+
+PledgeAddressServiceTest > 존재하지_않는_후원_주소_조회_실패_테스트() PASSED
+
+PledgeAddressServiceTest > 후원_주소_조회_테스트() STANDARD_OUT
+
+    >>> 실행테스트: 후원_주소_조회_테스트
+
+    MockHttpServletRequest:
+          HTTP Method = GET
+          Request URI = /api/pledges/54/addresses
+           Parameters = {}
+              Headers = []
+                 Body = null
+        Session Attrs = {}
+
+    Handler:
+                 Type = io.github.authservice.crowdfund.feature.pledgeaddress.PledgeAddressController
+               Method = io.github.authservice.crowdfund.feature.pledgeaddress.PledgeAddressController#getPledgeAddress(Long)
+
+    Async:
+        Async started = false
+         Async result = null
+
+    Resolved Exception:
+                 Type = null
+
+    ModelAndView:
+            View name = null
+                 View = null
+                Model = null
+
+    FlashMap:
+           Attributes = null
+
+    MockHttpServletResponse:
+               Status = 200
+        Error message = null
+              Headers = [Content-Type:"application/json"]
+         Content type = application/json
+                 Body = {"message":"후원 주소 조회가 완료되었습니다.","pledgeAddress":{"pledgeAddressId":14,"pledgeId":54,"userId":230,"recipientName":"수령인","phone":"010-1111-2222","postalCode":"12345","addressMain":"기본주소","addressDetail":"상세주소","createdAt":"2026-05-26T15:27:31","updatedAt":"2026-05-26T15:27:31"}}
+        Forwarded URL = null
+       Redirected URL = null
+              Cookies = []
+
+PledgeAddressServiceTest > 후원_주소_조회_테스트() PASSED
+
+BUILD SUCCESSFUL in 4s
+4 actionable tasks: 3 executed, 1 up-to-date
