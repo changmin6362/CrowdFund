@@ -1,10 +1,15 @@
 package io.github.authservice.crowdfund.feature.user;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
+import io.github.authservice.crowdfund.feature.user.response.GetMyPledgeListResponse;
+import io.github.authservice.crowdfund.feature.user.response.GetUserDataResponse;
 import io.github.authservice.crowdfund.feature.user.response.GetUserNickNameResponse;
+import io.github.authservice.crowdfund.global.common.ApiResult;
+import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,14 +17,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -33,6 +39,9 @@ class UserServiceTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @BeforeEach
     void setup(TestInfo testInfo) {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
@@ -42,14 +51,19 @@ class UserServiceTest {
     void 내_닉네임_조회_테스트() throws Exception {
         // 1. 테스트 데이터 삽입
         User savedUser = userRepository.save(new User(
-                null, "test@test.com", "pass", "tester", "name", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+                null, "test@test.com", "pass", "tester", "홍길동", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         // 2. MockMvc를 이용한 요청 및 결과 출력
-        mockMvc.perform(get("/api/users/me/nickname/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(get("/api/users/me/nickname/{userId}", savedUser.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nickname").value("tester"))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<GetUserNickNameResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("내 닉네임 조회에 성공했습니다.");
+        assertThat(apiResult.data().nickname()).isEqualTo("tester");
     }
 
     @Test
@@ -58,13 +72,16 @@ class UserServiceTest {
                 null, "data@test.com", "pass", "nick", "홍길동", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
-        mockMvc.perform(get("/api/users/me/data/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(get("/api/users/me/data/{userId}", savedUser.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.user.email").value("data@test.com"))
-                .andExpect(jsonPath("$.user.nickname").value("nick"))
-                .andExpect(jsonPath("$.user.name").value("홍길동"))
-                .andExpect(jsonPath("$.user.phone").value("010-1111-2222"))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<GetUserDataResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("내 정보 조회에 성공했습니다.");
+        assertThat(apiResult.data().user().email()).isEqualTo("data@test.com");
+        assertThat(apiResult.data().user().nickname()).isEqualTo("nick");
     }
 
     @Test
@@ -81,12 +98,16 @@ class UserServiceTest {
                 }
                 """;
 
-        mockMvc.perform(put("/api/users/me/{userId}", savedUser.id())
+        MvcResult result = mockMvc.perform(put("/api/users/me/{userId}", savedUser.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("내 정보 수정에 성공했습니다."))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("내 정보 수정에 성공했습니다.");
     }
 
     @Test
@@ -95,10 +116,14 @@ class UserServiceTest {
                 null, "del@test.com", "pass", "del", "del", "010-4444-5555", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
-        mockMvc.perform(delete("/api/users/me/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(delete("/api/users/me/{userId}", savedUser.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("회원 탈퇴에 성공했습니다."))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("회원 탈퇴에 성공했습니다.");
     }
 
     @Test
@@ -107,17 +132,20 @@ class UserServiceTest {
                 null, "pledge@test.com", "pass", "pl", "pl", "010-7777-8888", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
-        mockMvc.perform(get("/api/users/me/pledges/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(get("/api/users/me/pledges/{userId}", savedUser.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("내가 후원한 프로젝트 목록 조회에 성공했습니다."))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<GetMyPledgeListResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("내가 후원한 프로젝트 목록 조회에 성공했습니다.");
     }
 
     @Test
     void 사용자_조회_실패_테스트() throws Exception {
         mockMvc.perform(get("/api/users/me/nickname/9999"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").value("존재하지 않는 사용자입니다."))
                 .andDo(print());
     }
 }

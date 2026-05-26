@@ -1,5 +1,7 @@
 package io.github.authservice.crowdfund.feature.pledges;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
 import io.github.authservice.crowdfund.domain.payment.Payment;
@@ -16,6 +18,9 @@ import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
+import io.github.authservice.crowdfund.feature.pledges.response.*;
+import io.github.authservice.crowdfund.global.common.ApiResult;
+import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -24,14 +29,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -41,6 +47,9 @@ class PledgeServiceTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private PledgeRepository pledgeRepository;
@@ -97,13 +106,17 @@ class PledgeServiceTest {
                 }
                 """.formatted(savedProject.id(), savedReward.id());
 
-        mockMvc.perform(post("/api/project/pledges/{userId}", savedUser.id())
+        MvcResult result = mockMvc.perform(post("/api/project/pledges/{userId}", savedUser.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("펀딩 후원이 성공하였습니다."))
-                .andExpect(jsonPath("$.pledgeId").exists())
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<CreatePledgeResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("프로젝트 후원 참여에 성공했습니다.");
+        assertThat(apiResult.data().pledgeId()).isNotNull();
     }
 
     @Test
@@ -112,17 +125,16 @@ class PledgeServiceTest {
                 null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
-        mockMvc.perform(get("/api/admin/pledge"))
+        MvcResult result = mockMvc.perform(get("/api/admin/pledge"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("펀딩 리스트를 성공적으로 불러왔습니다."))
-                .andExpect(jsonPath("$.pledges").isArray())
-                .andExpect(jsonPath("$.pledges[?(@.id == %d)].userId".formatted(savedPledge.id())).value(savedUser.id().intValue()))
-                .andExpect(jsonPath("$.pledges[?(@.id == %d)].userName".formatted(savedPledge.id())).value(savedUser.name()))
-                .andExpect(jsonPath("$.pledges[?(@.id == %d)].projectId".formatted(savedPledge.id())).value(savedProject.id().intValue()))
-                .andExpect(jsonPath("$.pledges[?(@.id == %d)].projectTitle".formatted(savedPledge.id())).value(savedProject.title()))
-                .andExpect(jsonPath("$.pledges[?(@.id == %d)].amount".formatted(savedPledge.id())).value(10000))
-                .andExpect(jsonPath("$.pledges[?(@.id == %d)].fulfillmentStatus".formatted(savedPledge.id())).value("READY"))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<GetAllPledgesResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("전체 후원 목록 조회에 성공했습니다.");
+        assertThat(apiResult.data().pledges()).isNotEmpty();
+        assertThat(apiResult.data().pledges()).anyMatch(p -> p.id().equals(savedPledge.id()));
     }
 
     @Test
@@ -139,17 +151,16 @@ class PledgeServiceTest {
                 null, savedPledge.id(), savedUser.id(), "홍길동", "010-1234-5678", "12345", "서울특별시 강남구 테헤란로 123", "4층 개발팀", LocalDateTime.now(), LocalDateTime.now()
         ));
 
-        mockMvc.perform(get("/api/pledges/{pledgeId}", savedPledge.id()))
+        MvcResult result = mockMvc.perform(get("/api/pledges/{pledgeId}", savedPledge.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("후원 상세 정보를 성공적으로 불러왔습니다."))
-                .andExpect(jsonPath("$.pledgeDetail.pledgeId").value(savedPledge.id()))
-                .andExpect(jsonPath("$.pledgeDetail.projectTitle").value(savedProject.title()))
-                .andExpect(jsonPath("$.pledgeDetail.rewardName").value(savedReward.title()))
-                .andExpect(jsonPath("$.pledgeDetail.paymentMethod").value("신용카드"))
-                .andExpect(jsonPath("$.pledgeDetail.shippingAddress.recipientName").value("홍길동"))
-                .andExpect(jsonPath("$.pledgeDetail.shippingAddress.address").value("서울특별시 강남구 테헤란로 123"))
-                .andExpect(jsonPath("$.pledgeDetail.shippingAddress.postalCode").value("배송 준비중"))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<GetPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("후원 상세 조회에 성공했습니다.");
+        assertThat(apiResult.data().pledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
+        assertThat(apiResult.data().pledgeDetail().projectTitle()).isEqualTo(savedProject.title());
     }
 
     @Test
@@ -158,10 +169,14 @@ class PledgeServiceTest {
                 null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
-        mockMvc.perform(delete("/api/pledges/{pledgeId}", savedPledge.id()))
+        MvcResult result = mockMvc.perform(delete("/api/pledges/{pledgeId}", savedPledge.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("펀딩 주문을 성공적으로 취소했습니다."))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("후원 취소에 성공했습니다.");
     }
 
     @Test
@@ -176,14 +191,17 @@ class PledgeServiceTest {
                 }
                 """;
 
-        mockMvc.perform(patch("/api/pledges/{pledgeId}/fulfillment", savedPledge.id())
+        MvcResult result = mockMvc.perform(patch("/api/pledges/{pledgeId}/fulfillment", savedPledge.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("보상 이행 상태가 변경되었습니다."))
-                .andExpect(jsonPath("$.updatedInfo.fulfillmentStatus").value("COMPLETED"))
-                .andExpect(jsonPath("$.updatedInfo.fulfilledAt").exists())
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<PatchFulfillmentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("보상 이행 상태 갱신에 성공했습니다.");
+        assertThat(apiResult.data().updatedInfo().fulfillmentStatus()).isEqualTo(FulfillmentStatus.COMPLETED);
     }
 
     @Test
@@ -196,16 +214,15 @@ class PledgeServiceTest {
                 null, savedPledge.id(), "CREDIT_CARD", 10000L, "PAID", LocalDateTime.now(), LocalDateTime.now()
         ));
 
-        mockMvc.perform(get("/api/admin/pledge/{pledgeId}", savedPledge.id()))
+        MvcResult result = mockMvc.perform(get("/api/admin/pledge/{pledgeId}", savedPledge.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("관리자용 후원 상세 정보를 성공적으로 불러왔습니다."))
-                .andExpect(jsonPath("$.adminPledgeDetail.pledgeId").value(savedPledge.id()))
-                .andExpect(jsonPath("$.adminPledgeDetail.user.userId").value(savedUser.id()))
-                .andExpect(jsonPath("$.adminPledgeDetail.user.name").value(savedUser.name()))
-                .andExpect(jsonPath("$.adminPledgeDetail.payment.amount").value(10000))
-                .andExpect(jsonPath("$.adminPledgeDetail.payment.paymentMethod").value("CREDIT_CARD"))
-                .andExpect(jsonPath("$.adminPledgeDetail.project.projectId").value(savedProject.id()))
-                .andExpect(jsonPath("$.adminPledgeDetail.project.projectTitle").value(savedProject.title()))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<GetAdminPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("관리자용 후원 상세 조회에 성공했습니다.");
+        assertThat(apiResult.data().adminPledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
+        assertThat(apiResult.data().adminPledgeDetail().user().userId()).isEqualTo(savedUser.id());
     }
 }

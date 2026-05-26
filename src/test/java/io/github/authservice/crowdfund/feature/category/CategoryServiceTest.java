@@ -1,7 +1,13 @@
 package io.github.authservice.crowdfund.feature.category;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
+import io.github.authservice.crowdfund.feature.category.response.CreateCategoryResponse;
+import io.github.authservice.crowdfund.feature.category.response.GetCategoryTreeResponse;
+import io.github.authservice.crowdfund.global.common.ApiResult;
+import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -10,11 +16,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -27,6 +36,9 @@ class CategoryServiceTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private Category savedRootCategory;
     private Category savedChildCategory;
@@ -53,25 +65,37 @@ class CategoryServiceTest {
                 }
                 """.formatted(savedRootCategory.id());
 
-        mockMvc.perform(post("/api/admin/categories")
+        MvcResult result = mockMvc.perform(post("/api/admin/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("카테고리가 생성되었습니다."))
-                .andExpect(jsonPath("$.category.name").value("새 카테고리"))
-                .andExpect(jsonPath("$.category.parentId").value(savedRootCategory.id()))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<CreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("카테고리 생성에 성공했습니다.");
+        assertThat(apiResult.data().category().name()).isEqualTo("새 카테고리");
+        assertThat(apiResult.data().category().parentId()).isEqualTo(savedRootCategory.id());
     }
 
     @Test
     void 카테고리_트리_조회_테스트() throws Exception {
-        mockMvc.perform(get("/api/categories/tree"))
+        MvcResult result = mockMvc.perform(get("/api/categories/tree"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("카테고리 조회가 완료되었습니다."))
-                .andExpect(jsonPath("$.categoryTree").isArray())
-                .andExpect(jsonPath("$.categoryTree[?(@.name == 'Root Category')]").exists())
-                .andExpect(jsonPath("$.categoryTree[?(@.name == 'Root Category')].children[?(@.name == 'Child Category')]").exists())
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<GetCategoryTreeResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("카테고리 트리 조회에 성공했습니다.");
+        assertThat(apiResult.data().categoryTree()).isNotEmpty();
+        assertThat(apiResult.data().categoryTree()).anyMatch(node -> node.name().equals("Root Category"));
+        assertThat(apiResult.data().categoryTree().stream()
+                .filter(node -> node.name().equals("Root Category"))
+                .flatMap(node -> node.children().stream())
+                .anyMatch(child -> child.name().equals("Child Category")))
+                .isTrue();
     }
 
     @Test
@@ -82,12 +106,16 @@ class CategoryServiceTest {
                 }
                 """;
 
-        mockMvc.perform(patch("/api/admin/categories/{categoryId}/name", savedRootCategory.id())
+        MvcResult result = mockMvc.perform(patch("/api/admin/categories/{categoryId}/name", savedRootCategory.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("카테고리 이름이 수정되었습니다."))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<CreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("카테고리 이름 변경에 성공했습니다.");
     }
 
     @Test
@@ -102,12 +130,16 @@ class CategoryServiceTest {
                 }
                 """.formatted(anotherRoot.id());
 
-        mockMvc.perform(patch("/api/admin/categories/{categoryId}/parent", savedChildCategory.id())
+        MvcResult result = mockMvc.perform(patch("/api/admin/categories/{categoryId}/parent", savedChildCategory.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("카테고리 부모가 변경되었습니다."))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<CreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("카테고리 부모 변경에 성공했습니다.");
     }
 
     @Test
@@ -127,20 +159,28 @@ class CategoryServiceTest {
                 }
                 """.formatted(savedRootCategory.id(), savedChildCategory.id());
 
-        mockMvc.perform(patch("/api/admin/categories/sort-order")
+        MvcResult result = mockMvc.perform(patch("/api/admin/categories/sort-order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("카테고리 순서가 변경되었습니다."))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<CreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("카테고리 정렬 순서 변경에 성공했습니다.");
     }
 
     @Test
     void 카테고리_삭제_테스트() throws Exception {
-        mockMvc.perform(delete("/api/admin/categories/{categoryId}", savedChildCategory.id()))
+        MvcResult result = mockMvc.perform(delete("/api/admin/categories/{categoryId}", savedChildCategory.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("카테고리가 삭제되었습니다."))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<CreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("카테고리 삭제에 성공했습니다.");
     }
 
     @Test

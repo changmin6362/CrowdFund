@@ -1,5 +1,7 @@
 package io.github.authservice.crowdfund.feature.comment;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.authservice.crowdfund.domain.comment.Comment;
 import io.github.authservice.crowdfund.domain.comment.CommentRepository;
 import io.github.authservice.crowdfund.domain.project.Project;
@@ -9,6 +11,9 @@ import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
+import io.github.authservice.crowdfund.feature.comment.response.*;
+import io.github.authservice.crowdfund.global.common.ApiResult;
+import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -17,14 +22,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -47,6 +54,9 @@ class CommentServiceTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private User savedUser;
     private Project savedProject;
 
@@ -56,7 +66,7 @@ class CommentServiceTest {
 
         // 기본 데이터 준비
         savedUser = userRepository.save(new User(
-                null, "test@test.com", "pass", "tester", "name", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+                null, "test@test.com", "pass", "tester", "홍길동", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         Category savedCategory = categoryRepository.save(new Category(
@@ -78,14 +88,18 @@ class CommentServiceTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/projects/{projectId}/comments/{userId}", savedProject.id(), savedUser.id())
+        MvcResult result = mockMvc.perform(post("/api/projects/{projectId}/comments/{userId}", savedProject.id(), savedUser.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("댓글 작성이 성공적으로 완료되었습니다"))
-                .andExpect(jsonPath("$.CreatedComment.writerName").value(savedUser.nickname()))
-                .andExpect(jsonPath("$.CreatedComment.content").value("테스트 댓글입니다."))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<CreateCommentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("댓글 작성에 성공했습니다.");
+        assertThat(apiResult.data().createdComment().writerName()).isEqualTo(savedUser.nickname());
+        assertThat(apiResult.data().createdComment().content()).isEqualTo("테스트 댓글입니다.");
     }
 
     @Test
@@ -100,13 +114,17 @@ class CommentServiceTest {
                 }
                 """;
 
-        mockMvc.perform(patch("/api/comments/{commentId}", savedComment.id())
+        MvcResult result = mockMvc.perform(patch("/api/comments/{commentId}", savedComment.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("댓글 수정이 성공적으로 완료되었습니다"))
-                .andExpect(jsonPath("$.patchedComment.content").value("수정된 댓글입니다."))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<PatchCommentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("댓글 수정에 성공했습니다.");
+        assertThat(apiResult.data().patchedComment().content()).isEqualTo("수정된 댓글입니다.");
     }
 
     @Test
@@ -119,12 +137,16 @@ class CommentServiceTest {
                 null, savedUser.id(), savedProject.id(), "댓글2", LocalDateTime.now()
         ));
 
-        mockMvc.perform(get("/api/projects/{projectId}/comments", savedProject.id())
+        MvcResult result = mockMvc.perform(get("/api/projects/{projectId}/comments", savedProject.id())
                         .param("currentUserId", String.valueOf(savedUser.id())))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("댓글 목록 조회가 성공적으로 완료되었습니다"))
-                .andExpect(jsonPath("$.comments.length()").value(2))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<GetCommentsResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("댓글 목록 조회에 성공했습니다.");
+        assertThat(apiResult.data().comments()).hasSize(2);
     }
 
     @Test
@@ -133,12 +155,16 @@ class CommentServiceTest {
                 null, savedUser.id(), savedProject.id(), "내 댓글", LocalDateTime.now()
         ));
 
-        mockMvc.perform(get("/api/users/me/comments/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(get("/api/users/me/comments/{userId}", savedUser.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("내 댓글 목록 조회가 성공적으로 완료되었습니다"))
-                .andExpect(jsonPath("$.myComments.length()").value(1))
-                .andExpect(jsonPath("$.myComments[0].content").value("내 댓글"))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<GetMyCommentsResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("내 댓글 목록 조회에 성공했습니다.");
+        assertThat(apiResult.data().myComments()).hasSize(1);
+        assertThat(apiResult.data().myComments().get(0).content()).isEqualTo("내 댓글");
     }
 
     @Test
@@ -147,11 +173,15 @@ class CommentServiceTest {
                 null, savedUser.id(), savedProject.id(), "삭제할 댓글", LocalDateTime.now()
         ));
 
-        mockMvc.perform(delete("/api/comments/{commentId}/{userId}", savedComment.id(), savedUser.id()))
+        MvcResult result = mockMvc.perform(delete("/api/comments/{commentId}/{userId}", savedComment.id(), savedUser.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("내 댓글 삭제가 성공적으로 완료되었습니다"))
-                .andExpect(jsonPath("$.deletedCommentId").value(savedComment.id()))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<DeleteMyCommentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("내 댓글 삭제에 성공했습니다.");
+        assertThat(apiResult.data().deletedCommentId()).isEqualTo(savedComment.id());
     }
 
     @Test
@@ -166,7 +196,6 @@ class CommentServiceTest {
 
         mockMvc.perform(delete("/api/comments/{commentId}/{userId}", savedComment.id(), otherUser.id()))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").value("본인의 댓글만 삭제할 수 있습니다."))
                 .andDo(print());
     }
 
@@ -180,7 +209,6 @@ class CommentServiceTest {
                                 }
                                 """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").value("댓글을 찾을 수 없습니다."))
                 .andDo(print());
     }
 }

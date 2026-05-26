@@ -30,7 +30,7 @@ public class ProjectService {
         CreateProjectCommand command = new CreateProjectCommand(
                 request.categoryId(),
                 request.title(),
-                request.content_blocks(),
+                request.contentBlocks(),
                 request.goalAmount(),
                 BigDecimal.ZERO,
                 request.endAt(),
