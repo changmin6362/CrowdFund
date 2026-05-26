@@ -1,0 +1,307 @@
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :compileTestJava
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+
+> Task :test
+
+PledgeServiceTest STANDARD_OUT
+    10:37:59.177 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [io.github.authservice.crowdfund.feature.pledges.PledgeServiceTest]: PledgeServiceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+    10:37:59.260 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration io.github.authservice.crowdfund.CrowdFundApplication for test class io.github.authservice.crowdfund.feature.pledges.PledgeServiceTest
+
+      .   ____          _            __ _ _
+     /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+    ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+     \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+      '  |____| .__|_| |_|_| |_\__, | / / / /
+     =========|_|==============|___/=/_/_/_/
+
+     :: Spring Boot ::               (v3.5.14)
+
+    2026-05-26T10:37:59.421+09:00  INFO 94467 --- [CrowdFund] [    Test worker] i.g.a.c.f.pledges.PledgeServiceTest      : Starting PledgeServiceTest using Java 17.0.17 with PID 94467 (started by gimchangmin in /Users/gimchangmin/portfolio/CrowdFund)
+    2026-05-26T10:37:59.422+09:00  INFO 94467 --- [CrowdFund] [    Test worker] i.g.a.c.f.pledges.PledgeServiceTest      : No active profile set, falling back to 1 default profile: "default"
+    2026-05-26T10:37:59.653+09:00  INFO 94467 --- [CrowdFund] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+    2026-05-26T10:37:59.679+09:00  INFO 94467 --- [CrowdFund] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 23 ms. Found 9 JDBC repository interfaces.
+    2026-05-26T10:38:00.047+09:00  INFO 94467 --- [CrowdFund] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+    2026-05-26T10:38:00.085+09:00  INFO 94467 --- [CrowdFund] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.mariadb.jdbc.Connection@3303e89e
+    2026-05-26T10:38:00.086+09:00  INFO 94467 --- [CrowdFund] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+    2026-05-26T10:38:00.499+09:00  INFO 94467 --- [CrowdFund] [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+    2026-05-26T10:38:00.500+09:00  INFO 94467 --- [CrowdFund] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+    2026-05-26T10:38:00.500+09:00  INFO 94467 --- [CrowdFund] [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+    2026-05-26T10:38:00.518+09:00  INFO 94467 --- [CrowdFund] [    Test worker] i.g.a.c.f.pledges.PledgeServiceTest      : Started PledgeServiceTest in 1.198 seconds (process running for 1.865)
+
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-05-26T10:38:01.153+09:00  INFO 94467 --- [CrowdFund] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-26T10:38:01.159+09:00  INFO 94467 --- [CrowdFund] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :test
+
+PledgeServiceTest > 후원_목록_조회_테스트() STANDARD_OUT
+
+    >>> 실행테스트: 후원_목록_조회_테스트
+
+    MockHttpServletRequest:
+          HTTP Method = GET
+          Request URI = /api/admin/pledge
+           Parameters = {}
+              Headers = []
+                 Body = null
+        Session Attrs = {}
+
+    Handler:
+                 Type = io.github.authservice.crowdfund.feature.pledges.AdminPledgeController
+               Method = io.github.authservice.crowdfund.feature.pledges.AdminPledgeController#getAllPledges()
+
+    Async:
+        Async started = false
+         Async result = null
+
+    Resolved Exception:
+                 Type = null
+
+    ModelAndView:
+            View name = null
+                 View = null
+                Model = null
+
+    FlashMap:
+           Attributes = null
+
+    MockHttpServletResponse:
+               Status = 200
+        Error message = null
+              Headers = [Content-Type:"application/json"]
+         Content type = application/json
+                 Body = {"message":"펀딩 리스트를 성공적으로 불러왔습니다.","pledges":[{"id":1,"userId":2,"userName":"김철수","projectId":3,"projectTitle":"초슬림 무선 키보드","rewardId":4,"amount":35000,"fulfillmentStatus":"READY","createdAt":"2026-05-18T05:24:23"},{"id":2,"userId":6,"userName":"박지수","projectId":4,"projectTitle":"전통 매듭 팔찌","rewardId":6,"amount":189000,"fulfillmentStatus":"READY","createdAt":"2026-05-18T05:24:23"},{"id":3,"userId":1,"userName":"관리자","projectId":5,"projectTitle":"테스트용 샘플","rewardId":7,"amount":15000,"fulfillmentStatus":"READY","createdAt":"2026-05-18T05:24:23"},{"id":22,"userId":170,"userName":"pldg","projectId":80,"projectTitle":"테스트 프로젝트","rewardId":61,"amount":10000,"fulfillmentStatus":"READY","createdAt":"2026-05-26T10:38"}]}
+        Forwarded URL = null
+       Redirected URL = null
+              Cookies = []
+
+PledgeServiceTest > 후원_목록_조회_테스트() PASSED
+
+PledgeServiceTest > 보상_이행_상태_갱신_테스트() STANDARD_OUT
+
+    >>> 실행테스트: 보상_이행_상태_갱신_테스트
+
+    MockHttpServletRequest:
+          HTTP Method = PATCH
+          Request URI = /api/pledges/23/fulfillment
+           Parameters = {}
+              Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"41"]
+                 Body = {
+        "fulfillmentStatus": "COMPLETED"
+    }
+
+        Session Attrs = {}
+
+    Handler:
+                 Type = io.github.authservice.crowdfund.feature.pledges.PledgeController
+               Method = io.github.authservice.crowdfund.feature.pledges.PledgeController#updateFulfillment(Long, UpdateFulfillmentRequest)
+
+    Async:
+        Async started = false
+         Async result = null
+
+    Resolved Exception:
+                 Type = null
+
+    ModelAndView:
+            View name = null
+                 View = null
+                Model = null
+
+    FlashMap:
+           Attributes = null
+
+    MockHttpServletResponse:
+               Status = 200
+        Error message = null
+              Headers = [Content-Type:"application/json"]
+         Content type = application/json
+                 Body = {"message":"보상 이행 상태가 변경되었습니다.","updatedInfo":{"pledgeId":23,"fulfillmentStatus":"COMPLETED","fulfilledAt":"2026-05-26T10:38:01.03696"}}
+        Forwarded URL = null
+       Redirected URL = null
+              Cookies = []
+
+PledgeServiceTest > 보상_이행_상태_갱신_테스트() PASSED
+
+PledgeServiceTest > 후원_취소_테스트() STANDARD_OUT
+
+    >>> 실행테스트: 후원_취소_테스트
+
+    MockHttpServletRequest:
+          HTTP Method = DELETE
+          Request URI = /api/pledges/24
+           Parameters = {}
+              Headers = []
+                 Body = null
+        Session Attrs = {}
+
+    Handler:
+                 Type = io.github.authservice.crowdfund.feature.pledges.PledgeController
+               Method = io.github.authservice.crowdfund.feature.pledges.PledgeController#deletePledge(Long)
+
+    Async:
+        Async started = false
+         Async result = null
+
+    Resolved Exception:
+                 Type = null
+
+    ModelAndView:
+            View name = null
+                 View = null
+                Model = null
+
+    FlashMap:
+           Attributes = null
+
+    MockHttpServletResponse:
+               Status = 200
+        Error message = null
+              Headers = [Content-Type:"application/json"]
+         Content type = application/json
+                 Body = {"message":"펀딩 주문을 성공적으로 취소했습니다."}
+        Forwarded URL = null
+       Redirected URL = null
+              Cookies = []
+
+PledgeServiceTest > 후원_취소_테스트() PASSED
+
+PledgeServiceTest > 후원_상세_조회_테스트() STANDARD_OUT
+
+    >>> 실행테스트: 후원_상세_조회_테스트
+
+    MockHttpServletRequest:
+          HTTP Method = GET
+          Request URI = /api/pledges/25
+           Parameters = {}
+              Headers = []
+                 Body = null
+        Session Attrs = {}
+
+    Handler:
+                 Type = io.github.authservice.crowdfund.feature.pledges.PledgeController
+               Method = io.github.authservice.crowdfund.feature.pledges.PledgeController#getPledgeDetail(Long)
+
+    Async:
+        Async started = false
+         Async result = null
+
+    Resolved Exception:
+                 Type = null
+
+    ModelAndView:
+            View name = null
+                 View = null
+                Model = null
+
+    FlashMap:
+           Attributes = null
+
+    MockHttpServletResponse:
+               Status = 200
+        Error message = null
+              Headers = [Content-Type:"application/json"]
+         Content type = application/json
+                 Body = {"message":"후원 상세 정보를 성공적으로 불러왔습니다.","pledgeDetail":{"pledgeId":25,"createdAt":"2026-05-26T10:38:01","fulfillmentStatus":"READY","projectTitle":"테스트 프로젝트","amount":10000,"paymentMethod":"신용카드","rewardName":"테스트 리워드","shippingAddress":{"recipientName":"홍길동","recipientPhone":"010-1234-5678","address":"서울특별시 강남구 테헤란로 123","detailAddress":"4층 개발팀","postalCode":"배송 준비중"}}}
+        Forwarded URL = null
+       Redirected URL = null
+              Cookies = []
+
+PledgeServiceTest > 후원_상세_조회_테스트() PASSED
+
+PledgeServiceTest > 후원_참여_테스트() STANDARD_OUT
+
+    >>> 실행테스트: 후원_참여_테스트
+
+    MockHttpServletRequest:
+          HTTP Method = POST
+          Request URI = /api/project/pledges/174
+           Parameters = {}
+              Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"46"]
+                 Body = {
+        "project_id": 84,
+        "reward_id": 65
+    }
+
+        Session Attrs = {}
+
+    Handler:
+                 Type = io.github.authservice.crowdfund.feature.pledges.PledgeController
+               Method = io.github.authservice.crowdfund.feature.pledges.PledgeController#createPledge(Long, CreatePledgeRequest)
+
+    Async:
+        Async started = false
+         Async result = null
+
+    Resolved Exception:
+                 Type = null
+
+    ModelAndView:
+            View name = null
+                 View = null
+                Model = null
+
+    FlashMap:
+           Attributes = null
+
+    MockHttpServletResponse:
+               Status = 201
+        Error message = null
+              Headers = [Content-Type:"application/json"]
+         Content type = application/json
+                 Body = {"message":"펀딩 후원이 성공하였습니다.","pledgeId":26}
+        Forwarded URL = null
+       Redirected URL = null
+              Cookies = []
+
+PledgeServiceTest > 후원_참여_테스트() PASSED
+
+PledgeServiceTest > 관리자_후원_상세_조회_테스트() STANDARD_OUT
+
+    >>> 실행테스트: 관리자_후원_상세_조회_테스트
+
+    MockHttpServletRequest:
+          HTTP Method = GET
+          Request URI = /api/admin/pledge/27
+           Parameters = {}
+              Headers = []
+                 Body = null
+        Session Attrs = {}
+
+    Handler:
+                 Type = io.github.authservice.crowdfund.feature.pledges.AdminPledgeController
+               Method = io.github.authservice.crowdfund.feature.pledges.AdminPledgeController#getAdminPledgeDetail(Long)
+
+    Async:
+        Async started = false
+         Async result = null
+
+    Resolved Exception:
+                 Type = null
+
+    ModelAndView:
+            View name = null
+                 View = null
+                Model = null
+
+    FlashMap:
+           Attributes = null
+
+    MockHttpServletResponse:
+               Status = 200
+        Error message = null
+              Headers = [Content-Type:"application/json"]
+         Content type = application/json
+                 Body = {"message":"관리자용 후원 상세 정보를 성공적으로 불러왔습니다.","adminPledgeDetail":{"pledgeId":27,"createdAt":"2026-05-26T10:38:01","fulfillmentStatus":"READY","user":{"userId":175,"name":"pldg","nickname":"pldg","email":"pledger@test.com","phone":"010-1111-2222"},"payment":{"amount":10000,"paymentMethod":"CREDIT_CARD"},"project":{"projectId":85,"projectTitle":"테스트 프로젝트"}}}
+        Forwarded URL = null
+       Redirected URL = null
+              Cookies = []
+
+PledgeServiceTest > 관리자_후원_상세_조회_테스트() PASSED
+
+BUILD SUCCESSFUL in 3s
+4 actionable tasks: 2 executed, 2 up-to-date

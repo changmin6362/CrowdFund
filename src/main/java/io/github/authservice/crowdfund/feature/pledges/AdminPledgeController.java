@@ -1,28 +1,38 @@
 package io.github.authservice.crowdfund.feature.pledges;
 
-import io.github.authservice.crowdfund.feature.pledges.response.PledgeListResponse;
+import io.github.authservice.crowdfund.feature.pledges.response.GetAdminPledgeDetailResponse;
+import io.github.authservice.crowdfund.feature.pledges.response.GetAllPledgesResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminPledgeController {
 
-    private final PledgeService pledgeService;
+    private final PledgeService service;
 
     /**
      * 전체 후원 목록 조회
      *
-     * @return 메세지와 후원 정보 리스트
+     * @return message, pledges
      */
     @GetMapping("/pledge")
     @ResponseStatus(HttpStatus.OK)
-    public PledgeListResponse getAllPledges() {
-        return pledgeService.getAllPledges();
+    public GetAllPledgesResponse getAllPledges() {
+        return service.getAllPledges();
+    }
+
+    /**
+     * 관리자용 후원 상세 조회
+     *
+     * @param pledgeId 후원 ID
+     * @return message, adminPledgeDetail
+     */
+    @GetMapping("/pledge/{pledgeId}")
+    @ResponseStatus(HttpStatus.OK)
+    public GetAdminPledgeDetailResponse getAdminPledgeDetail(@PathVariable Long pledgeId) {
+        return service.getAdminPledgeDetail(pledgeId);
     }
 }
