@@ -16,6 +16,7 @@ import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddressReposit
 import io.github.authservice.crowdfund.feature.pledges.request.CreatePledgeRequest;
 import io.github.authservice.crowdfund.feature.pledges.request.PatchFulfillmentRequest;
 import io.github.authservice.crowdfund.feature.pledges.response.*;
+import io.github.authservice.crowdfund.global.common.ApiResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,7 @@ public class PledgeService {
         List<PledgeSummary> summaries = pledges.stream()
                 .map(this::mapToPledgeSummary)
                 .collect(Collectors.toList());
-        return new GetAllPledgesResponse("펀딩 리스트를 성공적으로 불러왔습니다.", summaries);
+        return new GetAllPledgesResponse(summaries);
     }
 
 
@@ -93,7 +94,7 @@ public class PledgeService {
                 projectDetail
         );
 
-        return new GetAdminPledgeDetailResponse("관리자용 후원 상세 정보를 성공적으로 불러왔습니다.", pledgeDetail);
+        return new GetAdminPledgeDetailResponse(pledgeDetail);
     }
 
     /**
@@ -124,7 +125,7 @@ public class PledgeService {
 
         Pledge savedPledge = pledgeRepository.save(pledge);
 
-        return new CreatePledgeResponse("펀딩 후원이 성공하였습니다.", savedPledge.id());
+        return new CreatePledgeResponse(savedPledge.id());
     }
 
     /**
@@ -165,7 +166,7 @@ public class PledgeService {
                 shippingAddress
         );
 
-        return new GetPledgeDetailResponse("후원 상세 정보를 성공적으로 불러왔습니다.", pledgeDetail);
+        return new GetPledgeDetailResponse(pledgeDetail);
     }
 
     private String translatePaymentMethod(String method) {
@@ -182,12 +183,11 @@ public class PledgeService {
      * 후원 취소 도메인 로직
      */
     @Transactional
-    public DeletePledgeResponse deletePledge(Long pledgeId) {
+    public void deletePledge(Long pledgeId) {
         if (!pledgeRepository.existsById(pledgeId)) {
             throw new IllegalArgumentException("존재하지 않는 후원 내역입니다.");
         }
         pledgeRepository.deleteById(pledgeId);
-        return new DeletePledgeResponse("펀딩 주문을 성공적으로 취소했습니다.");
     }
 
     /**
@@ -216,8 +216,7 @@ public class PledgeService {
 
         pledgeRepository.save(updatedPledge);
 
-        return new PatchFulfillmentResponse("보상 이행 상태가 변경되었습니다.",
-                new FulfillmentInfo(pledgeId, request.fulfillmentStatus(), fulfilledAt));
+        return new PatchFulfillmentResponse(new FulfillmentInfo(pledgeId, request.fulfillmentStatus(), fulfilledAt));
     }
 
 

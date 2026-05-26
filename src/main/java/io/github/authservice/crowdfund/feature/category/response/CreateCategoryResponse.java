@@ -6,8 +6,6 @@ import io.github.authservice.crowdfund.domain.category.Category;
 import java.util.List;
 
 public record CreateCategoryResponse(
-
-        String message,
         Category category
 ) {
 }

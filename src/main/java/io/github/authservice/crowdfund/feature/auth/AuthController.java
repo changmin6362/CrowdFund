@@ -3,9 +3,9 @@ package io.github.authservice.crowdfund.feature.auth;
 import io.github.authservice.crowdfund.feature.auth.request.LogoutRequest;
 import io.github.authservice.crowdfund.feature.auth.request.SignInRequest;
 import io.github.authservice.crowdfund.feature.auth.request.SignUpRequest;
-import io.github.authservice.crowdfund.feature.auth.response.LogoutResponse;
 import io.github.authservice.crowdfund.feature.auth.response.SignInResponse;
 import io.github.authservice.crowdfund.feature.auth.response.SignUpResponse;
+import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +28,8 @@ public class AuthController {
      */
     @PostMapping("signup")
     @ResponseStatus(HttpStatus.CREATED)
-    public SignUpResponse signUp(@Valid @RequestBody SignUpRequest request) {
-        return service.signup(request);
+    public ApiResult<SignUpResponse> signUp(@Valid @RequestBody SignUpRequest request) {
+        return ApiResult.success("회원가입에 성공했습니다.", service.signup(request));
     }
 
     /**
@@ -40,8 +40,8 @@ public class AuthController {
      */
     @PostMapping("signin")
     @ResponseStatus(HttpStatus.OK)
-    public SignInResponse signIn(@Valid @RequestBody SignInRequest request) {
-        return service.login(request);
+    public ApiResult<SignInResponse> signIn(@Valid @RequestBody SignInRequest request) {
+        return ApiResult.success("로그인에 성공했습니다.", service.login(request));
     }
 
     /**
@@ -52,7 +52,9 @@ public class AuthController {
      */
     @PostMapping("logout")
     @ResponseStatus(HttpStatus.OK)
-    public LogoutResponse logout(@Valid @RequestBody LogoutRequest request) {
-        return service.logout(request);
+    public ApiResult<Void> logout(@Valid @RequestBody LogoutRequest request) {
+        service.logout(request);
+
+        return ApiResult.success("로그아웃에 성공했습니다.");
     }
 }

@@ -1,11 +1,11 @@
 package io.github.authservice.crowdfund.feature.project;
 
-import io.github.authservice.crowdfund.domain.project.*;
+import io.github.authservice.crowdfund.domain.project.ProjectStatus;
 import io.github.authservice.crowdfund.domain.project.mapper.ProjectMapper;
 import io.github.authservice.crowdfund.feature.project.command.CreateProjectCommand;
 import io.github.authservice.crowdfund.feature.project.request.CreateProjectRequest;
-import io.github.authservice.crowdfund.feature.project.request.PatchProjectStatusRequest;
 import io.github.authservice.crowdfund.feature.project.request.PatchProjectRequest;
+import io.github.authservice.crowdfund.feature.project.request.PatchProjectStatusRequest;
 import io.github.authservice.crowdfund.feature.project.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class ProjectService {
                 ProjectStatus.ONGOING
         );
         Long generatedId = projectMapper.insert(creatorId, command);
-        return new CreateProjectResponse("프로젝트가 성공적으로 생성되었습니다.", generatedId);
+        return new CreateProjectResponse(generatedId);
     }
 
     /**
@@ -68,7 +68,7 @@ public class ProjectService {
             projectList.remove((int) limit);
         }
 
-        return new GetProjectResponse("프로젝트 목록 조회 성공", projectList, hasNext, nextCursor);
+        return new GetProjectResponse(projectList, hasNext, nextCursor);
     }
 
     /**
@@ -76,30 +76,28 @@ public class ProjectService {
      */
     public GetProjectDetailResponse getProjectDetail(Long projectId) {
         ProjectDetail projectDetail = projectMapper.findByIdWithDetail(projectId);
-        
+
         if (projectDetail == null) {
             throw new IllegalArgumentException("존재하지 않는 프로젝트입니다.");
         }
 
-        return new GetProjectDetailResponse("프로젝트 상세 정보 조회 성공", projectDetail);
+        return new GetProjectDetailResponse(projectDetail);
     }
 
     /**
      * 프로젝트 제목과 본문 수정 도메인 로직
      */
     @Transactional
-    public PatchProjectResponse patchProject(Long projectId, PatchProjectRequest request) {
+    public void patchProject(Long projectId, PatchProjectRequest request) {
         projectMapper.update(projectId, request.title(), request.contentBlocks());
-        return new PatchProjectResponse("프로젝트 정보가 수정되었습니다.");
     }
 
     /**
      * 프로젝트 삭제 도메인 로직
      */
     @Transactional
-    public DeleteProjectResponse deleteProject(Long projectId) {
+    public void deleteProject(Long projectId) {
         projectMapper.deleteById(projectId);
-        return new DeleteProjectResponse("프로젝트 삭제 성공");
     }
 
     /**
@@ -107,7 +105,7 @@ public class ProjectService {
      */
     public GetMyProjectsResponse getMyProjects(Long userId) {
         List<ProjectInfo> projectList = projectMapper.findByCreatorId(userId);
-        return new GetMyProjectsResponse("사용자별 프로젝트 조회 성공", projectList);
+        return new GetMyProjectsResponse(projectList);
     }
 
     /**
@@ -115,15 +113,14 @@ public class ProjectService {
      */
     public GetShippingInfosResponse getShippingInfos(Long projectId) {
         List<ShippingInfo> shippingInfos = projectMapper.findShippingInfosByProjectId(projectId);
-        return new GetShippingInfosResponse("배송지 정보 조회 성공", shippingInfos);
+        return new GetShippingInfosResponse(shippingInfos);
     }
 
     /**
      * 프로젝트 상태 갱신 도메인 로직
      */
     @Transactional
-    public PatchProjectStatusResponse patchProjectStatus(Long projectId, PatchProjectStatusRequest request) {
+    public void patchProjectStatus(Long projectId, PatchProjectStatusRequest request) {
         projectMapper.patchStatus(projectId, request.status());
-        return new PatchProjectStatusResponse("프로젝트 상태가 성공적으로 변경되었습니다.");
     }
 }

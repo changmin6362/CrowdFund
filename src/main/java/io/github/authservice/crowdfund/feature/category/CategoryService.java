@@ -7,7 +7,9 @@ import io.github.authservice.crowdfund.feature.category.request.CategoryNameRequ
 import io.github.authservice.crowdfund.feature.category.request.CreateCategoryRequest;
 import io.github.authservice.crowdfund.feature.category.request.PatchCategoryParentRequest;
 import io.github.authservice.crowdfund.feature.category.request.PatchCategorySortOrderRequest;
-import io.github.authservice.crowdfund.feature.category.response.*;
+import io.github.authservice.crowdfund.feature.category.response.CategoryNode;
+import io.github.authservice.crowdfund.feature.category.response.CreateCategoryResponse;
+import io.github.authservice.crowdfund.feature.category.response.GetCategoryTreeResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,38 +29,7 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
 
     /**
-     * 카테고리 트리 조회 도메인 로직
-     *
-     */
-    public GetCategoryTreeResponse getCategoryTree() {
-        List<Category> allCategories = categoryRepository.findByIsActiveTrue();
-
-        Map<Integer, CategoryNode> nodeMap = allCategories.stream()
-                .collect(Collectors.toMap(
-                        Category::id,
-                        c -> new CategoryNode(c.id(), c.name(), c.depth(), c.sortOrder(), new ArrayList<>())
-                ));
-
-        List<CategoryNode> rootNodes = new ArrayList<>();
-
-        for (Category category : allCategories) {
-            CategoryNode node = nodeMap.get(category.id());
-            if (category.parentId() == null) {
-                rootNodes.add(node);
-            } else {
-                CategoryNode parentNode = nodeMap.get(category.parentId());
-                if (parentNode != null) {
-                    parentNode.children().add(node);
-                }
-            }
-        }
-
-        return new GetCategoryTreeResponse("카테고리 조회가 완료되었습니다.", rootNodes);
-    }
-
-    /**
      * 카테고리 생성 도메인 로직
-     *
      */
     @Transactional
     public CreateCategoryResponse createCategory(@Valid CreateCategoryRequest request) {
@@ -90,29 +61,25 @@ public class CategoryService {
         Category savedCategory = categoryRepository.findById(request.getId())
                 .orElseThrow(() -> new IllegalStateException("카테고리 생성 후 조회를 실패했습니다."));
 
-        return new CreateCategoryResponse("카테고리가 생성되었습니다.", savedCategory);
+        return new CreateCategoryResponse(savedCategory);
     }
 
     /**
-     * 카테고리 이름 수정 도메인 로직
-     *
+     * 카테고리 이름 변경 도메인 로직
      */
     @Transactional
-    public PatchCategoryNameResponse patchCategoryName(Integer id, CategoryNameRequest request) {
+    public void patchCategoryName(Integer id, CategoryNameRequest request) {
         categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
 
         categoryMapper.updateName(id.longValue(), request.name());
-
-        return new PatchCategoryNameResponse("카테고리 이름이 수정되었습니다.");
     }
 
     /**
      * 카테고리 부모 변경 도메인 로직
-     *
      */
     @Transactional
-    public PatchCategoryParentResponse patchCategoryParent(Integer categoryId, PatchCategoryParentRequest request) {
+    public void patchCategoryParent(Integer categoryId, PatchCategoryParentRequest request) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + categoryId));
 
@@ -130,7 +97,7 @@ public class CategoryService {
 
         // 실제 부모가 변경된 경우에만 처리
         if (category.parentId() == null ? request.parentId() != null : !category.parentId().equals(request.parentId())) {
-            // 순환 참조 체크 및 하위 노드 깊이 업데이트를 위해 전체 트리를 활용하거나 
+            // 순환 참조 체크 및 하위 노드 깊이 업데이트를 위해 전체 트리를 활용하거나
             // 여기서는 단순하게 전체 데이터를 다시 가져와서 정합성을 맞춤
             List<Category> allCategories = categoryRepository.findByIsActiveTrue();
 
@@ -152,8 +119,56 @@ public class CategoryService {
                 updateDescendantsDepth(allCategories, categoryId, depthDiff);
             }
         }
+    }
 
-        return new PatchCategoryParentResponse("카테고리 부모가 변경되었습니다.");
+    /**
+     * 카테고리 정렬 변경 도메인 로직
+     */
+    @Transactional
+    public void patchCategorySortOrder(PatchCategorySortOrderRequest request) {
+        for (var item : request.categories()) {
+            categoryMapper.updateSortOrder(item.id().longValue(), item.sortOrder());
+        }
+    }
+
+    /**
+     * 카테고리 삭제 도메인 로직
+     */
+    @Transactional
+    public void deleteCategory(Integer id) {
+        categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
+
+        categoryMapper.delete(id.longValue());
+    }
+
+    /**
+     * 카테고리 트리 조회 도메인 로직
+     */
+    public GetCategoryTreeResponse getCategoryTree() {
+        List<Category> allCategories = categoryRepository.findByIsActiveTrue();
+
+        Map<Integer, CategoryNode> nodeMap = allCategories.stream()
+                .collect(Collectors.toMap(
+                        Category::id,
+                        c -> new CategoryNode(c.id(), c.name(), c.depth(), c.sortOrder(), new ArrayList<>())
+                ));
+
+        List<CategoryNode> rootNodes = new ArrayList<>();
+
+        for (Category category : allCategories) {
+            CategoryNode node = nodeMap.get(category.id());
+            if (category.parentId() == null) {
+                rootNodes.add(node);
+            } else {
+                CategoryNode parentNode = nodeMap.get(category.parentId());
+                if (parentNode != null) {
+                    parentNode.children().add(node);
+                }
+            }
+        }
+
+        return new GetCategoryTreeResponse(rootNodes);
     }
 
     private boolean isDescendant(List<Category> allCategories, int rootId, int targetId) {
@@ -180,30 +195,5 @@ public class CategoryService {
             categoryMapper.updateParentId(child.id(), child.parentId(), newDepth);
             updateDescendantsDepth(allCategories, child.id(), depthDiff);
         }
-    }
-
-    /**
-     * 카테고리 순서 변경 도메인 로직
-     *
-     */
-    @Transactional
-    public PatchCategorySortOrderResponse patchCategorySortOrder(PatchCategorySortOrderRequest request) {
-        for (var item : request.categories()) {
-            categoryMapper.updateSortOrder(item.id().longValue(), item.sortOrder());
-        }
-        return new PatchCategorySortOrderResponse("카테고리 순서가 변경되었습니다.");
-    }
-
-    /**
-     * 카테고리 삭제 도메인 로직
-     *
-     */
-    @Transactional
-    public DeleteCategoryResponse deleteCategory(Integer id) {
-        categoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
-
-        categoryMapper.delete(id.longValue());
-        return new DeleteCategoryResponse("카테고리가 삭제되었습니다.");
     }
 }

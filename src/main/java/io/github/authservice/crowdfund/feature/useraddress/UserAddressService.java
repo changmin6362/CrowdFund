@@ -42,7 +42,7 @@ public class UserAddressService {
         );
 
         UserAddress saved = repository.save(userAddress);
-        return new CreateUserAddressResponse("주소 추가에 성공했습니다.", saved.id());
+        return new CreateUserAddressResponse(saved.id());
     }
 
     /**
@@ -55,7 +55,7 @@ public class UserAddressService {
                 .map(this::mapToInfo)
                 .collect(Collectors.toList());
 
-        return new GetUserAddressesResponse("내 배송지 목록 조회 성공", infoList);
+        return new GetUserAddressesResponse(infoList);
     }
 
     /**
@@ -80,7 +80,7 @@ public class UserAddressService {
         );
 
         UserAddress saved = repository.save(updated);
-        return new PatchUserAddressResponse("주소 수정에 성공했습니다.", mapToInfo(saved));
+        return new PatchUserAddressResponse(mapToInfo(saved));
     }
 
     /**
@@ -124,14 +124,14 @@ public class UserAddressService {
         );
 
         UserAddress saved = repository.save(newDefault);
-        return new SetDefaultAddressResponse("기본 배송지 변경에 성공했습니다.", new DefaultAddressResult(saved.id(), saved.isDefault()));
+        return new SetDefaultAddressResponse(new DefaultAddressResult(saved.id(), saved.isDefault()));
     }
 
     /**
      * 내 배송지 삭제 도메인 로직
      */
     @Transactional
-    public DeleteUserAddressResponse deleteUserAddress(Long addressId) {
+    public void deleteUserAddress(Long addressId) {
         UserAddress target = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
 
@@ -140,7 +140,6 @@ public class UserAddressService {
         }
 
         repository.deleteById(addressId);
-        return new DeleteUserAddressResponse("주소 삭제에 성공했습니다.");
     }
 
     private UserAddressInfo mapToInfo(UserAddress address) {

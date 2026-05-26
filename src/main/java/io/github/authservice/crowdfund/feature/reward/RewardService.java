@@ -49,7 +49,7 @@ public class RewardService {
                 savedReward.createdAt()
         );
 
-        return new CreateRewardResponse("리워드가 성공적으로 생성되었습니다", rewardInfo);
+        return new CreateRewardResponse(rewardInfo);
     }
 
     /**
@@ -69,10 +69,7 @@ public class RewardService {
 
                 )).toList();
 
-        return new GetRewardsResponse(
-                "리워드 목록 조회가 성공적으로 완료되었습니다",
-                rewards
-        );
+        return new GetRewardsResponse(rewards);
     }
 
     /**
@@ -105,10 +102,7 @@ public class RewardService {
                 savedReward.createdAt()
         );
 
-        return new PatchRewardResponse(
-                "리워드 수정이 성공적으로 완료되었습니다",
-                rewardInfo
-        );
+        return new PatchRewardResponse(rewardInfo);
     }
 
     /**
@@ -119,9 +113,6 @@ public class RewardService {
 
         repository.deleteById(rewardId);
 
-        return new DeleteRewardResponse(
-                "리워드 삭제가 성공적으로 완료되었습니다",
-                rewardId
-        );
+        return new DeleteRewardResponse(rewardId);
     }
 }

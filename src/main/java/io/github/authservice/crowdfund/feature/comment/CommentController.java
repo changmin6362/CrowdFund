@@ -2,11 +2,8 @@ package io.github.authservice.crowdfund.feature.comment;
 
 import io.github.authservice.crowdfund.feature.comment.request.CreateCommentRequest;
 import io.github.authservice.crowdfund.feature.comment.request.PatchCommentRequest;
-import io.github.authservice.crowdfund.feature.comment.response.CreateCommentResponse;
-import io.github.authservice.crowdfund.feature.comment.response.DeleteMyCommentResponse;
-import io.github.authservice.crowdfund.feature.comment.response.GetCommentsResponse;
-import io.github.authservice.crowdfund.feature.comment.response.PatchCommentResponse;
-import io.github.authservice.crowdfund.feature.comment.response.GetMyCommentsResponse;
+import io.github.authservice.crowdfund.feature.comment.response.*;
+import io.github.authservice.crowdfund.global.common.ApiResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,12 +26,12 @@ public class CommentController {
      */
     @PostMapping("/projects/{projectId}/comments/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateCommentResponse createComment(
+    public ApiResult<CreateCommentResponse> createComment(
             @PathVariable Long projectId,
             @PathVariable Long userId,
             @RequestBody @Valid CreateCommentRequest request) {
 
-        return service.createComment(projectId, userId, request);
+        return ApiResult.success("댓글 작성에 성공했습니다.", service.createComment(projectId, userId, request));
     }
 
     /**
@@ -46,11 +43,11 @@ public class CommentController {
      */
     @PatchMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)
-    public PatchCommentResponse patchComment(
+    public ApiResult<PatchCommentResponse> patchComment(
             @PathVariable Long commentId,
             @RequestBody @Valid PatchCommentRequest request) {
 
-        return service.patchComment(commentId, request);
+        return ApiResult.success("댓글 수정에 성공했습니다.", service.patchComment(commentId, request));
     }
 
     /**
@@ -61,11 +58,11 @@ public class CommentController {
      */
     @GetMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.OK)
-    public GetCommentsResponse getComments(
+    public ApiResult<GetCommentsResponse> getComments(
             @PathVariable Long projectId,
             @RequestParam(required = false) Long currentUserId) {
 
-        return service.getComments(projectId, currentUserId);
+        return ApiResult.success("댓글 목록 조회에 성공했습니다.", service.getComments(projectId, currentUserId));
     }
 
     /**
@@ -75,9 +72,9 @@ public class CommentController {
      */
     @GetMapping("/users/me/comments/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public GetMyCommentsResponse getMyComments(@PathVariable Long userId) {
+    public ApiResult<GetMyCommentsResponse> getMyComments(@PathVariable Long userId) {
 
-        return service.getMyComments(userId);
+        return ApiResult.success("내 댓글 목록 조회에 성공했습니다.", service.getMyComments(userId));
     }
 
     /**
@@ -89,10 +86,10 @@ public class CommentController {
      */
     @DeleteMapping("/comments/{commentId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public DeleteMyCommentResponse deleteMyComment(
+    public ApiResult<DeleteMyCommentResponse> deleteMyComment(
             @PathVariable Long commentId,
             @PathVariable Long userId) {
 
-        return service.deleteMyComment(commentId, userId);
+        return ApiResult.success("내 댓글 삭제에 성공했습니다.", service.deleteMyComment(commentId, userId));
     }
 }
