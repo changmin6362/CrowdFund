@@ -28,7 +28,7 @@ public class UserAddressController {
     @PostMapping("/address/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
     public CreateUserAddressResponse createUserAddress(@PathVariable Long userId, @Valid @RequestBody CreateUserAddressRequest request) {
-        return service.createUserAddress(request);
+        return service.createUserAddress(userId, request);
     }
 
     /**
