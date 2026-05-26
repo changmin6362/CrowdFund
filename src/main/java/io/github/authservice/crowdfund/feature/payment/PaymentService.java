@@ -5,7 +5,6 @@ import io.github.authservice.crowdfund.domain.payment.PaymentRepository;
 import io.github.authservice.crowdfund.domain.pledge.Pledge;
 import io.github.authservice.crowdfund.domain.pledge.PledgeRepository;
 import io.github.authservice.crowdfund.feature.payment.request.CreatePaymentRequest;
-import io.github.authservice.crowdfund.feature.payment.response.CancelPaymentResponse;
 import io.github.authservice.crowdfund.feature.payment.response.CreatePaymentResponse;
 import io.github.authservice.crowdfund.feature.payment.response.GetPaymentResponse;
 import io.github.authservice.crowdfund.feature.payment.response.PaymentDetail;
@@ -46,7 +45,7 @@ public class PaymentService {
 
         Payment saved = paymentRepository.save(payment);
 
-        return new CreatePaymentResponse("결제가 완료되었습니다.", saved.id());
+        return new CreatePaymentResponse(saved.id());
     }
 
     /**
@@ -67,14 +66,14 @@ public class PaymentService {
                 payment.createdAt()
         );
 
-        return new GetPaymentResponse("결제 내역 조회 성공", detail);
+        return new GetPaymentResponse(detail);
     }
 
     /**
      * 결제 취소 도메인 로직
      */
     @Transactional
-    public CancelPaymentResponse cancelPayment(Long paymentId) {
+    public void cancelPayment(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 정보입니다."));
 
@@ -93,7 +92,5 @@ public class PaymentService {
         );
 
         paymentRepository.save(canceledPayment);
-
-        return new CancelPaymentResponse("결제가 취소되었습니다.");
     }
 }

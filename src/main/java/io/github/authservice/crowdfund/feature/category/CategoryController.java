@@ -1,6 +1,7 @@
 package io.github.authservice.crowdfund.feature.category;
 
 import io.github.authservice.crowdfund.feature.category.response.GetCategoryTreeResponse;
+import io.github.authservice.crowdfund.global.common.ApiResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,7 @@ public class CategoryController {
      */
     @GetMapping("/tree")
     @ResponseStatus(HttpStatus.OK)
-    public GetCategoryTreeResponse getCategoryTree() {
-        return service.getCategoryTree();
+    public ApiResult<GetCategoryTreeResponse> getCategoryTree() {
+        return ApiResult.success("카테고리 트리 조회에 성공했습니다.", service.getCategoryTree());
     }
 }

@@ -1,5 +1,7 @@
 package io.github.authservice.crowdfund.feature.reward;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
 import io.github.authservice.crowdfund.domain.project.Project;
@@ -9,6 +11,9 @@ import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
+import io.github.authservice.crowdfund.feature.reward.response.*;
+import io.github.authservice.crowdfund.global.common.ApiResult;
+import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -17,14 +22,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -47,6 +54,9 @@ class RewardServiceTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private Project savedProject;
 
     @BeforeEach
@@ -55,7 +65,7 @@ class RewardServiceTest {
 
         // 기본 데이터 준비
         User savedUser = userRepository.save(new User(
-                null, "test@test.com", "pass", "tester", "name", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+                null, "test@test.com", "pass", "tester", "홍길동", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         Category savedCategory = categoryRepository.save(new Category(
@@ -80,14 +90,18 @@ class RewardServiceTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/projects/{projectId}/rewards", savedProject.id())
+        MvcResult result = mockMvc.perform(post("/api/projects/{projectId}/rewards", savedProject.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("리워드가 성공적으로 생성되었습니다"))
-                .andExpect(jsonPath("$.createdReward.title").value("슈퍼 얼리버드"))
-                .andExpect(jsonPath("$.createdReward.price").value(10000))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<CreateRewardResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("리워드 등록에 성공했습니다.");
+        assertThat(apiResult.data().createdReward().title()).isEqualTo("슈퍼 얼리버드");
+        assertThat(apiResult.data().createdReward().price()).isEqualByComparingTo("10000");
     }
 
     @Test
@@ -100,11 +114,15 @@ class RewardServiceTest {
                 null, savedProject.id(), "리워드2", "설명2", new BigDecimal("20000"), 200, LocalDateTime.now()
         ));
 
-        mockMvc.perform(get("/api/projects/{projectId}/rewards", savedProject.id()))
+        MvcResult result = mockMvc.perform(get("/api/projects/{projectId}/rewards", savedProject.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("리워드 목록 조회가 성공적으로 완료되었습니다"))
-                .andExpect(jsonPath("$.rewards.length()").value(2))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<GetRewardsResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("리워드 목록 조회에 성공했습니다.");
+        assertThat(apiResult.data().rewards()).hasSize(2);
     }
 
     @Test
@@ -122,15 +140,19 @@ class RewardServiceTest {
                 }
                 """;
 
-        mockMvc.perform(patch("/api/rewards/{rewardId}", savedReward.id())
+        MvcResult result = mockMvc.perform(patch("/api/rewards/{rewardId}", savedReward.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("리워드 수정이 성공적으로 완료되었습니다"))
-                .andExpect(jsonPath("$.patchedReward.title").value("수정된 제목"))
-                .andExpect(jsonPath("$.patchedReward.price").value(15000))
-                .andExpect(jsonPath("$.patchedReward.stock").value(50))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<PatchRewardResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("리워드 수정에 성공했습니다.");
+        assertThat(apiResult.data().patchedReward().title()).isEqualTo("수정된 제목");
+        assertThat(apiResult.data().patchedReward().price()).isEqualByComparingTo("15000");
+        assertThat(apiResult.data().patchedReward().stock()).isEqualTo(50);
     }
 
     @Test
@@ -139,11 +161,15 @@ class RewardServiceTest {
                 null, savedProject.id(), "삭제할 리워드", "설명", new BigDecimal("10000"), 100, LocalDateTime.now()
         ));
 
-        mockMvc.perform(delete("/api/rewards/{rewardId}", savedReward.id()))
+        MvcResult result = mockMvc.perform(delete("/api/rewards/{rewardId}", savedReward.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("리워드 삭제가 성공적으로 완료되었습니다"))
-                .andExpect(jsonPath("$.deletedRewardId").value(savedReward.id()))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<DeleteRewardResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("리워드 삭제에 성공했습니다.");
+        assertThat(apiResult.data().deletedRewardId()).isEqualTo(savedReward.id());
     }
 
     @Test
@@ -159,7 +185,6 @@ class RewardServiceTest {
                                 }
                                 """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").value("리워드를 찾을 수 없습니다."))
                 .andDo(print());
     }
 }

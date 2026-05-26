@@ -29,10 +29,7 @@ public class PledgeAddressService {
         PledgeAddress address = repository.findByPledgeId(pledgesId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 후원의 주소 정보를 찾을 수 없습니다."));
 
-        return new GetPledgeAddressResponse(
-                "후원 주소 조회가 완료되었습니다.",
-                mapToInfo(address)
-        );
+        return new GetPledgeAddressResponse(mapToInfo(address));
     }
 
     /**
@@ -61,10 +58,7 @@ public class PledgeAddressService {
 
         PledgeAddress saved = repository.save(newPledgeAddress);
 
-        return new ReplacePledgeAddressResponse(
-                "후원 주소가 성공적으로 교체되었습니다.",
-                mapToInfo(saved)
-        );
+        return new ReplacePledgeAddressResponse(mapToInfo(saved));
     }
 
     private PledgeAddressInfo mapToInfo(PledgeAddress address) {

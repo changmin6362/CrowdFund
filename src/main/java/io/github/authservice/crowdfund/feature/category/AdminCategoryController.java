@@ -1,10 +1,11 @@
 package io.github.authservice.crowdfund.feature.category;
 
 import io.github.authservice.crowdfund.feature.category.request.CategoryNameRequest;
+import io.github.authservice.crowdfund.feature.category.request.CreateCategoryRequest;
 import io.github.authservice.crowdfund.feature.category.request.PatchCategoryParentRequest;
 import io.github.authservice.crowdfund.feature.category.request.PatchCategorySortOrderRequest;
-import io.github.authservice.crowdfund.feature.category.request.CreateCategoryRequest;
-import io.github.authservice.crowdfund.feature.category.response.*;
+import io.github.authservice.crowdfund.feature.category.response.CreateCategoryResponse;
+import io.github.authservice.crowdfund.global.common.ApiResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,34 +26,38 @@ public class AdminCategoryController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateCategoryResponse createCategory(@Valid @RequestBody CreateCategoryRequest request) {
-        return service.createCategory(request);
+    public ApiResult<CreateCategoryResponse> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
+        return ApiResult.success("카테고리 생성에 성공했습니다.", service.createCategory(request));
     }
 
     /**
      * 카테고리 이름 변경
      *
-     * @param categoryId      카테고리 ID
-     * @param request 새로 바꿀 이름 정보
+     * @param categoryId 카테고리 ID
+     * @param request    새로 바꿀 이름 정보
      * @return message
      */
     @PatchMapping("/{categoryId}/name")
     @ResponseStatus(HttpStatus.OK)
-    public PatchCategoryNameResponse patchCategoryName(@PathVariable Integer categoryId, @Valid @RequestBody CategoryNameRequest request) {
-        return service.patchCategoryName(categoryId, request);
+    public ApiResult<Void> patchCategoryName(@PathVariable Integer categoryId, @Valid @RequestBody CategoryNameRequest request) {
+        service.patchCategoryName(categoryId, request);
+
+        return ApiResult.success("카테고리 이름 변경에 성공했습니다.");
     }
 
     /**
      * 카테고리 부모 변경
      *
      * @param categoryId 카테고리 ID
-     * @param request 부모 카테고리 ID
+     * @param request    부모 카테고리 ID
      * @return message
      */
     @PatchMapping("/{categoryId}/parent")
     @ResponseStatus(HttpStatus.OK)
-    public PatchCategoryParentResponse patchCategoryParent(@PathVariable Integer categoryId, @RequestBody PatchCategoryParentRequest request) {
-        return service.patchCategoryParent(categoryId, request);
+    public ApiResult<Void> patchCategoryParent(@PathVariable Integer categoryId, @RequestBody PatchCategoryParentRequest request) {
+        service.patchCategoryParent(categoryId, request);
+
+        return ApiResult.success("카테고리 부모 변경에 성공했습니다.");
     }
 
     /**
@@ -63,8 +68,10 @@ public class AdminCategoryController {
      */
     @PatchMapping("/sort-order")
     @ResponseStatus(HttpStatus.OK)
-    public PatchCategorySortOrderResponse patchCategorySortOrder(@Valid @RequestBody PatchCategorySortOrderRequest request) {
-        return service.patchCategorySortOrder(request);
+    public ApiResult<Void> patchCategorySortOrder(@Valid @RequestBody PatchCategorySortOrderRequest request) {
+        service.patchCategorySortOrder(request);
+
+        return ApiResult.success("카테고리 정렬 순서 변경에 성공했습니다.");
     }
 
     /**
@@ -74,7 +81,9 @@ public class AdminCategoryController {
      */
     @DeleteMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.OK)
-    public DeleteCategoryResponse deleteCategory(@PathVariable Integer categoryId) {
-        return service.deleteCategory(categoryId);
+    public ApiResult<Void> deleteCategory(@PathVariable Integer categoryId) {
+        service.deleteCategory(categoryId);
+
+        return ApiResult.success("카테고리 삭제에 성공했습니다.");
     }
 }

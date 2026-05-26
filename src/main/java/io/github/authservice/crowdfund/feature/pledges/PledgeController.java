@@ -2,10 +2,10 @@ package io.github.authservice.crowdfund.feature.pledges;
 
 import io.github.authservice.crowdfund.feature.pledges.request.CreatePledgeRequest;
 import io.github.authservice.crowdfund.feature.pledges.request.PatchFulfillmentRequest;
-import io.github.authservice.crowdfund.feature.pledges.response.DeletePledgeResponse;
-import io.github.authservice.crowdfund.feature.pledges.response.GetPledgeDetailResponse;
 import io.github.authservice.crowdfund.feature.pledges.response.CreatePledgeResponse;
+import io.github.authservice.crowdfund.feature.pledges.response.GetPledgeDetailResponse;
 import io.github.authservice.crowdfund.feature.pledges.response.PatchFulfillmentResponse;
+import io.github.authservice.crowdfund.global.common.ApiResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,10 +27,10 @@ public class PledgeController {
      */
     @PostMapping("/project/pledges/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CreatePledgeResponse createPledge(
+    public ApiResult<CreatePledgeResponse> createPledge(
             @PathVariable Long userId,
             @Valid @RequestBody CreatePledgeRequest request) {
-        return service.createPledge(userId, request);
+        return ApiResult.success("프로젝트 후원 참여에 성공했습니다.", service.createPledge(userId, request));
     }
 
     /**
@@ -41,8 +41,8 @@ public class PledgeController {
      */
     @GetMapping("/pledges/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
-    public GetPledgeDetailResponse getPledgeDetail(@PathVariable Long pledgeId) {
-        return service.getPledgeDetail(pledgeId);
+    public ApiResult<GetPledgeDetailResponse> getPledgeDetail(@PathVariable Long pledgeId) {
+        return ApiResult.success("후원 상세 조회에 성공했습니다.", service.getPledgeDetail(pledgeId));
     }
 
     /**
@@ -53,8 +53,10 @@ public class PledgeController {
      */
     @DeleteMapping("/pledges/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
-    public DeletePledgeResponse deletePledge(@PathVariable Long pledgeId) {
-        return service.deletePledge(pledgeId);
+    public ApiResult<Void> deletePledge(@PathVariable Long pledgeId) {
+        service.deletePledge(pledgeId);
+
+        return ApiResult.success("후원 취소에 성공했습니다.");
     }
     
     /**
@@ -66,10 +68,10 @@ public class PledgeController {
      */
     @PatchMapping("/pledges/{pledgeId}/fulfillment")
     @ResponseStatus(HttpStatus.OK)
-    public PatchFulfillmentResponse patchFulfillment(
+    public ApiResult<PatchFulfillmentResponse> patchFulfillment(
             @PathVariable Long pledgeId,
             @Valid @RequestBody PatchFulfillmentRequest request) {
-        return service.patchFulfillment(pledgeId, request);
+        return ApiResult.success("보상 이행 상태 갱신에 성공했습니다.", service.patchFulfillment(pledgeId, request));
     }
 
 

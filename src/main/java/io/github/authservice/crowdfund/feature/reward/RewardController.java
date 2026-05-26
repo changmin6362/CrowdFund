@@ -6,6 +6,7 @@ import io.github.authservice.crowdfund.feature.reward.response.CreateRewardRespo
 import io.github.authservice.crowdfund.feature.reward.response.DeleteRewardResponse;
 import io.github.authservice.crowdfund.feature.reward.response.GetRewardsResponse;
 import io.github.authservice.crowdfund.feature.reward.response.PatchRewardResponse;
+import io.github.authservice.crowdfund.global.common.ApiResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,8 +28,8 @@ public class RewardController {
      */
     @PostMapping("/projects/{projectId}/rewards")
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateRewardResponse createReward(@Valid @PathVariable Long projectId, @RequestBody CreateRewardRequest request) {
-        return service.createReward(projectId, request);
+    public ApiResult<CreateRewardResponse> createReward(@Valid @PathVariable Long projectId, @RequestBody CreateRewardRequest request) {
+        return ApiResult.success("리워드 등록에 성공했습니다.", service.createReward(projectId, request));
     }
 
     /**
@@ -39,8 +40,8 @@ public class RewardController {
      */
     @GetMapping("/projects/{projectId}/rewards")
     @ResponseStatus(HttpStatus.OK)
-    public GetRewardsResponse getRewards(@PathVariable Long projectId) {
-        return service.getReward(projectId);
+    public ApiResult<GetRewardsResponse> getRewards(@PathVariable Long projectId) {
+        return ApiResult.success("리워드 목록 조회에 성공했습니다.", service.getReward(projectId));
     }
 
     /**
@@ -52,8 +53,8 @@ public class RewardController {
      */
     @PatchMapping("/rewards/{rewardId}")
     @ResponseStatus(HttpStatus.OK)
-    public PatchRewardResponse patchReward(@PathVariable @Valid Long rewardId, @RequestBody PatchRewardReqeust request) {
-        return service.patchReward(rewardId, request);
+    public ApiResult<PatchRewardResponse> patchReward(@PathVariable @Valid Long rewardId, @RequestBody PatchRewardReqeust request) {
+        return ApiResult.success("리워드 수정에 성공했습니다.", service.patchReward(rewardId, request));
     }
 
     /**
@@ -64,8 +65,8 @@ public class RewardController {
      */
     @DeleteMapping("/rewards/{rewardId}")
     @ResponseStatus(HttpStatus.OK)
-    public DeleteRewardResponse deleteReward(@PathVariable Long rewardId) {
-        return service.deleteReward(rewardId);
+    public ApiResult<DeleteRewardResponse> deleteReward(@PathVariable Long rewardId) {
+        return ApiResult.success("리워드 삭제에 성공했습니다.", service.deleteReward(rewardId));
     }
 }
 

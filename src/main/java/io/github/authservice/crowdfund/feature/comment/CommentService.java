@@ -1,11 +1,10 @@
 package io.github.authservice.crowdfund.feature.comment;
 
-import io.github.authservice.crowdfund.domain.project.ProjectRepository;
-import io.github.authservice.crowdfund.domain.user.User;
-import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.domain.comment.Comment;
 import io.github.authservice.crowdfund.domain.comment.CommentRepository;
 import io.github.authservice.crowdfund.domain.comment.mapper.CommentMapper;
+import io.github.authservice.crowdfund.domain.user.User;
+import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.feature.comment.request.CreateCommentRequest;
 import io.github.authservice.crowdfund.feature.comment.request.PatchCommentRequest;
 import io.github.authservice.crowdfund.feature.comment.response.*;
@@ -54,7 +53,7 @@ public class CommentService {
                 true
         );
 
-        return new CreateCommentResponse("댓글 작성이 성공적으로 완료되었습니다", commentInfo);
+        return new CreateCommentResponse(commentInfo);
     }
 
     /**
@@ -71,7 +70,7 @@ public class CommentService {
         CommentInfo patchedComment = mapper.findByIdToCommentInfo(commentId, comment.userId())
                 .orElseThrow(() -> new IllegalStateException("댓글 수정 후 데이터를 가져오는 데 실패했습니다."));
 
-        return new PatchCommentResponse("댓글 수정이 성공적으로 완료되었습니다", patchedComment);
+        return new PatchCommentResponse(patchedComment);
     }
 
     /**
@@ -81,7 +80,7 @@ public class CommentService {
 
         List<CommentInfo> comments = mapper.findAllByProjectId(projectId, currentUserId);
 
-        return new GetCommentsResponse("댓글 목록 조회가 성공적으로 완료되었습니다", comments);
+        return new GetCommentsResponse(comments);
     }
 
     /**
@@ -91,7 +90,7 @@ public class CommentService {
 
         List<MyCommentInfo> myComments = mapper.findAllByUserId(userId);
 
-        return new GetMyCommentsResponse("내 댓글 목록 조회가 성공적으로 완료되었습니다", myComments);
+        return new GetMyCommentsResponse(myComments);
     }
 
     /**
@@ -108,6 +107,6 @@ public class CommentService {
         }
 
         repository.deleteById(commentId);
-        return new DeleteMyCommentResponse("내 댓글 삭제가 성공적으로 완료되었습니다", commentId);
+        return new DeleteMyCommentResponse(commentId);
     }
 }

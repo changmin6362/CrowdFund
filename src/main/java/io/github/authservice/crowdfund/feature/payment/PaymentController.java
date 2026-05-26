@@ -1,9 +1,9 @@
 package io.github.authservice.crowdfund.feature.payment;
 
 import io.github.authservice.crowdfund.feature.payment.request.CreatePaymentRequest;
-import io.github.authservice.crowdfund.feature.payment.response.CancelPaymentResponse;
 import io.github.authservice.crowdfund.feature.payment.response.CreatePaymentResponse;
 import io.github.authservice.crowdfund.feature.payment.response.GetPaymentResponse;
+import io.github.authservice.crowdfund.global.common.ApiResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,8 +24,8 @@ public class PaymentController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CreatePaymentResponse createPayment(@Valid @RequestBody CreatePaymentRequest request) {
-        return service.createPayment(request);
+    public ApiResult<CreatePaymentResponse> createPayment(@Valid @RequestBody CreatePaymentRequest request) {
+        return ApiResult.success("결제 요청에 성공했습니다.", service.createPayment(request));
     }
 
     /**
@@ -36,8 +36,8 @@ public class PaymentController {
      */
     @GetMapping("/pledge/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
-    public GetPaymentResponse getPaymentByPledgeId(@PathVariable Long pledgeId) {
-        return service.getPaymentByPledgeId(pledgeId);
+    public ApiResult<GetPaymentResponse> getPaymentByPledgeId(@PathVariable Long pledgeId) {
+        return ApiResult.success("결제 내역 조회에 성공했습니다.", service.getPaymentByPledgeId(pledgeId));
     }
 
     /**
@@ -48,7 +48,9 @@ public class PaymentController {
      */
     @DeleteMapping("/{paymentId}")
     @ResponseStatus(HttpStatus.OK)
-    public CancelPaymentResponse cancelPayment(@PathVariable Long paymentId) {
-        return service.cancelPayment(paymentId);
+    public ApiResult<Void> cancelPayment(@PathVariable Long paymentId) {
+        service.cancelPayment(paymentId);
+
+        return ApiResult.success("결제 취소에 성공했습니다.");
     }
 }

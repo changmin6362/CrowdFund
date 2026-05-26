@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.authservice.crowdfund.domain.project.mapper.ProjectMapper">
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="command.id">
+    <insert id="insert">
         INSERT INTO project (
                      category_id,
                      creator_id,
@@ -25,11 +25,16 @@ VALUES (
         #{command.endAt},
         #{command.status}
        )
+       <selectKey keyProperty="id" resultType="long" order="AFTER">
+           SELECT LAST_INSERT_ID()
+       </selectKey>
     </insert>
 
     <select id="findAll" resultType="io.github.authservice.crowdfund.feature.project.response.ProjectElement">
         SELECT
             id as projectId,
+            creator_id as creatorId,
+            category_id as categoryId,
             title,
             goal_amount as goalAmount,
             current_amount as currentAmount,
@@ -55,15 +60,33 @@ VALUES (
         LIMIT #{limit}
     </select>
 
-    <!--  ProjectDetail 자동 매핑  -->
-    <resultMap id="ProjectDetailMap" type="ProjectDetail" autoMapping="true">
-        <id property="projectId" column="projectId"/>
-
-        <!--  RewardInfo 자동 매핑  -->
-        <collection property="rewards" ofType="RewardInfo" javaType="ArrayList" autoMapping="true">
-            <id property="rewardId" column="rewardId"/>
-        </collection>
+    <resultMap id="ProjectDetailMap" type="io.github.authservice.crowdfund.feature.project.response.ProjectDetail">
+        <constructor>
+            <idArg column="projectId" javaType="Long"/>
+            <arg column="categoryName" javaType="String"/>
+            <arg column="creatorNickname" javaType="String"/>
+            <arg column="title" javaType="String"/>
+            <arg column="contentBlocks" javaType="String"/>
+            <arg column="goalAmount" javaType="java.math.BigDecimal"/>
+            <arg column="currentAmount" javaType="java.math.BigDecimal"/>
+            <arg column="endAt" javaType="java.time.LocalDateTime"/>
+            <arg column="status" javaType="String"/>
+            <arg select="findRewardsByProjectId" column="projectId" javaType="List"/>
+        </constructor>
     </resultMap>
+
+    <select id="findRewardsByProjectId" resultType="io.github.authservice.crowdfund.feature.reward.response.RewardInfo">
+        SELECT
+            id as rewardId,
+            project_id as projectId,
+            title,
+            description,
+            price,
+            stock,
+            created_at as createdAt
+        FROM reward
+        WHERE project_id = #{projectId}
+    </select>
 
     <select id="findByIdWithDetail" resultMap="ProjectDetailMap">
         SELECT
@@ -75,16 +98,10 @@ VALUES (
             p.goal_amount as goalAmount,
             p.current_amount as currentAmount,
             p.end_at as endAt,
-            p.status,
-            r.id as rewardId,
-            r.title as rewardTitle,
-            r.description as rewardDescription,
-            r.price as rewardPrice,
-            r.stock as rewardStock
+            p.status
         FROM project p
                  LEFT JOIN category c ON p.category_id = c.id
                  LEFT JOIN user u ON p.creator_id = u.id
-                 LEFT JOIN reward r ON p.id = r.project_id
         WHERE p.id = #{projectId}
     </select>
 

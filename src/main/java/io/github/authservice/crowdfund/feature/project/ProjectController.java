@@ -2,9 +2,10 @@ package io.github.authservice.crowdfund.feature.project;
 
 import io.github.authservice.crowdfund.domain.project.ProjectStatus;
 import io.github.authservice.crowdfund.feature.project.request.CreateProjectRequest;
-import io.github.authservice.crowdfund.feature.project.request.PatchProjectStatusRequest;
 import io.github.authservice.crowdfund.feature.project.request.PatchProjectRequest;
+import io.github.authservice.crowdfund.feature.project.request.PatchProjectStatusRequest;
 import io.github.authservice.crowdfund.feature.project.response.*;
+import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -33,8 +34,8 @@ public class ProjectController {
      */
     @PostMapping("/projects/{creatorId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateProjectResponse createProject(@PathVariable Long creatorId, @Valid @RequestBody CreateProjectRequest request) {
-        return service.createProject(creatorId, request);
+    public ApiResult<CreateProjectResponse> createProject(@PathVariable Long creatorId, @Valid @RequestBody CreateProjectRequest request) {
+        return ApiResult.success("프로젝트 생성에 성공했습니다.", service.createProject(creatorId, request));
     }
 
     /**
@@ -46,14 +47,14 @@ public class ProjectController {
      */
     @GetMapping("/projects")
     @ResponseStatus(HttpStatus.OK)
-    public GetProjectResponse getProjects(
+    public ApiResult<GetProjectResponse> getProjects(
             @RequestParam(required = false) List<ProjectStatus> statuses,
             @RequestParam(required = false) @Positive(message = "카테고리 ID는 양수여야 합니다.") Integer categoryId,
             @RequestParam(required = false) LocalDateTime cursorCreatedAt,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") @Positive Integer limit
     ) {
-        return service.getProjects(statuses, categoryId, cursorCreatedAt, cursorId, limit);
+        return ApiResult.success("프로젝트 목록 조회에 성공했습니다.", service.getProjects(statuses, categoryId, cursorCreatedAt, cursorId, limit));
     }
 
     /**
@@ -64,8 +65,8 @@ public class ProjectController {
      */
     @GetMapping("/projects/{projectId}")
     @ResponseStatus(HttpStatus.OK)
-    public GetProjectDetailResponse getProjectDetail(@PathVariable Long projectId) {
-        return service.getProjectDetail(projectId);
+    public ApiResult<GetProjectDetailResponse> getProjectDetail(@PathVariable Long projectId) {
+        return ApiResult.success("프로젝트 상세 조회에 성공했습니다.", service.getProjectDetail(projectId));
     }
 
     /**
@@ -77,8 +78,10 @@ public class ProjectController {
      */
     @PatchMapping("/projects/{projectId}")
     @ResponseStatus(HttpStatus.OK)
-    public PatchProjectResponse patchProject(@PathVariable Long projectId, @Valid @RequestBody PatchProjectRequest request) {
-        return service.patchProject(projectId, request);
+    public ApiResult<Void> patchProject(@PathVariable Long projectId, @Valid @RequestBody PatchProjectRequest request) {
+        service.patchProject(projectId, request);
+
+        return ApiResult.success("프로젝트 수정에 성공했습니다.");
     }
 
     /**
@@ -89,8 +92,10 @@ public class ProjectController {
      */
     @DeleteMapping("/projects/{projectId}")
     @ResponseStatus(HttpStatus.OK)
-    public DeleteProjectResponse deleteProject(@PathVariable Long projectId) {
-        return service.deleteProject(projectId);
+    public ApiResult<Void> deleteProject(@PathVariable Long projectId) {
+        service.deleteProject(projectId);
+
+        return ApiResult.success("프로젝트 삭제에 성공했습니다.");
     }
 
     /**
@@ -101,8 +106,8 @@ public class ProjectController {
      */
     @GetMapping("/users/me/projects/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public GetMyProjectsResponse getMyProjects(@PathVariable Long userId) {
-        return service.getMyProjects(userId);
+    public ApiResult<GetMyProjectsResponse> getMyProjects(@PathVariable Long userId) {
+        return ApiResult.success("내 프로젝트 조회에 성공했습니다.", service.getMyProjects(userId));
     }
 
     /**
@@ -113,8 +118,8 @@ public class ProjectController {
      */
     @GetMapping("/projects/{projectId}/shipping-infos")
     @ResponseStatus(HttpStatus.OK)
-    public GetShippingInfosResponse getShippingInfos(@PathVariable Long projectId) {
-        return service.getShippingInfos(projectId);
+    public ApiResult<GetShippingInfosResponse> getShippingInfos(@PathVariable Long projectId) {
+        return ApiResult.success("배송 정보 조회에 성공했습니다.", service.getShippingInfos(projectId));
     }
 
     /**
@@ -126,10 +131,12 @@ public class ProjectController {
      */
     @PatchMapping("/projects/{projectId}/status")
     @ResponseStatus(HttpStatus.OK)
-    public PatchProjectStatusResponse patchProjectStatus(
+    public ApiResult<Void> patchProjectStatus(
             @PathVariable Long projectId,
             @Valid @RequestBody PatchProjectStatusRequest request
     ) {
-        return service.patchProjectStatus(projectId, request);
+        service.patchProjectStatus(projectId, request);
+
+        return ApiResult.success("프로젝트 상태 변경에 성공했습니다.");
     }
 }

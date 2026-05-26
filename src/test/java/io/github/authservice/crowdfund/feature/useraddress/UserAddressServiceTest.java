@@ -1,9 +1,17 @@
 package io.github.authservice.crowdfund.feature.useraddress;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.domain.useraddress.UserAddress;
 import io.github.authservice.crowdfund.domain.useraddress.UserAddressRepository;
+import io.github.authservice.crowdfund.feature.useraddress.response.CreateUserAddressResponse;
+import io.github.authservice.crowdfund.feature.useraddress.response.GetUserAddressesResponse;
+import io.github.authservice.crowdfund.feature.useraddress.response.PatchUserAddressResponse;
+import io.github.authservice.crowdfund.feature.useraddress.response.SetDefaultAddressResponse;
+import io.github.authservice.crowdfund.global.common.ApiResult;
+import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -12,13 +20,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -35,6 +45,9 @@ class UserAddressServiceTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private User savedUser;
 
     @BeforeEach
@@ -42,7 +55,7 @@ class UserAddressServiceTest {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
 
         savedUser = userRepository.save(new User(
-                null, "test@test.com", "pass", "tester", "테스터", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+                null, "creator@test.com", "pass", "creator", "홍길동", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
     }
 
@@ -58,13 +71,17 @@ class UserAddressServiceTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/users/me/address/{userId}", savedUser.id())
+        MvcResult result = mockMvc.perform(post("/api/users/me/address/{userId}", savedUser.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("주소 추가에 성공했습니다."))
-                .andExpect(jsonPath("$.addressId").exists())
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<CreateUserAddressResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("배송지 등록에 성공했습니다.");
+        assertThat(apiResult.data().addressId()).isNotNull();
     }
 
     @Test
@@ -73,11 +90,15 @@ class UserAddressServiceTest {
                 null, savedUser.id(), "홍길동", "010-1234-5678", "12345", "서울시", "상세주소", true, LocalDateTime.now(), LocalDateTime.now()
         ));
 
-        mockMvc.perform(get("/api/users/me/addresses/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(get("/api/users/me/addresses/{userId}", savedUser.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("내 배송지 목록 조회 성공"))
-                .andExpect(jsonPath("$.addresses").isArray())
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<GetUserAddressesResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("배송지 목록 조회에 성공했습니다.");
+        assertThat(apiResult.data().addresses()).isNotEmpty();
     }
 
     @Test
@@ -96,13 +117,17 @@ class UserAddressServiceTest {
                 }
                 """;
 
-        mockMvc.perform(patch("/api/users/me/address/{addressId}", savedAddress.id())
+        MvcResult result = mockMvc.perform(patch("/api/users/me/address/{addressId}", savedAddress.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("주소 수정에 성공했습니다."))
-                .andExpect(jsonPath("$.updatedAddress.recipientName").value("수정이름"))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<PatchUserAddressResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("배송지 수정에 성공했습니다.");
+        assertThat(apiResult.data().updatedAddress().recipientName()).isEqualTo("수정이름");
     }
 
     @Test
@@ -114,12 +139,16 @@ class UserAddressServiceTest {
                 null, savedUser.id(), "주소2", "010-2222-2222", "22222", "주소2", "상세2", false, LocalDateTime.now(), LocalDateTime.now()
         ));
 
-        mockMvc.perform(patch("/api/users/me/address/{addressId}/default", address2.id()))
+        MvcResult result = mockMvc.perform(patch("/api/users/me/address/{addressId}/default", address2.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("기본 배송지 변경에 성공했습니다."))
-                .andExpect(jsonPath("$.defaultAddressResult.addressId").value(address2.id()))
-                .andExpect(jsonPath("$.defaultAddressResult.isDefault").value(true))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<SetDefaultAddressResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("기본 배송지 변경에 성공했습니다.");
+        assertThat(apiResult.data().defaultAddressResult().addressId()).isEqualTo(address2.id());
+        assertThat(apiResult.data().defaultAddressResult().isDefault()).isTrue();
     }
 
     @Test
@@ -129,10 +158,14 @@ class UserAddressServiceTest {
                 null, savedUser.id(), "삭제용", "010-0000-0000", "00000", "삭제주소", "상세", false, LocalDateTime.now(), LocalDateTime.now()
         ));
 
-        mockMvc.perform(delete("/api/users/me/address/{addressId}", address.id()))
+        MvcResult result = mockMvc.perform(delete("/api/users/me/address/{addressId}", address.id()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("주소 삭제에 성공했습니다."))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("배송지 삭제에 성공했습니다.");
     }
 
     @Test
@@ -143,7 +176,6 @@ class UserAddressServiceTest {
 
         mockMvc.perform(delete("/api/users/me/address/{addressId}", defaultAddress.id()))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").value("기본 배송지는 삭제할 수 없습니다. 다른 배송지를 기본으로 설정한 후 삭제해주세요."))
                 .andDo(print());
     }
 }

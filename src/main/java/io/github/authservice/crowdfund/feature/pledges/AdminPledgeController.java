@@ -2,6 +2,7 @@ package io.github.authservice.crowdfund.feature.pledges;
 
 import io.github.authservice.crowdfund.feature.pledges.response.GetAdminPledgeDetailResponse;
 import io.github.authservice.crowdfund.feature.pledges.response.GetAllPledgesResponse;
+import io.github.authservice.crowdfund.global.common.ApiResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,8 @@ public class AdminPledgeController {
      */
     @GetMapping("/pledge")
     @ResponseStatus(HttpStatus.OK)
-    public GetAllPledgesResponse getAllPledges() {
-        return service.getAllPledges();
+    public ApiResult<GetAllPledgesResponse> getAllPledges() {
+        return ApiResult.success("전체 후원 목록 조회에 성공했습니다.", service.getAllPledges());
     }
 
     /**
@@ -32,7 +33,7 @@ public class AdminPledgeController {
      */
     @GetMapping("/pledge/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
-    public GetAdminPledgeDetailResponse getAdminPledgeDetail(@PathVariable Long pledgeId) {
-        return service.getAdminPledgeDetail(pledgeId);
+    public ApiResult<GetAdminPledgeDetailResponse> getAdminPledgeDetail(@PathVariable Long pledgeId) {
+        return ApiResult.success("관리자용 후원 상세 조회에 성공했습니다.", service.getAdminPledgeDetail(pledgeId));
     }
 }

@@ -3,6 +3,7 @@ package io.github.authservice.crowdfund.feature.pledgeaddress;
 import io.github.authservice.crowdfund.feature.pledgeaddress.request.ReplacePledgeAddressRequest;
 import io.github.authservice.crowdfund.feature.pledgeaddress.response.GetPledgeAddressResponse;
 import io.github.authservice.crowdfund.feature.pledgeaddress.response.ReplacePledgeAddressResponse;
+import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,10 +25,10 @@ public class PledgeAddressController {
      */
     @GetMapping("/pledges/{pledgesId}/addresses")
     @ResponseStatus(HttpStatus.OK)
-    public GetPledgeAddressResponse getPledgeAddress(
+    public ApiResult<GetPledgeAddressResponse> getPledgeAddress(
             @PathVariable Long pledgesId
     ) {
-        return service.getPledgeAddress(pledgesId);
+        return ApiResult.success("후원 주소 조회에 성공했습니다.", service.getPledgeAddress(pledgesId));
     }
 
     /**
@@ -39,10 +40,10 @@ public class PledgeAddressController {
      */
     @PostMapping("/pledges/{pledgeId}/addresses")
     @ResponseStatus(HttpStatus.OK)
-    public ReplacePledgeAddressResponse replacePledgeAddress(
+    public ApiResult<ReplacePledgeAddressResponse> replacePledgeAddress(
             @PathVariable Long pledgeId,
             @RequestBody ReplacePledgeAddressRequest request
     ) {
-        return service.replacePledgeAddress(pledgeId, request);
+        return ApiResult.success("후원 주소 교체에 성공했습니다.", service.replacePledgeAddress(pledgeId, request));
     }
 }
