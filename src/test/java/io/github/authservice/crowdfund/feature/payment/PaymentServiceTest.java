@@ -16,9 +16,9 @@ import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
-import io.github.authservice.crowdfund.feature.payment.request.CreatePaymentRequest;
-import io.github.authservice.crowdfund.feature.payment.response.CreatePaymentResponse;
-import io.github.authservice.crowdfund.feature.payment.response.GetPaymentResponse;
+import io.github.authservice.crowdfund.feature.payment.dto.create.CreatePaymentRequest;
+import io.github.authservice.crowdfund.feature.payment.dto.create.CreatePaymentResponse;
+import io.github.authservice.crowdfund.feature.payment.dto.fetch.FetchPaymentResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -144,7 +143,7 @@ class PaymentServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetPaymentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<FetchPaymentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("결제 내역 조회에 성공했습니다.");
         assertThat(apiResult.data().paymentDetail().id()).isEqualTo(payment.id());

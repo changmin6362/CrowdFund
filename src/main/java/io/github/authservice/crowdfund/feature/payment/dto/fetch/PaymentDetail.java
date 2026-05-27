@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.payment.response;
+package io.github.authservice.crowdfund.feature.payment.dto.fetch;
 
 import java.time.LocalDateTime;
 

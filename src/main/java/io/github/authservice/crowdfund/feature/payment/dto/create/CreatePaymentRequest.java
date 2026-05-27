@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.payment.request;
+package io.github.authservice.crowdfund.feature.payment.dto.create;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

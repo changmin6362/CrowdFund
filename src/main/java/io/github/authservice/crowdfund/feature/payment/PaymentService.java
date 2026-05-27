@@ -4,10 +4,10 @@ import io.github.authservice.crowdfund.domain.payment.Payment;
 import io.github.authservice.crowdfund.domain.payment.PaymentRepository;
 import io.github.authservice.crowdfund.domain.pledge.Pledge;
 import io.github.authservice.crowdfund.domain.pledge.PledgeRepository;
-import io.github.authservice.crowdfund.feature.payment.request.CreatePaymentRequest;
-import io.github.authservice.crowdfund.feature.payment.response.CreatePaymentResponse;
-import io.github.authservice.crowdfund.feature.payment.response.GetPaymentResponse;
-import io.github.authservice.crowdfund.feature.payment.response.PaymentDetail;
+import io.github.authservice.crowdfund.feature.payment.dto.create.CreatePaymentRequest;
+import io.github.authservice.crowdfund.feature.payment.dto.create.CreatePaymentResponse;
+import io.github.authservice.crowdfund.feature.payment.dto.fetch.FetchPaymentResponse;
+import io.github.authservice.crowdfund.feature.payment.dto.fetch.PaymentDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +25,7 @@ public class PaymentService {
      * 결제 요청 도메인 로직
      */
     @Transactional
-    public CreatePaymentResponse createPayment(CreatePaymentRequest request) {
+    public CreatePaymentResponse create(CreatePaymentRequest request) {
         Pledge pledge = pledgeRepository.findById(request.pledgeId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
 
@@ -52,7 +52,7 @@ public class PaymentService {
      * 후원별 결제 내역 조회 도메인 로직
      */
     @Transactional(readOnly = true)
-    public GetPaymentResponse getPaymentByPledgeId(Long pledgeId) {
+    public FetchPaymentResponse fetch(Long pledgeId) {
         Payment payment = paymentRepository.findByPledgeId(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("결제 내역이 존재하지 않습니다."));
 
@@ -66,14 +66,14 @@ public class PaymentService {
                 payment.createdAt()
         );
 
-        return new GetPaymentResponse(detail);
+        return new FetchPaymentResponse(detail);
     }
 
     /**
      * 결제 취소 도메인 로직
      */
     @Transactional
-    public void cancelPayment(Long paymentId) {
+    public void cancel(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 정보입니다."));
 
