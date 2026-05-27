@@ -4,10 +4,10 @@ import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddress;
 import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.authservice.crowdfund.domain.useraddress.UserAddress;
 import io.github.authservice.crowdfund.domain.useraddress.UserAddressRepository;
-import io.github.authservice.crowdfund.feature.pledgeaddress.request.ReplacePledgeAddressRequest;
-import io.github.authservice.crowdfund.feature.pledgeaddress.response.GetPledgeAddressResponse;
-import io.github.authservice.crowdfund.feature.pledgeaddress.response.PledgeAddressInfo;
-import io.github.authservice.crowdfund.feature.pledgeaddress.response.ReplacePledgeAddressResponse;
+import io.github.authservice.crowdfund.feature.pledgeaddress.dto.replace.ReplacePledgeAddressRequest;
+import io.github.authservice.crowdfund.feature.pledgeaddress.dto.fetch.FetchPledgeAddressResponse;
+import io.github.authservice.crowdfund.feature.pledgeaddress.dto.PledgeAddressInfo;
+import io.github.authservice.crowdfund.feature.pledgeaddress.dto.replace.ReplacePledgeAddressResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,18 +25,18 @@ public class PledgeAddressService {
     /**
      * 후원 주소 조회 도메인 로직
      */
-    public GetPledgeAddressResponse getPledgeAddress(Long pledgesId) {
+    public FetchPledgeAddressResponse fetch(Long pledgesId) {
         PledgeAddress address = repository.findByPledgeId(pledgesId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 후원의 주소 정보를 찾을 수 없습니다."));
 
-        return new GetPledgeAddressResponse(mapToInfo(address));
+        return new FetchPledgeAddressResponse(mapToInfo(address));
     }
 
     /**
      * 후원 주소 교체 도메인 로직
      */
     @Transactional
-    public ReplacePledgeAddressResponse replacePledgeAddress(Long pledgeId, ReplacePledgeAddressRequest request) {
+    public ReplacePledgeAddressResponse replace(Long pledgeId, ReplacePledgeAddressRequest request) {
         UserAddress userAddress = userAddressRepository.findById(request.addressId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 주소 정보를 찾을 수 없습니다."));
 

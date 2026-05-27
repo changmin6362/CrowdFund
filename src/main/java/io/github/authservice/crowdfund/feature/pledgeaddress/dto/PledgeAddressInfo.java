@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.pledgeaddress.response;
+package io.github.authservice.crowdfund.feature.pledgeaddress.dto;
 
 import java.time.LocalDateTime;
 
