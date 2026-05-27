@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
-import io.github.authservice.crowdfund.feature.user.response.GetMyPledgeListResponse;
-import io.github.authservice.crowdfund.feature.user.response.GetUserDataResponse;
-import io.github.authservice.crowdfund.feature.user.response.GetUserNickNameResponse;
+import io.github.authservice.crowdfund.feature.user.dto.extract.UserExtractResponse;
+import io.github.authservice.crowdfund.feature.user.dto.fetch.UserFetchResponse;
+import io.github.authservice.crowdfund.feature.user.dto.view.UserViewResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +59,7 @@ class UserServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetUserNickNameResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserViewResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("내 닉네임 조회에 성공했습니다.");
         assertThat(apiResult.data().nickname()).isEqualTo("tester");
@@ -77,7 +76,7 @@ class UserServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetUserDataResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("내 정보 조회에 성공했습니다.");
         assertThat(apiResult.data().user().email()).isEqualTo("data@test.com");
@@ -137,7 +136,7 @@ class UserServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetMyPledgeListResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserExtractResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("내가 후원한 프로젝트 목록 조회에 성공했습니다.");
     }

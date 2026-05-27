@@ -6,11 +6,11 @@ import io.github.authservice.crowdfund.domain.pledge.response.UserPledgeResponse
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.domain.user.mapper.UserMapper;
-import io.github.authservice.crowdfund.feature.user.request.UserUpdateRequest;
-import io.github.authservice.crowdfund.feature.user.response.GetMyPledgeListResponse;
-import io.github.authservice.crowdfund.feature.user.response.GetUserDataResponse;
-import io.github.authservice.crowdfund.feature.user.response.GetUserNickNameResponse;
-import io.github.authservice.crowdfund.feature.user.response.UserDataInfo;
+import io.github.authservice.crowdfund.feature.user.dto.update.UserUpdateRequest;
+import io.github.authservice.crowdfund.feature.user.dto.extract.UserExtractResponse;
+import io.github.authservice.crowdfund.feature.user.dto.fetch.UserFetchResponse;
+import io.github.authservice.crowdfund.feature.user.dto.view.UserViewResponse;
+import io.github.authservice.crowdfund.feature.user.dto.fetch.UserDataInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,19 +30,19 @@ public class UserService {
      * 내 닉네임 조회 도메인 로직
      */
     @Transactional
-    public GetUserNickNameResponse getUserNickName(Long userId) {
+    public UserViewResponse view(Long userId) {
         String nickname = repository.findById(userId)
                 // User에서 nickname을 가져옴
                 .map(User::nickname)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-        return new GetUserNickNameResponse(nickname);
+        return new UserViewResponse(nickname);
     }
 
     /**
      * 내 정보 조회 도메인 로직
      */
     @Transactional
-    public GetUserDataResponse getUserData(Long userId) {
+    public UserFetchResponse fetch(Long userId) {
         UserDataInfo userData = repository.findById(userId)
                 // 받아온 User 형태의 데이터를 UserDataInfo 형태로 가공
                 .map(user -> new UserDataInfo(
@@ -54,14 +54,14 @@ public class UserService {
                 ))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        return new GetUserDataResponse(userData);
+        return new UserFetchResponse(userData);
     }
 
     /**
      * 내 정보 수정 도메인 로직
      */
     @Transactional
-    public void updateUserData(Long userId, UserUpdateRequest request) {
+    public void update(Long userId, UserUpdateRequest request) {
         int affectedRows = userMapper.updateUserData(userId, request);
 
         if (affectedRows == 0) {
@@ -73,7 +73,7 @@ public class UserService {
      * 회원 탈퇴 도메인 로직
      */
     @Transactional
-    public void deactivateUser(Long userId) {
+    public void delete(Long userId) {
         int affectedRows = userMapper.deactivateUser(userId);
 
         if (affectedRows == 0) {
@@ -85,10 +85,10 @@ public class UserService {
      * 내가 후원한 프로젝트 목록 조회 도메인 로직
      */
     @Transactional
-    public GetMyPledgeListResponse getMyPledgeList(Long userId, FulfillmentStatus status) {
+    public UserExtractResponse extract(Long userId, FulfillmentStatus status) {
         List<UserPledgeResponse> pledgeList = pledgeMapper.findPledgesByUserId(userId, status);
 
-        return new GetMyPledgeListResponse(pledgeList);
+        return new UserExtractResponse(pledgeList);
     }
 
 }

@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.user.response;
+package io.github.authservice.crowdfund.feature.user.dto.fetch;
 
 public record UserDataInfo(
         String email,
