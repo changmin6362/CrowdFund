@@ -1,31 +1,32 @@
-package io.github.authservice.crowdfund.feature.reward;
+package io.github.authservice.crowdfund.feature.reward.creator;
 
 import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
-import io.github.authservice.crowdfund.domain.reward.mapper.RewardMapper;
-import io.github.authservice.crowdfund.feature.reward.request.CreateRewardRequest;
-import io.github.authservice.crowdfund.feature.reward.request.PatchRewardReqeust;
-import io.github.authservice.crowdfund.feature.reward.response.*;
+import io.github.authservice.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateRequest;
+import io.github.authservice.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateResponse;
+import io.github.authservice.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateResponse;
+import io.github.authservice.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateReqeust;
+import io.github.authservice.crowdfund.feature.reward.creator.dto.RewardInfo;
+import io.github.authservice.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDeleteResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RewardService {
+@Transactional(readOnly = true)
+public class CreatorRewardService {
 
     private final RewardRepository repository;
-    private final RewardMapper mapper;
 
     /**
      * 프로젝트에 리워드 등록 도메인 로직
      */
     @Transactional
-    public CreateRewardResponse createReward(@Valid Long projectId, CreateRewardRequest request) {
+    public CreatorRewardCreateResponse create(@Valid Long projectId, CreatorRewardCreateRequest request) {
 
         Reward reward = new Reward(
                 null,
@@ -49,34 +50,14 @@ public class RewardService {
                 savedReward.createdAt()
         );
 
-        return new CreateRewardResponse(rewardInfo);
-    }
-
-    /**
-     * 프로젝트의 리워드 목록 조회
-     */
-    public GetRewardsResponse getReward(@Valid Long projectId) {
-
-        List<RewardInfo> rewards = repository.findByProjectId(projectId).stream()
-                .map(reward -> new RewardInfo(
-                        reward.id(),
-                        reward.projectId(),
-                        reward.title(),
-                        reward.description(),
-                        reward.price(),
-                        reward.stock(),
-                        reward.createdAt()
-
-                )).toList();
-
-        return new GetRewardsResponse(rewards);
+        return new CreatorRewardCreateResponse(rewardInfo);
     }
 
     /**
      * 리워드 수정 도메인 로직
      */
     @Transactional
-    public PatchRewardResponse patchReward(Long rewardId, PatchRewardReqeust request) {
+    public CreatorRewardUpdateResponse update(Long rewardId, CreatorRewardUpdateReqeust request) {
         Reward reward = repository.findById(rewardId)
                 .orElseThrow(() -> new IllegalArgumentException("리워드를 찾을 수 없습니다."));
 
@@ -102,17 +83,17 @@ public class RewardService {
                 savedReward.createdAt()
         );
 
-        return new PatchRewardResponse(rewardInfo);
+        return new CreatorRewardUpdateResponse(rewardInfo);
     }
 
     /**
      * 리워드 삭제 도메인 로직
      */
     @Transactional
-    public DeleteRewardResponse deleteReward(@Valid Long rewardId) {
+    public CreatorRewardDeleteResponse delete(@Valid Long rewardId) {
 
         repository.deleteById(rewardId);
 
-        return new DeleteRewardResponse(rewardId);
+        return new CreatorRewardDeleteResponse(rewardId);
     }
 }

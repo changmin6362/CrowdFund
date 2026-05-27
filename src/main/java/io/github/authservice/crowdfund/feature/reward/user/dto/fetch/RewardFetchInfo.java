@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.reward.response;
+package io.github.authservice.crowdfund.feature.reward.user.dto.fetch;
 
 import org.apache.ibatis.type.Alias;
 
@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Alias("RewardInfo")
-public record RewardInfo(
+public record RewardFetchInfo(
         Long rewardId,
         Long projectId,
         String title,

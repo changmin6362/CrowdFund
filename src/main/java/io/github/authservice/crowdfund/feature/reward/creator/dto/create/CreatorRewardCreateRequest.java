@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.reward.request;
+package io.github.authservice.crowdfund.feature.reward.creator.dto.create;
 
 
 import jakarta.validation.constraints.Min;
@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-public record CreateRewardRequest(
+public record CreatorRewardCreateRequest(
 
         @NotBlank(message = "보상명은 필수입니다.")
         String title,

@@ -75,7 +75,7 @@ VALUES (
         </constructor>
     </resultMap>
 
-    <select id="findRewardsByProjectId" resultType="io.github.authservice.crowdfund.feature.reward.response.RewardInfo">
+    <select id="findRewardsByProjectId" resultType="io.github.authservice.crowdfund.feature.reward.creator.dto.RewardInfo">
         SELECT
             id as rewardId,
             project_id as projectId,
