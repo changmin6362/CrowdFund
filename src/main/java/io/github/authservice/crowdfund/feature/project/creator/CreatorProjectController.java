@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Project", description = "프로젝트 관련 API")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/creator/projects")
 @Validated
 @RequiredArgsConstructor
 public class CreatorProjectController {
@@ -28,7 +28,7 @@ public class CreatorProjectController {
      * @param request 프로젝트 생성 정보
      * @return message, projectId
      */
-    @PostMapping("/projects/{creatorId}")
+    @PostMapping("/{creatorId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<CreatorProjectCreateResponse> create(@PathVariable Long creatorId, @Valid @RequestBody CreatorProjectCreateRequest request) {
         return ApiResult.success("프로젝트 생성에 성공했습니다.", service.create(creatorId, request));
@@ -41,7 +41,7 @@ public class CreatorProjectController {
      * @param request   수정할 프로젝트 정보
      * @return message
      */
-    @PatchMapping("/projects/{projectId}")
+    @PatchMapping("/{projectId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> update(@PathVariable Long projectId, @Valid @RequestBody CreatorProjectUpdateRequest request) {
         service.update(projectId, request);
@@ -55,7 +55,7 @@ public class CreatorProjectController {
      * @param projectId 프로젝트 ID
      * @return message
      */
-    @DeleteMapping("/projects/{projectId}")
+    @DeleteMapping("/{projectId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> delete(@PathVariable Long projectId) {
         service.delete(projectId);
@@ -69,7 +69,7 @@ public class CreatorProjectController {
      * @param userId 사용자 ID
      * @return message, projects
      */
-    @GetMapping("/users/me/projects/{userId}")
+    @GetMapping("/me/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorProjectsFetchResponse> fetch(@PathVariable Long userId) {
         return ApiResult.success("내 프로젝트 조회에 성공했습니다.", service.fetch(userId));
@@ -81,7 +81,7 @@ public class CreatorProjectController {
      * @param projectId 프로젝트 ID
      * @return message, shippingInfos
      */
-    @GetMapping("/projects/{projectId}/shipping-infos")
+    @GetMapping("/{projectId}/shipping-infos")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorShippingInfosExtractResponse> extract(@PathVariable Long projectId) {
         return ApiResult.success("배송 정보 조회에 성공했습니다.", service.extract(projectId));

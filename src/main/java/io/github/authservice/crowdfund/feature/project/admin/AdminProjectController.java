@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Project", description = "프로젝트 관련 API")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/admin/projects")
 @Validated
 @RequiredArgsConstructor
 public class AdminProjectController {
@@ -25,7 +25,7 @@ public class AdminProjectController {
      * @param request   상태 변경 요청 데이터
      * @return UpdateProjectResponse 변경 성공 결과
      */
-    @PatchMapping("/projects/{projectId}/status")
+    @PatchMapping("/{projectId}/status")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> update(
             @PathVariable Long projectId,

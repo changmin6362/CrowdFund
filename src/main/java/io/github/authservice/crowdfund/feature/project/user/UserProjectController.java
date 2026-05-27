@@ -16,7 +16,7 @@ import java.util.List;
 
 @Tag(name = "Project", description = "프로젝트 관련 API")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/projects")
 @Validated
 @RequiredArgsConstructor
 public class UserProjectController {
@@ -30,7 +30,7 @@ public class UserProjectController {
      * @param categoryId 카테고리 ID 필터링
      * @return message, projectList, hasNext, nextCursor
      */
-    @GetMapping("/projects")
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserProjectFetchResponse> fetch(
             @RequestParam(required = false) List<ProjectStatus> statuses,
@@ -48,7 +48,7 @@ public class UserProjectController {
      * @param projectId 프로젝트 ID
      * @return message, projectDetail
      */
-    @GetMapping("/projects/{projectId}")
+    @GetMapping("/{projectId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserProjectDetailResponse> detail(@PathVariable Long projectId) {
         return ApiResult.success("프로젝트 상세 조회에 성공했습니다.", service.detail(projectId));

@@ -77,7 +77,7 @@ class AdminProjectControllerTest {
                 }
                 """;
 
-        MvcResult result = mockMvc.perform(patch("/api/projects/{projectId}/status", savedProject.id())
+        MvcResult result = mockMvc.perform(patch("/api/admin/projects/{projectId}/status", savedProject.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(statusRequest))
                 .andExpect(status().isOk())

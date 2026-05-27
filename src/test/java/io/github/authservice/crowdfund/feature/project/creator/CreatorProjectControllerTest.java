@@ -4,12 +4,20 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
+import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
+import io.github.authservice.crowdfund.domain.pledge.Pledge;
+import io.github.authservice.crowdfund.domain.pledge.PledgeRepository;
+import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddress;
+import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.authservice.crowdfund.domain.project.Project;
 import io.github.authservice.crowdfund.domain.project.ProjectRepository;
 import io.github.authservice.crowdfund.domain.project.ProjectStatus;
+import io.github.authservice.crowdfund.domain.reward.Reward;
+import io.github.authservice.crowdfund.domain.reward.RewardRepository;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.feature.project.creator.dto.create.CreatorProjectCreateResponse;
+import io.github.authservice.crowdfund.feature.project.creator.dto.extract.CreatorShippingInfosExtractResponse;
 import io.github.authservice.crowdfund.feature.project.creator.dto.fetch.CreatorProjectsFetchResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
@@ -47,6 +55,15 @@ class CreatorProjectControllerTest {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private RewardRepository rewardRepository;
+
+    @Autowired
+    private PledgeRepository pledgeRepository;
+
+    @Autowired
+    private PledgeAddressRepository pledgeAddressRepository;
+
+    @Autowired
     private MockMvc mockMvc;
 
     @Autowired
@@ -80,7 +97,7 @@ class CreatorProjectControllerTest {
                 }
                 """.formatted(savedCategory.id(), LocalDateTime.now().plusDays(30));
 
-        MvcResult result = mockMvc.perform(post("/api/projects/{creatorId}", savedUser.id())
+        MvcResult result = mockMvc.perform(post("/api/creator/projects/{creatorId}", savedUser.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isCreated())
@@ -106,7 +123,7 @@ class CreatorProjectControllerTest {
                 }
                 """;
 
-        MvcResult result = mockMvc.perform(patch("/api/projects/{projectId}", savedProject.id())
+        MvcResult result = mockMvc.perform(patch("/api/creator/projects/{projectId}", savedProject.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
@@ -124,7 +141,7 @@ class CreatorProjectControllerTest {
                 null, savedCategory.id(), savedUser.id(), "삭제할 프로젝트", "[{\"type\":\"text\",\"content\":\"내용\"}]", new BigDecimal("50000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(10), ProjectStatus.ONGOING, LocalDateTime.now()
         ));
 
-        MvcResult result = mockMvc.perform(delete("/api/projects/{projectId}", savedProject.id()))
+        MvcResult result = mockMvc.perform(delete("/api/creator/projects/{projectId}", savedProject.id()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -140,7 +157,7 @@ class CreatorProjectControllerTest {
                 null, savedCategory.id(), savedUser.id(), "내 프로젝트", "[{\"type\":\"text\",\"content\":\"내용\"}]", new BigDecimal("50000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(10), ProjectStatus.ONGOING, LocalDateTime.now()
         ));
 
-        MvcResult result = mockMvc.perform(get("/api/users/me/projects/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(get("/api/creator/projects/me/{userId}", savedUser.id()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -149,5 +166,46 @@ class CreatorProjectControllerTest {
 
         assertThat(apiResult.message()).isEqualTo("내 프로젝트 조회에 성공했습니다.");
         assertThat(apiResult.data().projects()).isNotEmpty();
+    }
+
+    @Test
+    void 후원자_배송_정보_목록_조회_테스트() throws Exception {
+        // 1. 프로젝트 생성
+        Project savedProject = projectRepository.save(new Project(
+                null, savedCategory.id(), savedUser.id(), "배송 정보 테스트 프로젝트", "[{\"type\":\"text\",\"content\":\"내용\"}]", new BigDecimal("1000000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(30), ProjectStatus.ONGOING, LocalDateTime.now()
+        ));
+
+        // 2. 리워드 생성
+        Reward savedReward = rewardRepository.save(new Reward(
+                null, savedProject.id(), "테스트 리워드", "리워드 설명", new BigDecimal("10000"), 100, LocalDateTime.now()
+        ));
+
+        // 3. 후원자 생성
+        User pledger = userRepository.save(new User(
+                null, "pledger_" + System.currentTimeMillis() + "@test.com", "pass", "후원자", "이순신", "010-3333-4444", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+        ));
+
+        // 4. 후원 생성
+        Pledge savedPledge = pledgeRepository.save(new Pledge(
+                null, pledger.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
+        ));
+
+        // 5. 배송지 정보 생성
+        pledgeAddressRepository.save(new PledgeAddress(
+                null, savedPledge.id(), pledger.id(), "이순신", "010-3333-4444", "12345", "서울특별시 중구 세종대로 110", "서울시청", LocalDateTime.now(), LocalDateTime.now()
+        ));
+
+        // 6. API 호출
+        MvcResult result = mockMvc.perform(get("/api/creator/projects/{projectId}/shipping-infos", savedProject.id()))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+
+        // 7. 검증
+        ApiResult<CreatorShippingInfosExtractResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("배송 정보 조회에 성공했습니다.");
+        assertThat(apiResult.data().shippingInfos()).isNotEmpty();
+        assertThat(apiResult.data().shippingInfos().get(0).recipientName()).isEqualTo("이순신");
     }
 }
