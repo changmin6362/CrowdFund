@@ -1,7 +1,9 @@
-package io.github.authservice.crowdfund.feature.comment;
+package io.github.authservice.crowdfund.feature.comment.project;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.authservice.crowdfund.domain.category.Category;
+import io.github.authservice.crowdfund.domain.category.CategoryRepository;
 import io.github.authservice.crowdfund.domain.comment.Comment;
 import io.github.authservice.crowdfund.domain.comment.CommentRepository;
 import io.github.authservice.crowdfund.domain.project.Project;
@@ -9,9 +11,6 @@ import io.github.authservice.crowdfund.domain.project.ProjectRepository;
 import io.github.authservice.crowdfund.domain.project.ProjectStatus;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
-import io.github.authservice.crowdfund.domain.category.Category;
-import io.github.authservice.crowdfund.domain.category.CategoryRepository;
-import io.github.authservice.crowdfund.feature.comment.my.dto.fetch.MyCommentsResponse;
 import io.github.authservice.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateResponse;
 import io.github.authservice.crowdfund.feature.comment.project.dto.delete.ProjectCommentDeleteResponse;
 import io.github.authservice.crowdfund.feature.comment.project.dto.fetch.ProjectCommentsFetchResponse;
@@ -40,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class CommentServiceTest {
+class ProjectCommentServiceTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -67,7 +66,6 @@ class CommentServiceTest {
     void setup(TestInfo testInfo) {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
 
-        // 기본 데이터 준비
         savedUser = userRepository.save(new User(
                 null, "test@test.com", "pass", "tester", "홍길동", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
@@ -117,7 +115,7 @@ class CommentServiceTest {
                 }
                 """;
 
-        MvcResult result = mockMvc.perform(patch("/api/comments/{commentId}", savedComment.id())
+        MvcResult result = mockMvc.perform(patch("/api/comments/{commentId}/{userId}", savedComment.id(), savedUser.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
@@ -132,7 +130,6 @@ class CommentServiceTest {
 
     @Test
     void 프로젝트_댓글_목록_조회_테스트() throws Exception {
-        // 댓글 미리 생성
         commentRepository.save(new Comment(
                 null, savedUser.id(), savedProject.id(), "댓글1", LocalDateTime.now()
         ));
@@ -150,24 +147,6 @@ class CommentServiceTest {
 
         assertThat(apiResult.message()).isEqualTo("댓글 목록 조회에 성공했습니다.");
         assertThat(apiResult.data().comments()).hasSize(2);
-    }
-
-    @Test
-    void 내_댓글_목록_조회_테스트() throws Exception {
-        commentRepository.save(new Comment(
-                null, savedUser.id(), savedProject.id(), "내 댓글", LocalDateTime.now()
-        ));
-
-        MvcResult result = mockMvc.perform(get("/api/users/me/comments/{userId}", savedUser.id()))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<MyCommentsResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("내 댓글 목록 조회에 성공했습니다.");
-        assertThat(apiResult.data().myComments()).hasSize(1);
-        assertThat(apiResult.data().myComments().get(0).content()).isEqualTo("내 댓글");
     }
 
     @Test
@@ -204,7 +183,7 @@ class CommentServiceTest {
 
     @Test
     void 댓글_수정_실패_테스트_존재하지않음() throws Exception {
-        mockMvc.perform(patch("/api/comments/9999")
+        mockMvc.perform(patch("/api/comments/9999/{userId}", savedUser.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
