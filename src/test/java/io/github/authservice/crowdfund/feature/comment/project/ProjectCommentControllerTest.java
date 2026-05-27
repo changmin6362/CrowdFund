@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class ProjectCommentServiceTest {
+class ProjectCommentControllerTest {
 
     @Autowired
     private UserRepository userRepository;
