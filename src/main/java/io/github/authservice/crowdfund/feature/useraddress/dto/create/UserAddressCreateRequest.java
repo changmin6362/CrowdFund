@@ -1,9 +1,10 @@
-package io.github.authservice.crowdfund.feature.useraddress.request;
+package io.github.authservice.crowdfund.feature.useraddress.dto.create;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-public record PatchUserAddressRequest(
+public record UserAddressCreateRequest(
+
         @NotBlank(message = "수령인 이름은 필수 입력 항목입니다.")
         String recipientName,
 
