@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.pledges;
+package io.github.authservice.crowdfund.feature.pledges.admin;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,8 +9,6 @@ import io.github.authservice.crowdfund.domain.payment.PaymentRepository;
 import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.authservice.crowdfund.domain.pledge.Pledge;
 import io.github.authservice.crowdfund.domain.pledge.PledgeRepository;
-import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddress;
-import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.authservice.crowdfund.domain.project.Project;
 import io.github.authservice.crowdfund.domain.project.ProjectRepository;
 import io.github.authservice.crowdfund.domain.project.ProjectStatus;
@@ -20,9 +18,6 @@ import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.feature.pledges.admin.dto.detail.AdminPledgeDetailResponse;
 import io.github.authservice.crowdfund.feature.pledges.admin.dto.fetch.AdminPledgesFetchResponse;
-import io.github.authservice.crowdfund.feature.pledges.user.dto.create.UserPledgeCreateResponse;
-import io.github.authservice.crowdfund.feature.pledges.user.dto.detail.UserPledgeDetailResponse;
-import io.github.authservice.crowdfund.feature.pledges.user.dto.fulfill.UserPledgeFulfillResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +26,6 @@ import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,14 +34,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class PledgeServiceTest {
+class AdminPledgeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -72,9 +66,6 @@ class PledgeServiceTest {
 
     @Autowired
     private PaymentRepository paymentRepository;
-
-    @Autowired
-    private PledgeAddressRepository pledgeAddressRepository;
 
     private User savedUser;
     private Project savedProject;
@@ -102,28 +93,6 @@ class PledgeServiceTest {
     }
 
     @Test
-    void 후원_참여_테스트() throws Exception {
-        String createRequest = """
-                {
-                    "project_id": %d,
-                    "reward_id": %d
-                }
-                """.formatted(savedProject.id(), savedReward.id());
-
-        MvcResult result = mockMvc.perform(post("/api/project/pledges/{userId}", savedUser.id())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(createRequest))
-                .andExpect(status().isCreated())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<UserPledgeCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("프로젝트 후원 참여에 성공했습니다.");
-        assertThat(apiResult.data().pledgeId()).isNotNull();
-    }
-
-    @Test
     void 후원_목록_조회_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
                 null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
@@ -139,73 +108,6 @@ class PledgeServiceTest {
         assertThat(apiResult.message()).isEqualTo("전체 후원 목록 조회에 성공했습니다.");
         assertThat(apiResult.data().pledges()).isNotEmpty();
         assertThat(apiResult.data().pledges()).anyMatch(p -> p.id().equals(savedPledge.id()));
-    }
-
-    @Test
-    void 후원_상세_조회_테스트() throws Exception {
-        Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
-        ));
-
-        paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", 10000L, "PAID", LocalDateTime.now(), LocalDateTime.now()
-        ));
-
-        pledgeAddressRepository.save(new PledgeAddress(
-                null, savedPledge.id(), savedUser.id(), "홍길동", "010-1234-5678", "12345", "서울특별시 강남구 테헤란로 123", "4층 개발팀", LocalDateTime.now(), LocalDateTime.now()
-        ));
-
-        MvcResult result = mockMvc.perform(get("/api/pledges/{pledgeId}", savedPledge.id()))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<UserPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("후원 상세 조회에 성공했습니다.");
-        assertThat(apiResult.data().pledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
-        assertThat(apiResult.data().pledgeDetail().projectTitle()).isEqualTo(savedProject.title());
-    }
-
-    @Test
-    void 후원_취소_테스트() throws Exception {
-        Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
-        ));
-
-        MvcResult result = mockMvc.perform(delete("/api/pledges/{pledgeId}", savedPledge.id()))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("후원 취소에 성공했습니다.");
-    }
-
-    @Test
-    void 보상_이행_상태_갱신_테스트() throws Exception {
-        Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
-        ));
-
-        String updateRequest = """
-                {
-                    "fulfillmentStatus": "COMPLETED"
-                }
-                """;
-
-        MvcResult result = mockMvc.perform(patch("/api/pledges/{pledgeId}/fulfillment", savedPledge.id())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updateRequest))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<UserPledgeFulfillResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("보상 이행 상태 갱신에 성공했습니다.");
-        assertThat(apiResult.data().updatedInfo().fulfillmentStatus()).isEqualTo(FulfillmentStatus.COMPLETED);
     }
 
     @Test
