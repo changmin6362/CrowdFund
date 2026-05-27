@@ -23,6 +23,7 @@ public class UserCategoryService {
     /**
      * 카테고리 트리 조회 도메인 로직
      */
+    @Transactional
     public UserFetchCategoryResponse fetch() {
         List<Category> allCategories = repository.findByIsActiveTrue();
 

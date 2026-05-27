@@ -8,9 +8,11 @@ import io.github.authservice.crowdfund.feature.auth.dto.signin.SignInResponse;
 import io.github.authservice.crowdfund.feature.auth.dto.signup.SignUpResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthService {
 
     private final UserRepository repository;
@@ -18,6 +20,7 @@ public class AuthService {
     /**
      * 회원가입 도메인 로직
      */
+    @Transactional
     public SignUpResponse signup(SignUpRequest request) {
         // User savedUser = repository.save(request);
         //         return ApiResponse.success("회원가입에 성공했습니다.", new SignUpResponse(repository.signup(request)));
@@ -27,6 +30,7 @@ public class AuthService {
     /**
      * 로그인 도메인 로직
      */
+    @Transactional
     public SignInResponse login(SignInRequest request) {
         // TODO: 로그인 로직 구현 (비밀번호 확인, 토큰 생성 등)
         // return ApiResponse.success("로그인에 성공했습니다.", new SignInResponse(accessToken, refreshToken));
@@ -36,6 +40,7 @@ public class AuthService {
     /**
      * 로그아웃 도메인 로직
      */
+    @Transactional
     public Void logout(LogoutRequest request) {
         // TODO: 로그아웃 로직 구현 (토큰 무효화 등)
         // repository.logout(request);
