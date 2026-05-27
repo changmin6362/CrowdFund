@@ -1,11 +1,9 @@
-package io.github.authservice.crowdfund.feature.pledges.admin;
+package io.github.authservice.crowdfund.feature.pledges.creator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
-import io.github.authservice.crowdfund.domain.payment.Payment;
-import io.github.authservice.crowdfund.domain.payment.PaymentRepository;
 import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.authservice.crowdfund.domain.pledge.Pledge;
 import io.github.authservice.crowdfund.domain.pledge.PledgeRepository;
@@ -16,8 +14,7 @@ import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
-import io.github.authservice.crowdfund.feature.pledges.admin.dto.detail.AdminPledgeDetailResponse;
-import io.github.authservice.crowdfund.feature.pledges.admin.dto.fetch.AdminPledgesFetchResponse;
+import io.github.authservice.crowdfund.feature.pledges.creator.dto.fulfill.CreatorPledgeFulfillResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +23,7 @@ import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,14 +32,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class AdminPledgeControllerTest {
+class CreatorPledgeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -64,9 +62,6 @@ class AdminPledgeControllerTest {
     @Autowired
     private RewardRepository rewardRepository;
 
-    @Autowired
-    private PaymentRepository paymentRepository;
-
     private User savedUser;
     private Project savedProject;
     private Reward savedReward;
@@ -76,7 +71,7 @@ class AdminPledgeControllerTest {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
 
         savedUser = userRepository.save(new User(
-                null, "pledger@test.com", "pass", "pledge", "후원자", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+                null, "creator@test.com", "pass", "creator", "창작자", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         Category savedCategory = categoryRepository.save(new Category(
@@ -93,42 +88,27 @@ class AdminPledgeControllerTest {
     }
 
     @Test
-    void 후원_목록_조회_테스트() throws Exception {
+    void 보상_이행_상태_갱신_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
                 null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
-        MvcResult result = mockMvc.perform(get("/api/admin/pledge"))
+        String updateRequest = """
+                {
+                    "fulfillmentStatus": "COMPLETED"
+                }
+                """;
+
+        MvcResult result = mockMvc.perform(patch("/api/creator/pledges/{pledgeId}/fulfill", savedPledge.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateRequest))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<AdminPledgesFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<CreatorPledgeFulfillResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
-        assertThat(apiResult.message()).isEqualTo("전체 후원 목록 조회에 성공했습니다.");
-        assertThat(apiResult.data().pledges()).isNotEmpty();
-        assertThat(apiResult.data().pledges()).anyMatch(p -> p.id().equals(savedPledge.id()));
-    }
-
-    @Test
-    void 관리자_후원_상세_조회_테스트() throws Exception {
-        Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
-        ));
-
-        paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", 10000L, "PAID", LocalDateTime.now(), LocalDateTime.now()
-        ));
-
-        MvcResult result = mockMvc.perform(get("/api/admin/pledge/{pledgeId}", savedPledge.id()))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<AdminPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("관리자용 후원 상세 조회에 성공했습니다.");
-        assertThat(apiResult.data().adminPledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
-        assertThat(apiResult.data().adminPledgeDetail().user().userId()).isEqualTo(savedUser.id());
+        assertThat(apiResult.message()).isEqualTo("보상 이행 상태 갱신에 성공했습니다.");
+        assertThat(apiResult.data().updatedInfo().fulfillmentStatus()).isEqualTo(FulfillmentStatus.COMPLETED);
     }
 }

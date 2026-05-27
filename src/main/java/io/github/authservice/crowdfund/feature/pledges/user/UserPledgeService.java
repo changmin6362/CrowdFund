@@ -11,15 +11,11 @@ import io.github.authservice.crowdfund.domain.project.Project;
 import io.github.authservice.crowdfund.domain.project.ProjectRepository;
 import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
-import io.github.authservice.crowdfund.domain.user.UserRepository;
-import io.github.authservice.crowdfund.feature.pledges.user.dto.detail.PledgeDetail;
 import io.github.authservice.crowdfund.feature.pledges.user.dto.create.UserPledgeCreateRequest;
-import io.github.authservice.crowdfund.feature.pledges.user.dto.detail.ShippingAddress;
-import io.github.authservice.crowdfund.feature.pledges.user.dto.fulfill.FulfillmentInfo;
-import io.github.authservice.crowdfund.feature.pledges.user.dto.fulfill.UserPledgeFulfillRequest;
 import io.github.authservice.crowdfund.feature.pledges.user.dto.create.UserPledgeCreateResponse;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.detail.PledgeDetail;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.detail.ShippingAddress;
 import io.github.authservice.crowdfund.feature.pledges.user.dto.detail.UserPledgeDetailResponse;
-import io.github.authservice.crowdfund.feature.pledges.user.dto.fulfill.UserPledgeFulfillResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,7 +31,6 @@ public class UserPledgeService {
 
     private final PledgeRepository pledgeRepository;
     private final RewardRepository rewardRepository;
-    private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final PaymentRepository paymentRepository;
     private final PledgeAddressRepository pledgeAddressRepository;
@@ -131,35 +126,5 @@ public class UserPledgeService {
             throw new IllegalArgumentException("존재하지 않는 후원 내역입니다.");
         }
         pledgeRepository.deleteById(pledgeId);
-    }
-
-    /**
-     * 보상 이행 도메인 로직
-     */
-    @Transactional
-    public UserPledgeFulfillResponse fulfill(Long pledgeId, @Valid UserPledgeFulfillRequest request) {
-        Pledge pledge = pledgeRepository.findById(pledgeId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
-
-        LocalDateTime fulfilledAt = pledge.fulfilledAt();
-        if (request.fulfillmentStatus() == FulfillmentStatus.COMPLETED) {
-            fulfilledAt = LocalDateTime.now();
-        }
-
-
-        Pledge updatedPledge = new Pledge(
-                pledge.id(),
-                pledge.userId(),
-                pledge.projectId(),
-                pledge.rewardId(),
-                pledge.amount(),
-                request.fulfillmentStatus(),
-                fulfilledAt,
-                pledge.createdAt()
-        );
-
-        pledgeRepository.save(updatedPledge);
-
-        return new UserPledgeFulfillResponse(new FulfillmentInfo(pledgeId, request.fulfillmentStatus(), fulfilledAt));
     }
 }

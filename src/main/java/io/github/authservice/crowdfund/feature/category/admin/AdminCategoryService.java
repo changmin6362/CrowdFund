@@ -31,15 +31,15 @@ public class AdminCategoryService {
 
         // 카테고리의 깊이 계산
         int depth = 1;
-        if (request.getParentId() != null) {
-            Category parent = categoryRepository.findById(request.getParentId())
-                    .orElseThrow(() -> new IllegalArgumentException("부모 카테고리를 찾을 수 없습니다. ID: " + request.getParentId()));
+        if (request.parentId() != null) {
+            Category parent = categoryRepository.findById(request.parentId())
+                    .orElseThrow(() -> new IllegalArgumentException("부모 카테고리를 찾을 수 없습니다. ID: " + request.parentId()));
             depth = parent.depth() + 1;
         }
 
         // 카테고리의 정렬 순서 계산 (마지막 순서 + 10)
         int sortOrder = 10;
-        List<Category> siblings = categoryRepository.findByParentIdAndIsActiveTrueOrderBySortOrderAsc(request.getParentId());
+        List<Category> siblings = categoryRepository.findByParentIdAndIsActiveTrueOrderBySortOrderAsc(request.parentId());
         if (!siblings.isEmpty()) {
             sortOrder = siblings.stream()
                     .mapToInt(Category::sortOrder)
@@ -53,7 +53,7 @@ public class AdminCategoryService {
                 sortOrder
         );
 
-        Category savedCategory = categoryRepository.findById(request.getId())
+        Category savedCategory = categoryRepository.findById(request.id())
                 .orElseThrow(() -> new IllegalStateException("카테고리 생성 후 조회를 실패했습니다."));
 
         return new AdminCategoryCreateResponse(savedCategory);

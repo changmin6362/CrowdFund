@@ -20,7 +20,6 @@ import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.feature.pledges.user.dto.create.UserPledgeCreateResponse;
 import io.github.authservice.crowdfund.feature.pledges.user.dto.detail.UserPledgeDetailResponse;
-import io.github.authservice.crowdfund.feature.pledges.user.dto.fulfill.UserPledgeFulfillResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,7 +82,7 @@ class UserPledgeControllerTest {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
 
         savedUser = userRepository.save(new User(
-                null, "pledger@test.com", "pass", "pledge", "pledge", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+                null, "pledger@test.com", "pass", "pledge", "후원자", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         Category savedCategory = categoryRepository.save(new Category(
@@ -108,7 +107,7 @@ class UserPledgeControllerTest {
                 }
                 """.formatted(savedProject.id(), savedReward.id());
 
-        MvcResult result = mockMvc.perform(post("/api/project/pledges/{userId}", savedUser.id())
+        MvcResult result = mockMvc.perform(post("/api/pledges/{userId}", savedUser.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isCreated())
@@ -117,7 +116,7 @@ class UserPledgeControllerTest {
 
         ApiResult<UserPledgeCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
-        assertThat(apiResult.message()).isEqualTo("프로젝트 후원 참여에 성공했습니다.");
+        assertThat(apiResult.message()).isEqualTo("프로젝트 후원에 성공했습니다.");
         assertThat(apiResult.data().pledgeId()).isNotNull();
     }
 
@@ -161,30 +160,5 @@ class UserPledgeControllerTest {
         ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("후원 취소에 성공했습니다.");
-    }
-
-    @Test
-    void 보상_이행_상태_갱신_테스트() throws Exception {
-        Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
-        ));
-
-        String updateRequest = """
-                {
-                    "fulfillmentStatus": "COMPLETED"
-                }
-                """;
-
-        MvcResult result = mockMvc.perform(patch("/api/pledges/{pledgeId}/fulfill", savedPledge.id())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updateRequest))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<UserPledgeFulfillResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("보상 이행 상태 갱신에 성공했습니다.");
-        assertThat(apiResult.data().updatedInfo().fulfillmentStatus()).isEqualTo(FulfillmentStatus.COMPLETED);
     }
 }
