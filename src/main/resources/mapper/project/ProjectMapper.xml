@@ -30,7 +30,7 @@ VALUES (
        </selectKey>
     </insert>
 
-    <select id="findAll" resultType="io.github.authservice.crowdfund.feature.project.response.ProjectElement">
+    <select id="findAll" resultType="io.github.authservice.crowdfund.feature.project.user.dto.fetch.ProjectElement">
         SELECT
             id as projectId,
             creator_id as creatorId,
@@ -60,7 +60,7 @@ VALUES (
         LIMIT #{limit}
     </select>
 
-    <resultMap id="ProjectDetailMap" type="io.github.authservice.crowdfund.feature.project.response.ProjectDetail">
+    <resultMap id="ProjectDetailMap" type="io.github.authservice.crowdfund.feature.project.user.dto.detail.ProjectDetail">
         <constructor>
             <idArg column="projectId" javaType="Long"/>
             <arg column="categoryName" javaType="String"/>
@@ -117,7 +117,7 @@ VALUES (
         WHERE id = #{projectId}
     </delete>
 
-    <select id="findByCreatorId" resultType="io.github.authservice.crowdfund.feature.project.response.ProjectInfo">
+    <select id="findByCreatorId" resultType="io.github.authservice.crowdfund.feature.project.creator.dto.fetch.ProjectInfo">
         SELECT
             id as projectId,
             title,
@@ -130,7 +130,7 @@ VALUES (
         WHERE creator_id = #{creatorId}
     </select>
 
-    <select id="findShippingInfosByProjectId" resultType="io.github.authservice.crowdfund.feature.project.response.ShippingInfo">
+    <select id="findShippingInfosByProjectId" resultType="io.github.authservice.crowdfund.feature.project.creator.dto.extract.ShippingInfo">
         SELECT
             pa.id as addressId,
             pa.user_id as userId,

@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.project.response;
+package io.github.authservice.crowdfund.feature.project.creator.dto.extract;
 
 public record ShippingInfo(
         Long addressId,

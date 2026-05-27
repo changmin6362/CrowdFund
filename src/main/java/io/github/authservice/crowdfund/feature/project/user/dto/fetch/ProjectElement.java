@@ -1,17 +1,19 @@
-package io.github.authservice.crowdfund.feature.project.command;
+package io.github.authservice.crowdfund.feature.project.user.dto.fetch;
 
 import io.github.authservice.crowdfund.domain.project.ProjectStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record CreateProjectCommand(
+public record ProjectElement(
+        Long projectId,
+        Long creatorId,
         Integer categoryId,
         String title,
-        String contentBlocks,
         BigDecimal goalAmount,
         BigDecimal currentAmount,
         LocalDateTime endAt,
-        ProjectStatus status
+        ProjectStatus status,
+        LocalDateTime createdAt
 ) {
 }

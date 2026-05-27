@@ -1,6 +1,5 @@
-package io.github.authservice.crowdfund.feature.project.response;
+package io.github.authservice.crowdfund.feature.project.user.dto.detail;
 
-import io.github.authservice.crowdfund.feature.reward.response.RewardInfo;
 import org.apache.ibatis.type.Alias;
 
 import java.math.BigDecimal;
@@ -19,4 +18,5 @@ public record ProjectDetail(
         LocalDateTime endAt,
         String status,
         List<RewardInfo> rewards
-) {}
+) {
+}

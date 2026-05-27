@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.project;
+package io.github.authservice.crowdfund.feature.project.creator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +9,8 @@ import io.github.authservice.crowdfund.domain.project.ProjectRepository;
 import io.github.authservice.crowdfund.domain.project.ProjectStatus;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
-import io.github.authservice.crowdfund.feature.project.response.*;
+import io.github.authservice.crowdfund.feature.project.creator.dto.create.CreatorProjectCreateResponse;
+import io.github.authservice.crowdfund.feature.project.creator.dto.fetch.CreatorProjectsFetchResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class ProjectServiceTest {
+class CreatorProjectControllerTest {
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -59,7 +60,7 @@ class ProjectServiceTest {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
 
         savedUser = userRepository.save(new User(
-                null, "creator@test.com", "pass", "creator", "홍길동", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+                null, "creator_" + System.currentTimeMillis() + "@test.com", "pass", "창작자", "홍길동", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         savedCategory = categoryRepository.save(new Category(
@@ -86,46 +87,10 @@ class ProjectServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<CreateProjectResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<CreatorProjectCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("프로젝트 생성에 성공했습니다.");
         assertThat(apiResult.data().projectId()).isNotNull();
-    }
-
-    @Test
-    void 프로젝트_목록_조회_테스트() throws Exception {
-        projectRepository.save(new Project(
-                null, savedCategory.id(), savedUser.id(), "프로젝트 1", "[{\"type\":\"text\",\"content\":\"내용 1\"}]", new BigDecimal("10000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(10), ProjectStatus.ONGOING, LocalDateTime.now()
-        ));
-
-        MvcResult result = mockMvc.perform(get("/api/projects")
-                        .param("statuses", "ONGOING")
-                        .param("limit", "10"))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<GetProjectResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("프로젝트 목록 조회에 성공했습니다.");
-        assertThat(apiResult.data().projectList()).isNotEmpty();
-    }
-
-    @Test
-    void 프로젝트_상세_조회_테스트() throws Exception {
-        Project savedProject = projectRepository.save(new Project(
-                null, savedCategory.id(), savedUser.id(), "상세 조회 프로젝트", "[{\"type\":\"text\",\"content\":\"상세 내용\"}]", new BigDecimal("50000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(10), ProjectStatus.ONGOING, LocalDateTime.now()
-        ));
-
-        MvcResult result = mockMvc.perform(get("/api/projects/{projectId}", savedProject.id()))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<GetProjectDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("프로젝트 상세 조회에 성공했습니다.");
-        assertThat(apiResult.data().projectDetail().title()).isEqualTo("상세 조회 프로젝트");
     }
 
     @Test
@@ -148,33 +113,9 @@ class ProjectServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, null);
 
-        assertThat(apiResult.message()).isEqualTo("프로젝트 수정에 성공했습니다.");
-    }
-
-    @Test
-    void 프로젝트_상태_변경_테스트() throws Exception {
-        Project savedProject = projectRepository.save(new Project(
-                null, savedCategory.id(), savedUser.id(), "상태 변경 프로젝트", "[{\"type\":\"text\",\"content\":\"내용\"}]", new BigDecimal("50000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(10), ProjectStatus.ONGOING, LocalDateTime.now()
-        ));
-
-        String statusRequest = """
-                {
-                    "status": "COMPLETED"
-                }
-                """;
-
-        MvcResult result = mockMvc.perform(patch("/api/projects/{projectId}/status", savedProject.id())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(statusRequest))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("프로젝트 상태 변경에 성공했습니다.");
+        assertThat(apiResult.message()).isEqualTo("프로젝트 제목과 본문 수정에 성공했습니다.");
     }
 
     @Test
@@ -188,7 +129,7 @@ class ProjectServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, null);
 
         assertThat(apiResult.message()).isEqualTo("프로젝트 삭제에 성공했습니다.");
     }
@@ -204,16 +145,9 @@ class ProjectServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetMyProjectsResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<CreatorProjectsFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("내 프로젝트 조회에 성공했습니다.");
         assertThat(apiResult.data().projects()).isNotEmpty();
-    }
-
-    @Test
-    void 프로젝트_조회_실패_테스트() throws Exception {
-        mockMvc.perform(get("/api/projects/9999"))
-                .andExpect(status().isBadRequest())
-                .andDo(print());
     }
 }

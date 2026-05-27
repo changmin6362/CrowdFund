@@ -1,8 +1,8 @@
-package io.github.authservice.crowdfund.feature.project.request;
+package io.github.authservice.crowdfund.feature.project.creator.dto.update;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record PatchProjectRequest(
+public record CreatorProjectUpdateRequest(
         @NotBlank(message = "프로젝트 제목은 필수입니다.")
         String title,
 
