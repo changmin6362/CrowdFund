@@ -5,7 +5,7 @@ import org.apache.ibatis.type.Alias;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Alias("RewardInfo")
+@Alias("RewardFetchInfo")
 public record RewardFetchInfo(
         Long rewardId,
         Long projectId,

@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.reward;
+package io.github.authservice.crowdfund.feature.reward.creator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,9 +11,8 @@ import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
-import io.github.authservice.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDeleteResponse;
 import io.github.authservice.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateResponse;
-import io.github.authservice.crowdfund.feature.reward.user.dto.fetch.UserRewardsFetchResponse;
+import io.github.authservice.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDeleteResponse;
 import io.github.authservice.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
@@ -39,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class RewardServiceTest {
+class CreatorRewardControllerTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -67,7 +66,7 @@ class RewardServiceTest {
 
         // 기본 데이터 준비
         User savedUser = userRepository.save(new User(
-                null, "test@test.com", "pass", "tester", "홍길동", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+                null, "reward_creator@test.com", "pass", "crtr", "창작자", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
         Category savedCategory = categoryRepository.save(new Category(
@@ -104,27 +103,6 @@ class RewardServiceTest {
         assertThat(apiResult.message()).isEqualTo("리워드 등록에 성공했습니다.");
         assertThat(apiResult.data().createdReward().title()).isEqualTo("슈퍼 얼리버드");
         assertThat(apiResult.data().createdReward().price()).isEqualByComparingTo("10000");
-    }
-
-    @Test
-    void 리워드_목록_조회_테스트() throws Exception {
-        // 리워드 미리 생성
-        rewardRepository.save(new Reward(
-                null, savedProject.id(), "리워드1", "설명1", new BigDecimal("10000"), 100, LocalDateTime.now()
-        ));
-        rewardRepository.save(new Reward(
-                null, savedProject.id(), "리워드2", "설명2", new BigDecimal("20000"), 200, LocalDateTime.now()
-        ));
-
-        MvcResult result = mockMvc.perform(get("/api/projects/{projectId}/rewards", savedProject.id()))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<UserRewardsFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("리워드 목록 조회에 성공했습니다.");
-        assertThat(apiResult.data().rewards()).hasSize(2);
     }
 
     @Test
