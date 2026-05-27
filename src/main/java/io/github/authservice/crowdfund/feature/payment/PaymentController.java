@@ -1,8 +1,8 @@
 package io.github.authservice.crowdfund.feature.payment;
 
-import io.github.authservice.crowdfund.feature.payment.dto.create.CreatePaymentRequest;
-import io.github.authservice.crowdfund.feature.payment.dto.create.CreatePaymentResponse;
-import io.github.authservice.crowdfund.feature.payment.dto.fetch.FetchPaymentResponse;
+import io.github.authservice.crowdfund.feature.payment.dto.create.PaymentCreateRequest;
+import io.github.authservice.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
+import io.github.authservice.crowdfund.feature.payment.dto.fetch.PaymentFetchResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class PaymentController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<CreatePaymentResponse> create(@Valid @RequestBody CreatePaymentRequest request) {
+    public ApiResult<PaymentCreateResponse> create(@Valid @RequestBody PaymentCreateRequest request) {
         return ApiResult.success("결제 요청에 성공했습니다.", service.create(request));
     }
 
@@ -36,7 +36,7 @@ public class PaymentController {
      */
     @GetMapping("/pledge/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<FetchPaymentResponse> fetch(@PathVariable Long pledgeId) {
+    public ApiResult<PaymentFetchResponse> fetch(@PathVariable Long pledgeId) {
         return ApiResult.success("결제 내역 조회에 성공했습니다.", service.fetch(pledgeId));
     }
 

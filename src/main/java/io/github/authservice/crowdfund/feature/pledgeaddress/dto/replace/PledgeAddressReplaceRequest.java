@@ -1,6 +1,6 @@
 package io.github.authservice.crowdfund.feature.pledgeaddress.dto.replace;
 
-public record ReplacePledgeAddressRequest(
+public record PledgeAddressReplaceRequest(
         long addressId
 ) {
 }

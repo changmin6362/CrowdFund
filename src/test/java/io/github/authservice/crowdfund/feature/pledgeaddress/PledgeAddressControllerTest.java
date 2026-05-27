@@ -16,8 +16,8 @@ import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.domain.useraddress.UserAddress;
 import io.github.authservice.crowdfund.domain.useraddress.UserAddressRepository;
-import io.github.authservice.crowdfund.feature.pledgeaddress.dto.fetch.FetchPledgeAddressResponse;
-import io.github.authservice.crowdfund.feature.pledgeaddress.dto.replace.ReplacePledgeAddressResponse;
+import io.github.authservice.crowdfund.feature.pledgeaddress.dto.fetch.PledgeAddressFetchResponse;
+import io.github.authservice.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,7 +107,7 @@ class PledgeAddressControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<FetchPledgeAddressResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<PledgeAddressFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("후원 주소 조회에 성공했습니다.");
         assertThat(apiResult.data().pledgeAddress().recipientName()).isEqualTo("수령인");
@@ -134,7 +134,7 @@ class PledgeAddressControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<ReplacePledgeAddressResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<PledgeAddressReplaceResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("후원 주소 교체에 성공했습니다.");
         assertThat(apiResult.data().replacedPledgeAddress().recipientName()).isEqualTo("새수령인");

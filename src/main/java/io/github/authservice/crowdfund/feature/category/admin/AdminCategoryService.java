@@ -3,11 +3,11 @@ package io.github.authservice.crowdfund.feature.category.admin;
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
 import io.github.authservice.crowdfund.domain.category.mapper.CategoryMapper;
-import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCreateCategoryRequest;
-import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCreateCategoryResponse;
-import io.github.authservice.crowdfund.feature.category.admin.dto.move.AdminMoveCategoryRequest;
-import io.github.authservice.crowdfund.feature.category.admin.dto.rename.AdminRenameCategoryRequest;
-import io.github.authservice.crowdfund.feature.category.admin.dto.reorder.AdminReorderCategoryRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateResponse;
+import io.github.authservice.crowdfund.feature.category.admin.dto.move.AdminCategoryMoveRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.rename.AdminCategoryRenameRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.reorder.AdminCategoryReorderRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class AdminCategoryService {
      * 카테고리 생성 도메인 로직
      */
     @Transactional
-    public AdminCreateCategoryResponse create(@Valid AdminCreateCategoryRequest request) {
+    public AdminCategoryCreateResponse create(@Valid AdminCategoryCreateRequest request) {
 
         // 카테고리의 깊이 계산
         int depth = 1;
@@ -56,14 +56,14 @@ public class AdminCategoryService {
         Category savedCategory = categoryRepository.findById(request.getId())
                 .orElseThrow(() -> new IllegalStateException("카테고리 생성 후 조회를 실패했습니다."));
 
-        return new AdminCreateCategoryResponse(savedCategory);
+        return new AdminCategoryCreateResponse(savedCategory);
     }
 
     /**
      * 카테고리 이름 변경 도메인 로직
      */
     @Transactional
-    public void rename(Integer id, AdminRenameCategoryRequest request) {
+    public void rename(Integer id, AdminCategoryRenameRequest request) {
         categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
 
@@ -74,7 +74,7 @@ public class AdminCategoryService {
      * 카테고리 부모 변경 도메인 로직
      */
     @Transactional
-    public void move(Integer categoryId, AdminMoveCategoryRequest request) {
+    public void move(Integer categoryId, AdminCategoryMoveRequest request) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + categoryId));
 
@@ -120,7 +120,7 @@ public class AdminCategoryService {
      * 카테고리 정렬 순서 변경 도메인 로직
      */
     @Transactional
-    public void reorder(AdminReorderCategoryRequest request) {
+    public void reorder(AdminCategoryReorderRequest request) {
         for (var item : request.categories()) {
             categoryMapper.updateSortOrder(item.id().longValue(), item.sortOrder());
         }

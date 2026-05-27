@@ -1,10 +1,10 @@
 package io.github.authservice.crowdfund.feature.category.admin;
 
-import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCreateCategoryRequest;
-import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCreateCategoryResponse;
-import io.github.authservice.crowdfund.feature.category.admin.dto.move.AdminMoveCategoryRequest;
-import io.github.authservice.crowdfund.feature.category.admin.dto.rename.AdminRenameCategoryRequest;
-import io.github.authservice.crowdfund.feature.category.admin.dto.reorder.AdminReorderCategoryRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateResponse;
+import io.github.authservice.crowdfund.feature.category.admin.dto.move.AdminCategoryMoveRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.rename.AdminCategoryRenameRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.reorder.AdminCategoryReorderRequest;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class AdminCategoryController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<AdminCreateCategoryResponse> create(@Valid @RequestBody AdminCreateCategoryRequest request) {
+    public ApiResult<AdminCategoryCreateResponse> create(@Valid @RequestBody AdminCategoryCreateRequest request) {
         return ApiResult.success("카테고리 생성에 성공했습니다.", service.create(request));
     }
 
@@ -39,7 +39,7 @@ public class AdminCategoryController {
      */
     @PatchMapping("/{categoryId}/name")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> rename(@PathVariable Integer categoryId, @Valid @RequestBody AdminRenameCategoryRequest request) {
+    public ApiResult<Void> rename(@PathVariable Integer categoryId, @Valid @RequestBody AdminCategoryRenameRequest request) {
         service.rename(categoryId, request);
 
         return ApiResult.success("카테고리 이름 변경에 성공했습니다.");
@@ -54,7 +54,7 @@ public class AdminCategoryController {
      */
     @PatchMapping("/{categoryId}/parent")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> move(@PathVariable Integer categoryId, @RequestBody AdminMoveCategoryRequest request) {
+    public ApiResult<Void> move(@PathVariable Integer categoryId, @RequestBody AdminCategoryMoveRequest request) {
         service.move(categoryId, request);
 
         return ApiResult.success("카테고리 부모 변경에 성공했습니다.");
@@ -68,7 +68,7 @@ public class AdminCategoryController {
      */
     @PatchMapping("/sort-order")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> reorder(@Valid @RequestBody AdminReorderCategoryRequest request) {
+    public ApiResult<Void> reorder(@Valid @RequestBody AdminCategoryReorderRequest request) {
         service.reorder(request);
 
         return ApiResult.success("카테고리 정렬 순서 변경에 성공했습니다.");

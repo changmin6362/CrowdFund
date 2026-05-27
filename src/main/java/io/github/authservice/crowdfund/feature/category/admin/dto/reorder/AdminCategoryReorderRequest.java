@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record AdminReorderCategoryRequest(
+public record AdminCategoryReorderRequest(
         @NotEmpty(message = "변경할 카테고리 목록이 비어있습니다.")
         @Valid
         List<CategorySortItem> categories

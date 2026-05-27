@@ -1,8 +1,8 @@
 package io.github.authservice.crowdfund.feature.pledgeaddress;
 
-import io.github.authservice.crowdfund.feature.pledgeaddress.dto.fetch.FetchPledgeAddressResponse;
-import io.github.authservice.crowdfund.feature.pledgeaddress.dto.replace.ReplacePledgeAddressRequest;
-import io.github.authservice.crowdfund.feature.pledgeaddress.dto.replace.ReplacePledgeAddressResponse;
+import io.github.authservice.crowdfund.feature.pledgeaddress.dto.fetch.PledgeAddressFetchResponse;
+import io.github.authservice.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceRequest;
+import io.github.authservice.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class PledgeAddressController {
      */
     @GetMapping("/pledges/{pledgesId}/addresses")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<FetchPledgeAddressResponse> fetch(
+    public ApiResult<PledgeAddressFetchResponse> fetch(
             @PathVariable Long pledgesId
     ) {
         return ApiResult.success("후원 주소 조회에 성공했습니다.", service.fetch(pledgesId));
@@ -40,9 +40,9 @@ public class PledgeAddressController {
      */
     @PostMapping("/pledges/{pledgeId}/addresses")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<ReplacePledgeAddressResponse> replace(
+    public ApiResult<PledgeAddressReplaceResponse> replace(
             @PathVariable Long pledgeId,
-            @RequestBody ReplacePledgeAddressRequest request
+            @RequestBody PledgeAddressReplaceRequest request
     ) {
         return ApiResult.success("후원 주소 교체에 성공했습니다.", service.replace(pledgeId, request));
     }

@@ -1,10 +1,10 @@
 package io.github.authservice.crowdfund.feature.auth;
 
-import io.github.authservice.crowdfund.feature.auth.dto.logout.LogoutRequest;
-import io.github.authservice.crowdfund.feature.auth.dto.signin.SignInRequest;
-import io.github.authservice.crowdfund.feature.auth.dto.signup.SignUpRequest;
-import io.github.authservice.crowdfund.feature.auth.dto.signin.SignInResponse;
-import io.github.authservice.crowdfund.feature.auth.dto.signup.SignUpResponse;
+import io.github.authservice.crowdfund.feature.auth.dto.logout.AuthLogoutRequest;
+import io.github.authservice.crowdfund.feature.auth.dto.signin.AuthSignInRequest;
+import io.github.authservice.crowdfund.feature.auth.dto.signup.AuthSignUpRequest;
+import io.github.authservice.crowdfund.feature.auth.dto.signin.AuthSignInResponse;
+import io.github.authservice.crowdfund.feature.auth.dto.signup.AuthSignUpResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -28,7 +28,7 @@ public class AuthController {
      */
     @PostMapping("signup")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<SignUpResponse> signUp(@Valid @RequestBody SignUpRequest request) {
+    public ApiResult<AuthSignUpResponse> signUp(@Valid @RequestBody AuthSignUpRequest request) {
         return ApiResult.success("회원가입에 성공했습니다.", service.signup(request));
     }
 
@@ -40,7 +40,7 @@ public class AuthController {
      */
     @PostMapping("signin")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<SignInResponse> signIn(@Valid @RequestBody SignInRequest request) {
+    public ApiResult<AuthSignInResponse> signIn(@Valid @RequestBody AuthSignInRequest request) {
         return ApiResult.success("로그인에 성공했습니다.", service.login(request));
     }
 
@@ -52,7 +52,7 @@ public class AuthController {
      */
     @PostMapping("logout")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> logout(@Valid @RequestBody LogoutRequest request) {
+    public ApiResult<Void> logout(@Valid @RequestBody AuthLogoutRequest request) {
         service.logout(request);
 
         return ApiResult.success("로그아웃에 성공했습니다.");

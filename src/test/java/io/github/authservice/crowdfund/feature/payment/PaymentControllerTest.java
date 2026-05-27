@@ -16,9 +16,9 @@ import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
-import io.github.authservice.crowdfund.feature.payment.dto.create.CreatePaymentRequest;
-import io.github.authservice.crowdfund.feature.payment.dto.create.CreatePaymentResponse;
-import io.github.authservice.crowdfund.feature.payment.dto.fetch.FetchPaymentResponse;
+import io.github.authservice.crowdfund.feature.payment.dto.create.PaymentCreateRequest;
+import io.github.authservice.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
+import io.github.authservice.crowdfund.feature.payment.dto.fetch.PaymentFetchResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,7 +98,7 @@ class PaymentControllerTest {
 
     @Test
     void 결제_생성_테스트() throws Exception {
-        CreatePaymentRequest request = new CreatePaymentRequest(
+        PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
                 "CREDIT_CARD",
                 50000L
@@ -111,7 +111,7 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<CreatePaymentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<PaymentCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("결제 요청에 성공했습니다.");
         assertThat(apiResult.data().paymentId()).isNotNull();
@@ -119,7 +119,7 @@ class PaymentControllerTest {
 
     @Test
     void 결제_생성_금액불일치_실패_테스트() throws Exception {
-        CreatePaymentRequest request = new CreatePaymentRequest(
+        PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
                 "CREDIT_CARD",
                 30000L // Pledge는 50000L
@@ -143,7 +143,7 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<FetchPaymentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<PaymentFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("결제 내역 조회에 성공했습니다.");
         assertThat(apiResult.data().paymentDetail().id()).isEqualTo(payment.id());

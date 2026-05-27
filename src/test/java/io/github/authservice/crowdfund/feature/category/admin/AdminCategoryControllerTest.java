@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
-import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCreateCategoryResponse;
+import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,7 +69,7 @@ class AdminCategoryControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<AdminCreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<AdminCategoryCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("카테고리 생성에 성공했습니다.");
         assertThat(apiResult.data().category().name()).isEqualTo("새 카테고리");
