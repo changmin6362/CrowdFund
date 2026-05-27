@@ -15,7 +15,7 @@
         WHERE id = #{commentId}
     </update>
 
-    <select id="findAllByProjectId" resultType="io.github.authservice.crowdfund.feature.comment.response.CommentInfo">
+    <select id="findAllByProjectId" resultType="io.github.authservice.crowdfund.feature.comment.project.dto.CommentInfo">
         SELECT
             c.id AS comment_id,
             u.nickname AS writer_name,
@@ -28,7 +28,7 @@
         ORDER BY c.created_at DESC
     </select>
 
-    <select id="findAllByUserId" resultType="io.github.authservice.crowdfund.feature.comment.response.MyCommentInfo">
+    <select id="findAllByUserId" resultType="io.github.authservice.crowdfund.feature.comment.my.dto.fetch.MyCommentInfo">
         SELECT
             c.id AS comment_id,
             p.id AS project_id,
@@ -42,7 +42,7 @@
     </select>
 
     <select id="findByIdToCommentInfo"
-            resultType="io.github.authservice.crowdfund.feature.comment.response.CommentInfo">
+            resultType="io.github.authservice.crowdfund.feature.comment.project.dto.CommentInfo">
         SELECT c.id                                           AS comment_id,
                u.nickname                                     AS writer_name,
                c.content,

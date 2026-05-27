@@ -1,13 +1,12 @@
 package io.github.authservice.crowdfund.domain.category.mapper;
 
-import io.github.authservice.crowdfund.domain.category.Category;
-import io.github.authservice.crowdfund.feature.category.request.CreateCategoryRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface CategoryMapper {
-    void insert(CreateCategoryRequest request,
+    void insert(AdminCategoryCreateRequest request,
                 @Param("depth") Integer depth,
                 @Param("sortOrder") Integer sortOrder);
 

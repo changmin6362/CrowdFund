@@ -2,9 +2,14 @@ package io.github.authservice.crowdfund.feature.useraddress;
 
 import io.github.authservice.crowdfund.domain.useraddress.UserAddress;
 import io.github.authservice.crowdfund.domain.useraddress.UserAddressRepository;
-import io.github.authservice.crowdfund.feature.useraddress.request.CreateUserAddressRequest;
-import io.github.authservice.crowdfund.feature.useraddress.request.PatchUserAddressRequest;
-import io.github.authservice.crowdfund.feature.useraddress.response.*;
+import io.github.authservice.crowdfund.feature.useraddress.dto.UserAddressInfo;
+import io.github.authservice.crowdfund.feature.useraddress.dto.create.UserAddressCreateRequest;
+import io.github.authservice.crowdfund.feature.useraddress.dto.create.UserAddressCreateResponse;
+import io.github.authservice.crowdfund.feature.useraddress.dto.fetch.UserAddressesFetchResponse;
+import io.github.authservice.crowdfund.feature.useraddress.dto.set.DefaultAddressResult;
+import io.github.authservice.crowdfund.feature.useraddress.dto.set.UserAddressSetResponse;
+import io.github.authservice.crowdfund.feature.useraddress.dto.update.UserAddressUpdateRequest;
+import io.github.authservice.crowdfund.feature.useraddress.dto.update.UserAddressUpdateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +29,7 @@ public class UserAddressService {
      * 내 배송지 등록 도메인 로직
      */
     @Transactional
-    public CreateUserAddressResponse createUserAddress(Long userId, CreateUserAddressRequest request) {
+    public UserAddressCreateResponse create(Long userId, UserAddressCreateRequest request) {
         // 해당 유저의 첫 배송지인 경우 기본 배송지로 설정
         boolean isFirst = repository.findByUserId(userId).isEmpty();
 
@@ -42,27 +47,27 @@ public class UserAddressService {
         );
 
         UserAddress saved = repository.save(userAddress);
-        return new CreateUserAddressResponse(saved.id());
+        return new UserAddressCreateResponse(saved.id());
     }
 
     /**
      * 내 배송지 목록 조회 도메인 로직
      */
     @Transactional
-    public GetUserAddressesResponse getUserAddresses(Long userId) {
+    public UserAddressesFetchResponse fetch(Long userId) {
         List<UserAddress> addresses = repository.findByUserId(userId);
         List<UserAddressInfo> infoList = addresses.stream()
                 .map(this::mapToInfo)
                 .collect(Collectors.toList());
 
-        return new GetUserAddressesResponse(infoList);
+        return new UserAddressesFetchResponse(infoList);
     }
 
     /**
      * 내 배송지 수정 도메인 로직
      */
     @Transactional
-    public PatchUserAddressResponse patchUserAddress(Long addressId, PatchUserAddressRequest request) {
+    public UserAddressUpdateResponse update(Long addressId, UserAddressUpdateRequest request) {
         UserAddress existing = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
 
@@ -80,14 +85,14 @@ public class UserAddressService {
         );
 
         UserAddress saved = repository.save(updated);
-        return new PatchUserAddressResponse(mapToInfo(saved));
+        return new UserAddressUpdateResponse(mapToInfo(saved));
     }
 
     /**
      * 기본 배송지 수정 도메인 로직
      */
     @Transactional
-    public SetDefaultAddressResponse setDefaultAddress(Long addressId) {
+    public UserAddressSetResponse set(Long addressId) {
         UserAddress target = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
 
@@ -124,14 +129,14 @@ public class UserAddressService {
         );
 
         UserAddress saved = repository.save(newDefault);
-        return new SetDefaultAddressResponse(new DefaultAddressResult(saved.id(), saved.isDefault()));
+        return new UserAddressSetResponse(new DefaultAddressResult(saved.id(), saved.isDefault()));
     }
 
     /**
      * 내 배송지 삭제 도메인 로직
      */
     @Transactional
-    public void deleteUserAddress(Long addressId) {
+    public void delete(Long addressId) {
         UserAddress target = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
 

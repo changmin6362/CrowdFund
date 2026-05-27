@@ -6,10 +6,10 @@ import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.domain.useraddress.UserAddress;
 import io.github.authservice.crowdfund.domain.useraddress.UserAddressRepository;
-import io.github.authservice.crowdfund.feature.useraddress.response.CreateUserAddressResponse;
-import io.github.authservice.crowdfund.feature.useraddress.response.GetUserAddressesResponse;
-import io.github.authservice.crowdfund.feature.useraddress.response.PatchUserAddressResponse;
-import io.github.authservice.crowdfund.feature.useraddress.response.SetDefaultAddressResponse;
+import io.github.authservice.crowdfund.feature.useraddress.dto.create.UserAddressCreateResponse;
+import io.github.authservice.crowdfund.feature.useraddress.dto.fetch.UserAddressesFetchResponse;
+import io.github.authservice.crowdfund.feature.useraddress.dto.update.UserAddressUpdateResponse;
+import io.github.authservice.crowdfund.feature.useraddress.dto.set.UserAddressSetResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,7 +77,7 @@ class UserAddressServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<CreateUserAddressResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserAddressCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("배송지 등록에 성공했습니다.");
         assertThat(apiResult.data().addressId()).isNotNull();
@@ -95,7 +94,7 @@ class UserAddressServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetUserAddressesResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserAddressesFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("배송지 목록 조회에 성공했습니다.");
         assertThat(apiResult.data().addresses()).isNotEmpty();
@@ -124,7 +123,7 @@ class UserAddressServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<PatchUserAddressResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserAddressUpdateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("배송지 수정에 성공했습니다.");
         assertThat(apiResult.data().updatedAddress().recipientName()).isEqualTo("수정이름");
@@ -144,7 +143,7 @@ class UserAddressServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<SetDefaultAddressResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserAddressSetResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("기본 배송지 변경에 성공했습니다.");
         assertThat(apiResult.data().defaultAddressResult().addressId()).isEqualTo(address2.id());

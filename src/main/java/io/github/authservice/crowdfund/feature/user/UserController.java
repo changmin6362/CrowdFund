@@ -1,10 +1,10 @@
 package io.github.authservice.crowdfund.feature.user;
 
 import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
-import io.github.authservice.crowdfund.feature.user.request.UserUpdateRequest;
-import io.github.authservice.crowdfund.feature.user.response.GetMyPledgeListResponse;
-import io.github.authservice.crowdfund.feature.user.response.GetUserDataResponse;
-import io.github.authservice.crowdfund.feature.user.response.GetUserNickNameResponse;
+import io.github.authservice.crowdfund.feature.user.dto.update.UserUpdateRequest;
+import io.github.authservice.crowdfund.feature.user.dto.extract.UserExtractResponse;
+import io.github.authservice.crowdfund.feature.user.dto.fetch.UserFetchResponse;
+import io.github.authservice.crowdfund.feature.user.dto.view.UserViewResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,8 +30,8 @@ public class UserController {
     @Operation(summary = "내 닉네임 조회", description = "사용자의 닉네임을 조회합니다.")
     @GetMapping("/nickname/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<GetUserNickNameResponse> getUserNickName(@PathVariable Long userId) {
-        return ApiResult.success("내 닉네임 조회에 성공했습니다.", service.getUserNickName(userId));
+    public ApiResult<UserViewResponse> view(@PathVariable Long userId) {
+        return ApiResult.success("내 닉네임 조회에 성공했습니다.", service.view(userId));
     }
 
     /**
@@ -43,8 +43,8 @@ public class UserController {
     @Operation(summary = "내 정보 조회", description = "사용자의 정보를 조회합니다.")
     @GetMapping("/data/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<GetUserDataResponse> getUserData(@PathVariable Long userId) {
-        return ApiResult.success("내 정보 조회에 성공했습니다.", service.getUserData(userId));
+    public ApiResult<UserFetchResponse> fetch(@PathVariable Long userId) {
+        return ApiResult.success("내 정보 조회에 성공했습니다.", service.fetch(userId));
     }
 
     /**
@@ -57,8 +57,8 @@ public class UserController {
     @Operation(summary = "내 정보 수정", description = "사용자의 정보를 수정합니다.")
     @PutMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> updateUserData(@PathVariable Long userId, @Valid @RequestBody UserUpdateRequest request) {
-        service.updateUserData(userId, request);
+    public ApiResult<Void> update(@PathVariable Long userId, @Valid @RequestBody UserUpdateRequest request) {
+        service.update(userId, request);
 
         return ApiResult.success("내 정보 수정에 성공했습니다.");
     }
@@ -72,8 +72,8 @@ public class UserController {
     @Operation(summary = "회원 탈퇴", description = "사용자를 탈퇴시킵니다.")
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> deleteUser(@PathVariable Long userId) {
-        service.deactivateUser(userId);
+    public ApiResult<Void> delete(@PathVariable Long userId) {
+        service.delete(userId);
 
         return ApiResult.success("회원 탈퇴에 성공했습니다.");
     }
@@ -88,10 +88,10 @@ public class UserController {
     @Operation(summary = "내가 후원한 프로젝트 목록 조회", description = "사용자가 참여한 후원 내역을 조회합니다.")
     @GetMapping("/pledges/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<GetMyPledgeListResponse> getMyPledgeList(
+    public ApiResult<UserExtractResponse> extract(
             @PathVariable Long userId,
             @RequestParam(required = false) FulfillmentStatus status
     ) {
-        return ApiResult.success("내가 후원한 프로젝트 목록 조회에 성공했습니다.", service.getMyPledgeList(userId, status));
+        return ApiResult.success("내가 후원한 프로젝트 목록 조회에 성공했습니다.", service.extract(userId, status));
     }
 }

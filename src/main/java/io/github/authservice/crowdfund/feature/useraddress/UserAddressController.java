@@ -1,11 +1,11 @@
 package io.github.authservice.crowdfund.feature.useraddress;
 
-import io.github.authservice.crowdfund.feature.useraddress.request.CreateUserAddressRequest;
-import io.github.authservice.crowdfund.feature.useraddress.request.PatchUserAddressRequest;
-import io.github.authservice.crowdfund.feature.useraddress.response.CreateUserAddressResponse;
-import io.github.authservice.crowdfund.feature.useraddress.response.GetUserAddressesResponse;
-import io.github.authservice.crowdfund.feature.useraddress.response.PatchUserAddressResponse;
-import io.github.authservice.crowdfund.feature.useraddress.response.SetDefaultAddressResponse;
+import io.github.authservice.crowdfund.feature.useraddress.dto.create.UserAddressCreateRequest;
+import io.github.authservice.crowdfund.feature.useraddress.dto.update.UserAddressUpdateRequest;
+import io.github.authservice.crowdfund.feature.useraddress.dto.create.UserAddressCreateResponse;
+import io.github.authservice.crowdfund.feature.useraddress.dto.fetch.UserAddressesFetchResponse;
+import io.github.authservice.crowdfund.feature.useraddress.dto.update.UserAddressUpdateResponse;
+import io.github.authservice.crowdfund.feature.useraddress.dto.set.UserAddressSetResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,8 +31,8 @@ public class UserAddressController {
     @Operation(summary = "내 배송지 등록", description = "사용자의 배송지를 등록합니다.")
     @PostMapping("/address/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<CreateUserAddressResponse> createUserAddress(@PathVariable Long userId, @Valid @RequestBody CreateUserAddressRequest request) {
-        return ApiResult.success("배송지 등록에 성공했습니다.", service.createUserAddress(userId, request));
+    public ApiResult<UserAddressCreateResponse> create(@PathVariable Long userId, @Valid @RequestBody UserAddressCreateRequest request) {
+        return ApiResult.success("배송지 등록에 성공했습니다.", service.create(userId, request));
     }
 
     /**
@@ -44,8 +44,8 @@ public class UserAddressController {
     @Operation(summary = "내 배송지 목록 조회", description = "사용자의 배송지 목록을 조회합니다.")
     @GetMapping("/addresses/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<GetUserAddressesResponse> getUserAddresses(@PathVariable Long userId) {
-        return ApiResult.success("배송지 목록 조회에 성공했습니다.", service.getUserAddresses(userId));
+    public ApiResult<UserAddressesFetchResponse> fetch(@PathVariable Long userId) {
+        return ApiResult.success("배송지 목록 조회에 성공했습니다.", service.fetch(userId));
     }
 
     /**
@@ -58,8 +58,8 @@ public class UserAddressController {
     @Operation(summary = "내 배송지 수정", description = "사용자의 특정 배송지를 수정합니다.")
     @PatchMapping("/address/{addressId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<PatchUserAddressResponse> patchUserAddress(@PathVariable Long addressId, @Valid @RequestBody PatchUserAddressRequest request) {
-        return ApiResult.success("배송지 수정에 성공했습니다.", service.patchUserAddress(addressId, request));
+    public ApiResult<UserAddressUpdateResponse> update(@PathVariable Long addressId, @Valid @RequestBody UserAddressUpdateRequest request) {
+        return ApiResult.success("배송지 수정에 성공했습니다.", service.update(addressId, request));
     }
 
     /**
@@ -71,8 +71,8 @@ public class UserAddressController {
     @Operation(summary = "기본 배송지 변경", description = "사용자의 특정 배송지를 기본 배송지로 변경합니다.")
     @PatchMapping("/address/{addressId}/default")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<SetDefaultAddressResponse> setDefaultAddress(@PathVariable Long addressId) {
-        return ApiResult.success("기본 배송지 변경에 성공했습니다.", service.setDefaultAddress(addressId));
+    public ApiResult<UserAddressSetResponse> set(@PathVariable Long addressId) {
+        return ApiResult.success("기본 배송지 변경에 성공했습니다.", service.set(addressId));
     }
 
     /**
@@ -84,8 +84,8 @@ public class UserAddressController {
     @Operation(summary = "내 배송지 삭제", description = "사용자의 특정 배송지를 삭제합니다.")
     @DeleteMapping("/address/{addressId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> deleteUserAddress(@PathVariable Long addressId) {
-        service.deleteUserAddress(addressId);
+    public ApiResult<Void> delete(@PathVariable Long addressId) {
+        service.delete(addressId);
 
         return ApiResult.success("배송지 삭제에 성공했습니다.");
     }

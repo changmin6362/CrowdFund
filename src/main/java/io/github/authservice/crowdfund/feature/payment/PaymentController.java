@@ -1,8 +1,8 @@
 package io.github.authservice.crowdfund.feature.payment;
 
-import io.github.authservice.crowdfund.feature.payment.request.CreatePaymentRequest;
-import io.github.authservice.crowdfund.feature.payment.response.CreatePaymentResponse;
-import io.github.authservice.crowdfund.feature.payment.response.GetPaymentResponse;
+import io.github.authservice.crowdfund.feature.payment.dto.create.PaymentCreateRequest;
+import io.github.authservice.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
+import io.github.authservice.crowdfund.feature.payment.dto.fetch.PaymentFetchResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +24,8 @@ public class PaymentController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<CreatePaymentResponse> createPayment(@Valid @RequestBody CreatePaymentRequest request) {
-        return ApiResult.success("결제 요청에 성공했습니다.", service.createPayment(request));
+    public ApiResult<PaymentCreateResponse> create(@Valid @RequestBody PaymentCreateRequest request) {
+        return ApiResult.success("결제 요청에 성공했습니다.", service.create(request));
     }
 
     /**
@@ -36,8 +36,8 @@ public class PaymentController {
      */
     @GetMapping("/pledge/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<GetPaymentResponse> getPaymentByPledgeId(@PathVariable Long pledgeId) {
-        return ApiResult.success("결제 내역 조회에 성공했습니다.", service.getPaymentByPledgeId(pledgeId));
+    public ApiResult<PaymentFetchResponse> fetch(@PathVariable Long pledgeId) {
+        return ApiResult.success("결제 내역 조회에 성공했습니다.", service.fetch(pledgeId));
     }
 
     /**
@@ -48,8 +48,8 @@ public class PaymentController {
      */
     @DeleteMapping("/{paymentId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> cancelPayment(@PathVariable Long paymentId) {
-        service.cancelPayment(paymentId);
+    public ApiResult<Void> cancel(@PathVariable Long paymentId) {
+        service.cancel(paymentId);
 
         return ApiResult.success("결제 취소에 성공했습니다.");
     }
