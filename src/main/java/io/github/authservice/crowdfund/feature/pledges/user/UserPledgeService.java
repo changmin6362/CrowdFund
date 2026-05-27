@@ -1,36 +1,37 @@
-package io.github.authservice.crowdfund.feature.pledges;
+package io.github.authservice.crowdfund.feature.pledges.user;
 
 import io.github.authservice.crowdfund.domain.payment.Payment;
 import io.github.authservice.crowdfund.domain.payment.PaymentRepository;
 import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.authservice.crowdfund.domain.pledge.Pledge;
 import io.github.authservice.crowdfund.domain.pledge.PledgeRepository;
+import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddress;
+import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.authservice.crowdfund.domain.project.Project;
 import io.github.authservice.crowdfund.domain.project.ProjectRepository;
 import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
-import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
-import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddress;
-import io.github.authservice.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
-import io.github.authservice.crowdfund.feature.pledges.request.CreatePledgeRequest;
-import io.github.authservice.crowdfund.feature.pledges.request.PatchFulfillmentRequest;
-import io.github.authservice.crowdfund.feature.pledges.response.*;
-import io.github.authservice.crowdfund.global.common.ApiResult;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.detail.PledgeDetail;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.create.UserPledgeCreateRequest;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.detail.ShippingAddress;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.fulfill.FulfillmentInfo;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.fulfill.UserPledgeFulfillRequest;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.create.UserPledgeCreateResponse;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.detail.UserPledgeDetailResponse;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.fulfill.UserPledgeFulfillResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class PledgeService {
+public class UserPledgeService {
 
     private final PledgeRepository pledgeRepository;
     private final RewardRepository rewardRepository;
@@ -40,68 +41,10 @@ public class PledgeService {
     private final PledgeAddressRepository pledgeAddressRepository;
 
     /**
-     * 관리자용 후원 목록 조회 도메인 로직
-     */
-    @Transactional
-    public GetAllPledgesResponse getAllPledges() {
-        List<Pledge> pledges = pledgeRepository.findAll();
-        List<PledgeSummary> summaries = pledges.stream()
-                .map(this::mapToPledgeSummary)
-                .collect(Collectors.toList());
-        return new GetAllPledgesResponse(summaries);
-    }
-
-
-    /**
-     * 관리자용 후원 상세 조회 도메인 로직
-     */
-    @Transactional
-    public GetAdminPledgeDetailResponse getAdminPledgeDetail(Long pledgeId) {
-        Pledge pledge = pledgeRepository.findById(pledgeId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
-
-        User user = userRepository.findById(pledge.userId())
-                .orElseThrow(() -> new IllegalStateException("해당 유저를 찾을 수 없습니다. ID: " + pledge.userId()));
-
-        Project project = projectRepository.findById(pledge.projectId())
-                .orElseThrow(() -> new IllegalStateException("해당 프로젝트를 찾을 수 없습니다. ID: " + pledge.projectId()));
-
-        Optional<Payment> paymentOpt = paymentRepository.findByPledgeId(pledgeId);
-
-        AdminUserDetail userDetail = new AdminUserDetail(
-                user.id(),
-                user.name(),
-                user.nickname(),
-                user.email(),
-                user.phone()
-        );
-
-        AdminPaymentDetail paymentDetail = paymentOpt
-                .map(p -> new AdminPaymentDetail(p.amount(), p.paymentMethod()))
-                .orElse(new AdminPaymentDetail(pledge.amount(), "UNKNOWN"));
-
-        AdminProjectDetail projectDetail = new AdminProjectDetail(
-                project.id(),
-                project.title()
-        );
-
-        AdminPledgeDetail pledgeDetail = new AdminPledgeDetail(
-                pledge.id(),
-                pledge.createdAt().toString(),
-                pledge.fulfillmentStatus(),
-                userDetail,
-                paymentDetail,
-                projectDetail
-        );
-
-        return new GetAdminPledgeDetailResponse(pledgeDetail);
-    }
-
-    /**
      * 후원 참여 도메인 로직
      */
     @Transactional
-    public CreatePledgeResponse createPledge(Long userId, @Valid CreatePledgeRequest request) {
+    public UserPledgeCreateResponse create(Long userId, @Valid UserPledgeCreateRequest request) {
         Reward reward = rewardRepository.findById(request.reward_id())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리워드입니다."));
 
@@ -125,14 +68,14 @@ public class PledgeService {
 
         Pledge savedPledge = pledgeRepository.save(pledge);
 
-        return new CreatePledgeResponse(savedPledge.id());
+        return new UserPledgeCreateResponse(savedPledge.id());
     }
 
     /**
      * 후원 상세 조회 도메인 로직
      */
     @Transactional
-    public GetPledgeDetailResponse getPledgeDetail(Long pledgeId) {
+    public UserPledgeDetailResponse detail(Long pledgeId) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
@@ -166,7 +109,7 @@ public class PledgeService {
                 shippingAddress
         );
 
-        return new GetPledgeDetailResponse(pledgeDetail);
+        return new UserPledgeDetailResponse(pledgeDetail);
     }
 
     private String translatePaymentMethod(String method) {
@@ -183,7 +126,7 @@ public class PledgeService {
      * 후원 취소 도메인 로직
      */
     @Transactional
-    public void deletePledge(Long pledgeId) {
+    public void cancel(Long pledgeId) {
         if (!pledgeRepository.existsById(pledgeId)) {
             throw new IllegalArgumentException("존재하지 않는 후원 내역입니다.");
         }
@@ -191,10 +134,10 @@ public class PledgeService {
     }
 
     /**
-     * 보상 이행 상태 갱신 도메인 로직
+     * 보상 이행 도메인 로직
      */
     @Transactional
-    public PatchFulfillmentResponse patchFulfillment(Long pledgeId, @Valid PatchFulfillmentRequest request) {
+    public UserPledgeFulfillResponse fulfill(Long pledgeId, @Valid UserPledgeFulfillRequest request) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
@@ -202,6 +145,7 @@ public class PledgeService {
         if (request.fulfillmentStatus() == FulfillmentStatus.COMPLETED) {
             fulfilledAt = LocalDateTime.now();
         }
+
 
         Pledge updatedPledge = new Pledge(
                 pledge.id(),
@@ -216,29 +160,6 @@ public class PledgeService {
 
         pledgeRepository.save(updatedPledge);
 
-        return new PatchFulfillmentResponse(new FulfillmentInfo(pledgeId, request.fulfillmentStatus(), fulfilledAt));
-    }
-
-
-    private PledgeSummary mapToPledgeSummary(Pledge pledge) {
-        String userName = userRepository.findById(pledge.userId())
-                .map(User::name)
-                .orElseThrow(() -> new IllegalStateException("해당 유저를 찾을 수 없습니다. ID: " + pledge.userId()));
-
-        String projectTitle = projectRepository.findById(pledge.projectId())
-                .map(Project::title)
-                .orElseThrow(() -> new IllegalStateException("해당 프로젝트를 찾을 수 없습니다. ID: " + pledge.projectId()));
-
-        return new PledgeSummary(
-                pledge.id(),
-                pledge.userId(),
-                userName,
-                pledge.projectId(),
-                projectTitle,
-                pledge.rewardId(),
-                pledge.amount(),
-                pledge.fulfillmentStatus(),
-                pledge.createdAt().toString()
-        );
+        return new UserPledgeFulfillResponse(new FulfillmentInfo(pledgeId, request.fulfillmentStatus(), fulfilledAt));
     }
 }

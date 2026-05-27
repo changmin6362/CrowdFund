@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.pledges.response;
+package io.github.authservice.crowdfund.feature.pledges.user.dto.detail;
 
 public record ShippingAddress(
         String recipientName,

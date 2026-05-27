@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.pledges.response;
+package io.github.authservice.crowdfund.feature.pledges.user.dto.fulfill;
 
 import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 import java.time.LocalDateTime;

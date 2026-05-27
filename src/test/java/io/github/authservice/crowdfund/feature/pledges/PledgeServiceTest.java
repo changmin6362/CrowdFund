@@ -18,7 +18,11 @@ import io.github.authservice.crowdfund.domain.reward.Reward;
 import io.github.authservice.crowdfund.domain.reward.RewardRepository;
 import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
-import io.github.authservice.crowdfund.feature.pledges.response.*;
+import io.github.authservice.crowdfund.feature.pledges.admin.dto.detail.AdminPledgeDetailResponse;
+import io.github.authservice.crowdfund.feature.pledges.admin.dto.fetch.AdminPledgesFetchResponse;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.create.UserPledgeCreateResponse;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.detail.UserPledgeDetailResponse;
+import io.github.authservice.crowdfund.feature.pledges.user.dto.fulfill.UserPledgeFulfillResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,7 +117,7 @@ class PledgeServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<CreatePledgeResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserPledgeCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("프로젝트 후원 참여에 성공했습니다.");
         assertThat(apiResult.data().pledgeId()).isNotNull();
@@ -130,7 +134,7 @@ class PledgeServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetAllPledgesResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<AdminPledgesFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("전체 후원 목록 조회에 성공했습니다.");
         assertThat(apiResult.data().pledges()).isNotEmpty();
@@ -156,7 +160,7 @@ class PledgeServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("후원 상세 조회에 성공했습니다.");
         assertThat(apiResult.data().pledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
@@ -198,7 +202,7 @@ class PledgeServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<PatchFulfillmentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserPledgeFulfillResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("보상 이행 상태 갱신에 성공했습니다.");
         assertThat(apiResult.data().updatedInfo().fulfillmentStatus()).isEqualTo(FulfillmentStatus.COMPLETED);
@@ -219,7 +223,7 @@ class PledgeServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetAdminPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<AdminPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("관리자용 후원 상세 조회에 성공했습니다.");
         assertThat(apiResult.data().adminPledgeDetail().pledgeId()).isEqualTo(savedPledge.id());

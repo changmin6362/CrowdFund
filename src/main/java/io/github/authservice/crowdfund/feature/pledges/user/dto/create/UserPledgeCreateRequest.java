@@ -1,8 +1,8 @@
-package io.github.authservice.crowdfund.feature.pledges.request;
+package io.github.authservice.crowdfund.feature.pledges.user.dto.create;
 
 import jakarta.validation.constraints.NotNull;
 
-public record CreatePledgeRequest(
+public record UserPledgeCreateRequest(
 
         @NotNull(message = "프로젝트 ID는 필수 입력 항목입니다.")
         Long project_id,

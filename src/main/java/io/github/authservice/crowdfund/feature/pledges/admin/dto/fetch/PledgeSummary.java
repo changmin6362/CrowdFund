@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.pledges.response;
+package io.github.authservice.crowdfund.feature.pledges.admin.dto.fetch;
 
 import io.github.authservice.crowdfund.domain.pledge.FulfillmentStatus;
 
