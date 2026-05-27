@@ -1,0 +1,96 @@
+package io.github.crowdfund.feature.payment;
+
+import io.github.crowdfund.domain.payment.Payment;
+import io.github.crowdfund.domain.payment.PaymentRepository;
+import io.github.crowdfund.domain.pledge.Pledge;
+import io.github.crowdfund.domain.pledge.PledgeRepository;
+import io.github.crowdfund.feature.payment.dto.create.PaymentCreateRequest;
+import io.github.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
+import io.github.crowdfund.feature.payment.dto.fetch.PaymentFetchResponse;
+import io.github.crowdfund.feature.payment.dto.fetch.PaymentDetail;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+@Service
+@RequiredArgsConstructor
+public class PaymentService {
+
+    private final PaymentRepository paymentRepository;
+    private final PledgeRepository pledgeRepository;
+
+    /**
+     * 결제 요청 도메인 로직
+     */
+    @Transactional
+    public PaymentCreateResponse create(PaymentCreateRequest request) {
+        Pledge pledge = pledgeRepository.findById(request.pledgeId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
+
+        if (!pledge.amount().equals(request.amount())) {
+            throw new IllegalArgumentException("후원 금액과 결제 금액이 일치하지 않습니다.");
+        }
+
+        Payment payment = new Payment(
+                null,
+                request.pledgeId(),
+                request.paymentMethod(),
+                request.amount(),
+                "PAID",
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        Payment saved = paymentRepository.save(payment);
+
+        return new PaymentCreateResponse(saved.id());
+    }
+
+    /**
+     * 후원별 결제 내역 조회 도메인 로직
+     */
+    @Transactional(readOnly = true)
+    public PaymentFetchResponse fetch(Long pledgeId) {
+        Payment payment = paymentRepository.findByPledgeId(pledgeId)
+                .orElseThrow(() -> new IllegalArgumentException("결제 내역이 존재하지 않습니다."));
+
+        PaymentDetail detail = new PaymentDetail(
+                payment.id(),
+                payment.pledgeId(),
+                payment.paymentMethod(),
+                payment.amount(),
+                payment.status(),
+                payment.paidAt(),
+                payment.createdAt()
+        );
+
+        return new PaymentFetchResponse(detail);
+    }
+
+    /**
+     * 결제 취소 도메인 로직
+     */
+    @Transactional
+    public void cancel(Long paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 정보입니다."));
+
+        if ("CANCELED".equals(payment.status())) {
+            throw new IllegalStateException("이미 취소된 결제입니다.");
+        }
+
+        Payment canceledPayment = new Payment(
+                payment.id(),
+                payment.pledgeId(),
+                payment.paymentMethod(),
+                payment.amount(),
+                "CANCELED",
+                payment.paidAt(),
+                payment.createdAt()
+        );
+
+        paymentRepository.save(canceledPayment);
+    }
+}

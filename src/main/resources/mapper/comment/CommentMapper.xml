@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.github.authservice.crowdfund.domain.comment.mapper.CommentMapper">
+<mapper namespace="io.github.crowdfund.domain.comment.mapper.CommentMapper">
 
     <insert id="insert">
         INSERT INTO comment (user_id, project_id, content, created_at)
@@ -15,7 +15,7 @@
         WHERE id = #{commentId}
     </update>
 
-    <select id="findAllByProjectId" resultType="io.github.authservice.crowdfund.feature.comment.project.dto.CommentInfo">
+    <select id="findAllByProjectId" resultType="io.github.crowdfund.feature.comment.project.dto.CommentInfo">
         SELECT
             c.id AS comment_id,
             u.nickname AS writer_name,
@@ -28,7 +28,7 @@
         ORDER BY c.created_at DESC
     </select>
 
-    <select id="findAllByUserId" resultType="io.github.authservice.crowdfund.feature.comment.my.dto.fetch.MyCommentInfo">
+    <select id="findAllByUserId" resultType="io.github.crowdfund.feature.comment.my.dto.fetch.MyCommentInfo">
         SELECT
             c.id AS comment_id,
             p.id AS project_id,
@@ -42,7 +42,7 @@
     </select>
 
     <select id="findByIdToCommentInfo"
-            resultType="io.github.authservice.crowdfund.feature.comment.project.dto.CommentInfo">
+            resultType="io.github.crowdfund.feature.comment.project.dto.CommentInfo">
         SELECT c.id                                           AS comment_id,
                u.nickname                                     AS writer_name,
                c.content,

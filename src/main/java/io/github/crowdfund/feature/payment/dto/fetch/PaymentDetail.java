@@ -1,0 +1,14 @@
+package io.github.crowdfund.feature.payment.dto.fetch;
+
+import java.time.LocalDateTime;
+
+public record PaymentDetail(
+        Long id,
+        Long pledgeId,
+        String paymentMethod,
+        Long amount,
+        String status,
+        LocalDateTime paidAt,
+        LocalDateTime createdAt
+) {
+}
