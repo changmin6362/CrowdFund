@@ -1,10 +1,10 @@
-package io.github.authservice.crowdfund.feature.category;
+package io.github.authservice.crowdfund.feature.category.admin;
 
-import io.github.authservice.crowdfund.feature.category.request.CategoryNameRequest;
-import io.github.authservice.crowdfund.feature.category.request.CreateCategoryRequest;
-import io.github.authservice.crowdfund.feature.category.request.PatchCategoryParentRequest;
-import io.github.authservice.crowdfund.feature.category.request.PatchCategorySortOrderRequest;
-import io.github.authservice.crowdfund.feature.category.response.CreateCategoryResponse;
+import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCreateCategoryRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCreateCategoryResponse;
+import io.github.authservice.crowdfund.feature.category.admin.dto.move.AdminMoveCategoryRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.rename.AdminRenameCategoryRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.reorder.AdminReorderCategoryRequest;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AdminCategoryController {
 
-    private final CategoryService service;
+    private final AdminCategoryService service;
 
     /**
      * 카테고리 생성
@@ -26,8 +26,8 @@ public class AdminCategoryController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<CreateCategoryResponse> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
-        return ApiResult.success("카테고리 생성에 성공했습니다.", service.createCategory(request));
+    public ApiResult<AdminCreateCategoryResponse> create(@Valid @RequestBody AdminCreateCategoryRequest request) {
+        return ApiResult.success("카테고리 생성에 성공했습니다.", service.create(request));
     }
 
     /**
@@ -39,8 +39,8 @@ public class AdminCategoryController {
      */
     @PatchMapping("/{categoryId}/name")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> patchCategoryName(@PathVariable Integer categoryId, @Valid @RequestBody CategoryNameRequest request) {
-        service.patchCategoryName(categoryId, request);
+    public ApiResult<Void> rename(@PathVariable Integer categoryId, @Valid @RequestBody AdminRenameCategoryRequest request) {
+        service.rename(categoryId, request);
 
         return ApiResult.success("카테고리 이름 변경에 성공했습니다.");
     }
@@ -54,8 +54,8 @@ public class AdminCategoryController {
      */
     @PatchMapping("/{categoryId}/parent")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> patchCategoryParent(@PathVariable Integer categoryId, @RequestBody PatchCategoryParentRequest request) {
-        service.patchCategoryParent(categoryId, request);
+    public ApiResult<Void> move(@PathVariable Integer categoryId, @RequestBody AdminMoveCategoryRequest request) {
+        service.move(categoryId, request);
 
         return ApiResult.success("카테고리 부모 변경에 성공했습니다.");
     }
@@ -68,8 +68,8 @@ public class AdminCategoryController {
      */
     @PatchMapping("/sort-order")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> patchCategorySortOrder(@Valid @RequestBody PatchCategorySortOrderRequest request) {
-        service.patchCategorySortOrder(request);
+    public ApiResult<Void> reorder(@Valid @RequestBody AdminReorderCategoryRequest request) {
+        service.reorder(request);
 
         return ApiResult.success("카테고리 정렬 순서 변경에 성공했습니다.");
     }
@@ -81,8 +81,8 @@ public class AdminCategoryController {
      */
     @DeleteMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> deleteCategory(@PathVariable Integer categoryId) {
-        service.deleteCategory(categoryId);
+    public ApiResult<Void> delete(@PathVariable Integer categoryId) {
+        service.delete(categoryId);
 
         return ApiResult.success("카테고리 삭제에 성공했습니다.");
     }

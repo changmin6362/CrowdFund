@@ -1,29 +1,24 @@
-package io.github.authservice.crowdfund.feature.category;
+package io.github.authservice.crowdfund.feature.category.admin;
 
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
 import io.github.authservice.crowdfund.domain.category.mapper.CategoryMapper;
-import io.github.authservice.crowdfund.feature.category.request.CategoryNameRequest;
-import io.github.authservice.crowdfund.feature.category.request.CreateCategoryRequest;
-import io.github.authservice.crowdfund.feature.category.request.PatchCategoryParentRequest;
-import io.github.authservice.crowdfund.feature.category.request.PatchCategorySortOrderRequest;
-import io.github.authservice.crowdfund.feature.category.response.CategoryNode;
-import io.github.authservice.crowdfund.feature.category.response.CreateCategoryResponse;
-import io.github.authservice.crowdfund.feature.category.response.GetCategoryTreeResponse;
+import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCreateCategoryRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCreateCategoryResponse;
+import io.github.authservice.crowdfund.feature.category.admin.dto.move.AdminMoveCategoryRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.rename.AdminRenameCategoryRequest;
+import io.github.authservice.crowdfund.feature.category.admin.dto.reorder.AdminReorderCategoryRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CategoryService {
+public class AdminCategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
@@ -32,7 +27,7 @@ public class CategoryService {
      * 카테고리 생성 도메인 로직
      */
     @Transactional
-    public CreateCategoryResponse createCategory(@Valid CreateCategoryRequest request) {
+    public AdminCreateCategoryResponse create(@Valid AdminCreateCategoryRequest request) {
 
         // 카테고리의 깊이 계산
         int depth = 1;
@@ -61,14 +56,14 @@ public class CategoryService {
         Category savedCategory = categoryRepository.findById(request.getId())
                 .orElseThrow(() -> new IllegalStateException("카테고리 생성 후 조회를 실패했습니다."));
 
-        return new CreateCategoryResponse(savedCategory);
+        return new AdminCreateCategoryResponse(savedCategory);
     }
 
     /**
      * 카테고리 이름 변경 도메인 로직
      */
     @Transactional
-    public void patchCategoryName(Integer id, CategoryNameRequest request) {
+    public void rename(Integer id, AdminRenameCategoryRequest request) {
         categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
 
@@ -79,7 +74,7 @@ public class CategoryService {
      * 카테고리 부모 변경 도메인 로직
      */
     @Transactional
-    public void patchCategoryParent(Integer categoryId, PatchCategoryParentRequest request) {
+    public void move(Integer categoryId, AdminMoveCategoryRequest request) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + categoryId));
 
@@ -122,10 +117,10 @@ public class CategoryService {
     }
 
     /**
-     * 카테고리 정렬 변경 도메인 로직
+     * 카테고리 정렬 순서 변경 도메인 로직
      */
     @Transactional
-    public void patchCategorySortOrder(PatchCategorySortOrderRequest request) {
+    public void reorder(AdminReorderCategoryRequest request) {
         for (var item : request.categories()) {
             categoryMapper.updateSortOrder(item.id().longValue(), item.sortOrder());
         }
@@ -135,40 +130,11 @@ public class CategoryService {
      * 카테고리 삭제 도메인 로직
      */
     @Transactional
-    public void deleteCategory(Integer id) {
+    public void delete(Integer id) {
         categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
 
         categoryMapper.delete(id.longValue());
-    }
-
-    /**
-     * 카테고리 트리 조회 도메인 로직
-     */
-    public GetCategoryTreeResponse getCategoryTree() {
-        List<Category> allCategories = categoryRepository.findByIsActiveTrue();
-
-        Map<Integer, CategoryNode> nodeMap = allCategories.stream()
-                .collect(Collectors.toMap(
-                        Category::id,
-                        c -> new CategoryNode(c.id(), c.name(), c.depth(), c.sortOrder(), new ArrayList<>())
-                ));
-
-        List<CategoryNode> rootNodes = new ArrayList<>();
-
-        for (Category category : allCategories) {
-            CategoryNode node = nodeMap.get(category.id());
-            if (category.parentId() == null) {
-                rootNodes.add(node);
-            } else {
-                CategoryNode parentNode = nodeMap.get(category.parentId());
-                if (parentNode != null) {
-                    parentNode.children().add(node);
-                }
-            }
-        }
-
-        return new GetCategoryTreeResponse(rootNodes);
     }
 
     private boolean isDescendant(List<Category> allCategories, int rootId, int targetId) {

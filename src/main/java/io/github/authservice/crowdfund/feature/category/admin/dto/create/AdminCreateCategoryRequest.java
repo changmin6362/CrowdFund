@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.category.request;
+package io.github.authservice.crowdfund.feature.category.admin.dto.create;
 
 
 import jakarta.validation.constraints.NotBlank;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CreateCategoryRequest {
+public class AdminCreateCategoryRequest {
     @Positive(message = "부모 카테고리 ID는 1 이상의 양수여야 합니다.")
     private Integer parentId;
 
@@ -21,7 +21,7 @@ public class CreateCategoryRequest {
 
     private Integer id;
 
-    public CreateCategoryRequest(Integer parentId, String name) {
+    public AdminCreateCategoryRequest(Integer parentId, String name) {
         this.parentId = parentId;
         this.name = name;
     }

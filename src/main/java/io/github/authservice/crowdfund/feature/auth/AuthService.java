@@ -1,11 +1,11 @@
 package io.github.authservice.crowdfund.feature.auth;
 
 import io.github.authservice.crowdfund.domain.user.UserRepository;
-import io.github.authservice.crowdfund.feature.auth.request.LogoutRequest;
-import io.github.authservice.crowdfund.feature.auth.request.SignInRequest;
-import io.github.authservice.crowdfund.feature.auth.request.SignUpRequest;
-import io.github.authservice.crowdfund.feature.auth.response.SignInResponse;
-import io.github.authservice.crowdfund.feature.auth.response.SignUpResponse;
+import io.github.authservice.crowdfund.feature.auth.dto.logout.LogoutRequest;
+import io.github.authservice.crowdfund.feature.auth.dto.signin.SignInRequest;
+import io.github.authservice.crowdfund.feature.auth.dto.signup.SignUpRequest;
+import io.github.authservice.crowdfund.feature.auth.dto.signin.SignInResponse;
+import io.github.authservice.crowdfund.feature.auth.dto.signup.SignUpResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

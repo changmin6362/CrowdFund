@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.category.request;
+package io.github.authservice.crowdfund.feature.category.admin.dto.reorder;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record PatchCategorySortOrderRequest(
+public record AdminReorderCategoryRequest(
         @NotEmpty(message = "변경할 카테고리 목록이 비어있습니다.")
         @Valid
         List<CategorySortItem> categories

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
-import io.github.authservice.crowdfund.feature.category.response.CreateCategoryResponse;
-import io.github.authservice.crowdfund.feature.category.response.GetCategoryTreeResponse;
+import io.github.authservice.crowdfund.feature.category.admin.dto.create.AdminCreateCategoryResponse;
+import io.github.authservice.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -72,7 +70,7 @@ class CategoryServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<CreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<AdminCreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("카테고리 생성에 성공했습니다.");
         assertThat(apiResult.data().category().name()).isEqualTo("새 카테고리");
@@ -86,7 +84,7 @@ class CategoryServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetCategoryTreeResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserFetchCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("카테고리 트리 조회에 성공했습니다.");
         assertThat(apiResult.data().categoryTree()).isNotEmpty();
@@ -113,7 +111,7 @@ class CategoryServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<CreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<AdminCreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("카테고리 이름 변경에 성공했습니다.");
     }
@@ -137,7 +135,7 @@ class CategoryServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<CreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<AdminCreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("카테고리 부모 변경에 성공했습니다.");
     }
@@ -166,7 +164,7 @@ class CategoryServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<CreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<AdminCreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("카테고리 정렬 순서 변경에 성공했습니다.");
     }
@@ -178,7 +176,7 @@ class CategoryServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<CreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<AdminCreateCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("카테고리 삭제에 성공했습니다.");
     }

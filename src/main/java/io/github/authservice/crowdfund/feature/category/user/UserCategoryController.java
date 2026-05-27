@@ -1,6 +1,6 @@
-package io.github.authservice.crowdfund.feature.category;
+package io.github.authservice.crowdfund.feature.category.user;
 
-import io.github.authservice.crowdfund.feature.category.response.GetCategoryTreeResponse;
+import io.github.authservice.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
-public class CategoryController {
+public class UserCategoryController {
 
-    private final CategoryService service;
+    private final UserCategoryService service;
 
     /**
      * 카테고리 트리 조회
      *
      * @return message, categoryTree
      */
-    @GetMapping("/tree")
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<GetCategoryTreeResponse> getCategoryTree() {
-        return ApiResult.success("카테고리 트리 조회에 성공했습니다.", service.getCategoryTree());
+    public ApiResult<UserFetchCategoryResponse> fetch() {
+        return ApiResult.success("카테고리 트리 조회에 성공했습니다.", service.fetch());
     }
 }

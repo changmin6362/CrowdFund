@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.category.response;
+package io.github.authservice.crowdfund.feature.category.user.dto.fetch;
 
 import java.util.List;
 
