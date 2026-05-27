@@ -11,7 +11,11 @@ import io.github.authservice.crowdfund.domain.user.User;
 import io.github.authservice.crowdfund.domain.user.UserRepository;
 import io.github.authservice.crowdfund.domain.category.Category;
 import io.github.authservice.crowdfund.domain.category.CategoryRepository;
-import io.github.authservice.crowdfund.feature.comment.response.*;
+import io.github.authservice.crowdfund.feature.comment.my.dto.fetch.MyCommentsResponse;
+import io.github.authservice.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateResponse;
+import io.github.authservice.crowdfund.feature.comment.project.dto.delete.ProjectCommentDeleteResponse;
+import io.github.authservice.crowdfund.feature.comment.project.dto.fetch.ProjectCommentsFetchResponse;
+import io.github.authservice.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateResponse;
 import io.github.authservice.crowdfund.global.common.ApiResult;
 import io.github.authservice.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +30,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,7 +98,7 @@ class CommentServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<CreateCommentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<ProjectCommentCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("댓글 작성에 성공했습니다.");
         assertThat(apiResult.data().createdComment().writerName()).isEqualTo(savedUser.nickname());
@@ -121,7 +124,7 @@ class CommentServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<PatchCommentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<ProjectCommentUpdateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("댓글 수정에 성공했습니다.");
         assertThat(apiResult.data().patchedComment().content()).isEqualTo("수정된 댓글입니다.");
@@ -143,7 +146,7 @@ class CommentServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetCommentsResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<ProjectCommentsFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("댓글 목록 조회에 성공했습니다.");
         assertThat(apiResult.data().comments()).hasSize(2);
@@ -160,7 +163,7 @@ class CommentServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<GetMyCommentsResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<MyCommentsResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("내 댓글 목록 조회에 성공했습니다.");
         assertThat(apiResult.data().myComments()).hasSize(1);
@@ -178,7 +181,7 @@ class CommentServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<DeleteMyCommentResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<ProjectCommentDeleteResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("내 댓글 삭제에 성공했습니다.");
         assertThat(apiResult.data().deletedCommentId()).isEqualTo(savedComment.id());

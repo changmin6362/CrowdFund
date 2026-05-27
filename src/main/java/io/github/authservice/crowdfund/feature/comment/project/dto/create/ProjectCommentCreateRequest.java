@@ -1,8 +1,8 @@
-package io.github.authservice.crowdfund.feature.comment.request;
+package io.github.authservice.crowdfund.feature.comment.project.dto.create;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record PatchCommentRequest(
+public record ProjectCommentCreateRequest(
 
         @NotBlank(message = "댓글 내용은 필수입니다.")
         String content

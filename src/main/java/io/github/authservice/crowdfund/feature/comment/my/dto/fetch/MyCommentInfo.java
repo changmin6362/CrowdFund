@@ -1,4 +1,4 @@
-package io.github.authservice.crowdfund.feature.comment.response;
+package io.github.authservice.crowdfund.feature.comment.my.dto.fetch;
 
 import java.time.LocalDateTime;
 

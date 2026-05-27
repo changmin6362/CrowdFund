@@ -1,7 +1,7 @@
 package io.github.authservice.crowdfund.domain.comment.mapper;
 
-import io.github.authservice.crowdfund.feature.comment.response.CommentInfo;
-import io.github.authservice.crowdfund.feature.comment.response.MyCommentInfo;
+import io.github.authservice.crowdfund.feature.comment.project.dto.CommentInfo;
+import io.github.authservice.crowdfund.feature.comment.my.dto.fetch.MyCommentInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
