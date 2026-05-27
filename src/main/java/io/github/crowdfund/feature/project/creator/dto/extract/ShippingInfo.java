@@ -1,0 +1,12 @@
+package io.github.crowdfund.feature.project.creator.dto.extract;
+
+public record ShippingInfo(
+        Long addressId,
+        Long userId,
+        String recipientName,
+        String phone,
+        String postalCode,
+        String addressMain,
+        String addressDetail
+) {
+}
