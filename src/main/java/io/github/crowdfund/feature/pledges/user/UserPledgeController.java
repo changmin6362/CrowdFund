@@ -5,6 +5,7 @@ import io.github.crowdfund.feature.pledges.user.dto.create.UserPledgeCreateRespo
 import io.github.crowdfund.feature.pledges.user.dto.detail.UserPledgeDetailResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ public class UserPledgeController {
      * @return message, pledgeId
      */
     @Operation(summary = "프로젝트 후원하기")
+    @ApiResponse(responseCode = "201", description = "프로젝트 후원 성공")
     @PostMapping("/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<UserPledgeCreateResponse> create(
@@ -40,6 +42,7 @@ public class UserPledgeController {
      * @return message, pledgeDetail
      */
     @Operation(summary = "후원 상세 조회")
+    @ApiResponse(responseCode = "200", description = "후원 상세 조회 성공")
     @GetMapping("/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserPledgeDetailResponse> detail(@PathVariable Long pledgeId) {
@@ -53,6 +56,7 @@ public class UserPledgeController {
      * @return message
      */
     @Operation(summary = "후원 취소")
+    @ApiResponse(responseCode = "200", description = "후원 취소 성공")
     @DeleteMapping("/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> cancel(@PathVariable Long pledgeId) {

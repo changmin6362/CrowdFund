@@ -25,7 +25,7 @@ public class CreatorPledgeController {
      * @return message, updatedInfo
      */
     @Operation(summary = "보상 이행")
-    @ApiResponse(responseCode = "200", description = "보상 이행 상태 갱신에 성공했습니다.")
+    @ApiResponse(responseCode = "200", description = "보상 이행 상태 갱신 성공")
     @PatchMapping("/{pledgeId}/fulfill")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorPledgeFulfillResponse> fulfill(
