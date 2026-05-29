@@ -5,6 +5,7 @@ import io.github.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
 import io.github.crowdfund.feature.payment.dto.fetch.PaymentFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ public class PaymentController {
      * @return message, paymentId
      */
     @Operation(summary = "결제 요청")
+    @ApiResponse(responseCode = "201", description = "결제 요청 성공")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<PaymentCreateResponse> create(@Valid @RequestBody PaymentCreateRequest request) {
