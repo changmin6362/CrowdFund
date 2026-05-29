@@ -7,6 +7,7 @@ import io.github.crowdfund.feature.user.dto.fetch.UserFetchResponse;
 import io.github.crowdfund.feature.user.dto.view.UserViewResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class UserController {
      * @return message, nickname
      */
     @Operation(summary = "내 닉네임 조회")
+    @ApiResponse(responseCode = "200", description = "내 닉네임 조회 성공")
     @GetMapping("/nickname/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserViewResponse> view(@PathVariable Long userId) {
@@ -41,6 +43,7 @@ public class UserController {
      * @return message, user
      */
     @Operation(summary = "내 정보 조회")
+    @ApiResponse(responseCode = "200", description = "내 정보 조회 성공")
     @GetMapping("/data/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserFetchResponse> fetch(@PathVariable Long userId) {
@@ -55,6 +58,7 @@ public class UserController {
      * @return message
      */
     @Operation(summary = "내 정보 수정")
+    @ApiResponse(responseCode = "200", description = "내 정보 수정 성공")
     @PutMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> update(@PathVariable Long userId, @Valid @RequestBody UserUpdateRequest request) {
@@ -70,6 +74,7 @@ public class UserController {
      * @return message
      */
     @Operation(summary = "회원 탈퇴")
+    @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공")
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> delete(@PathVariable Long userId) {
@@ -86,6 +91,7 @@ public class UserController {
      * @return message, pledgeList
      */
     @Operation(summary = "내가 후원한 프로젝트 목록 조회")
+    @ApiResponse(responseCode = "200", description = "내가 후원한 프로젝트 목록 조회 성공.")
     @GetMapping("/pledges/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserExtractResponse> extract(
