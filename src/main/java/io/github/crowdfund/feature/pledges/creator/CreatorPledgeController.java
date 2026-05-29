@@ -4,6 +4,7 @@ import io.github.crowdfund.feature.pledges.creator.dto.fulfill.CreatorPledgeFulf
 import io.github.crowdfund.feature.pledges.creator.dto.fulfill.CreatorPledgeFulfillResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ public class CreatorPledgeController {
      * @return message, updatedInfo
      */
     @Operation(summary = "보상 이행")
+    @ApiResponse(responseCode = "200", description = "보상 이행 상태 갱신에 성공했습니다.")
     @PatchMapping("/{pledgeId}/fulfill")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorPledgeFulfillResponse> fulfill(
