@@ -6,8 +6,8 @@ import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
 import io.github.crowdfund.feature.payment.dto.create.PaymentCreateRequest;
 import io.github.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
-import io.github.crowdfund.feature.payment.dto.fetch.PaymentFetchResponse;
-import io.github.crowdfund.feature.payment.dto.fetch.PaymentDetail;
+import io.github.crowdfund.feature.payment.dto.detail.PaymentDetailResponse;
+import io.github.crowdfund.feature.payment.dto.detail.PaymentDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,7 +52,7 @@ public class PaymentService {
      * 후원별 결제 내역 조회 도메인 로직
      */
     @Transactional(readOnly = true)
-    public PaymentFetchResponse fetch(Long pledgeId) {
+    public PaymentDetailResponse detail(Long pledgeId) {
         Payment payment = paymentRepository.findByPledgeId(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("결제 내역이 존재하지 않습니다."));
 
@@ -66,7 +66,7 @@ public class PaymentService {
                 payment.createdAt()
         );
 
-        return new PaymentFetchResponse(detail);
+        return new PaymentDetailResponse(detail);
     }
 
     /**

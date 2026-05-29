@@ -18,7 +18,7 @@ import io.github.crowdfund.domain.user.User;
 import io.github.crowdfund.domain.user.UserRepository;
 import io.github.crowdfund.feature.payment.dto.create.PaymentCreateRequest;
 import io.github.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
-import io.github.crowdfund.feature.payment.dto.fetch.PaymentFetchResponse;
+import io.github.crowdfund.feature.payment.dto.detail.PaymentDetailResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.github.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -143,7 +143,7 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<PaymentFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<PaymentDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("결제 내역 조회에 성공했습니다.");
         assertThat(apiResult.data().paymentDetail().id()).isEqualTo(payment.id());
