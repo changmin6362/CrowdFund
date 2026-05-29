@@ -4,6 +4,7 @@ import io.github.crowdfund.feature.pledges.admin.dto.detail.AdminPledgeDetailRes
 import io.github.crowdfund.feature.pledges.admin.dto.fetch.AdminPledgesFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ public class AdminPledgeController {
      * @return message, pledges
      */
     @Operation(summary = "관리자용 전체 후원 목록 조회")
+    @ApiResponse(responseCode = "200", description = "관리자용 전체 후원 목록 조회에 성공했습니다.")
     @GetMapping("/pledge")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<AdminPledgesFetchResponse> fetch() {
@@ -34,6 +36,7 @@ public class AdminPledgeController {
      * @return message, adminPledgeDetail
      */
     @Operation(summary = "관리자용 후원 상세 조회")
+    @ApiResponse(responseCode = "200", description = "관리자용 후원 상세 조회에 성공했습니다.")
     @GetMapping("/pledge/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<AdminPledgeDetailResponse> detail(@PathVariable Long pledgeId) {
