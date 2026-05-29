@@ -3,6 +3,7 @@ package io.github.crowdfund.feature.project.admin;
 import io.github.crowdfund.feature.project.admin.dto.update.AdminProjectUpdateRequest;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class AdminProjectController {
      * @return UpdateProjectResponse 변경 성공 결과
      */
     @Operation(summary = "프로젝트 상태 변경")
+    @ApiResponse(responseCode = "200", description = "프로젝트 상태 변경 성공")
     @PatchMapping("/{projectId}/status")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> update(
