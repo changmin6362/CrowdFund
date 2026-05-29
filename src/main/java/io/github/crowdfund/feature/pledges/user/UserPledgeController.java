@@ -6,6 +6,7 @@ import io.github.crowdfund.feature.pledges.user.dto.detail.UserPledgeDetailRespo
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/pledges")
 @RequiredArgsConstructor
+@Tag(name = "Pledge - User", description = "사용자용 후원 API")
 public class UserPledgeController {
 
     private final UserPledgeService service;

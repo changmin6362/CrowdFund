@@ -9,6 +9,7 @@ import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpda
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Tag(name = "Comment - Project", description = "프로젝트의 댓글 API")
 public class ProjectCommentController {
 
     private final ProjectCommentService service;

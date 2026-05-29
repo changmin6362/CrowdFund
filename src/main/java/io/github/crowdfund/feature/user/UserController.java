@@ -14,10 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "User", description = "사용자 관련 API")
 @RestController
 @RequestMapping("/api/users/me")
 @RequiredArgsConstructor
+@Tag(name = "User", description = "사용자 관련 API")
 public class UserController {
 
     private final UserService service;

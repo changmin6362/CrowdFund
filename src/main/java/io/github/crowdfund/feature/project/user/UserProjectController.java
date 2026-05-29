@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Tag(name = "Project", description = "프로젝트 관련 API")
 @RestController
 @RequestMapping("/api/projects")
 @Validated
 @RequiredArgsConstructor
+@Tag(name = "Project - User", description = "사용자용 프로젝트 관련 API")
 public class UserProjectController {
 
     private final UserProjectService service;

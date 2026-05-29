@@ -8,6 +8,7 @@ import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdate
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Tag(name = "Reward - Creator", description = "창작자용 리워드 API")
 public class CreatorRewardController {
 
     private final CreatorRewardService service;

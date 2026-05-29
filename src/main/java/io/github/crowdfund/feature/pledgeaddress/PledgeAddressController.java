@@ -11,10 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "PledgeAddress", description = "후원 주소 관련 API")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Tag(name = "PledgeAddress", description = "후원별 배송 정보 API")
 public class PledgeAddressController {
 
     private final PledgeAddressService service;

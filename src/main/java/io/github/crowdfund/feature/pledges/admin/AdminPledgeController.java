@@ -5,6 +5,7 @@ import io.github.crowdfund.feature.pledges.admin.dto.fetch.AdminPledgesFetchResp
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
+@Tag(name = "Pledge - Admin", description = "관리자용 후원 API")
 public class AdminPledgeController {
 
     private final AdminPledgeService service;

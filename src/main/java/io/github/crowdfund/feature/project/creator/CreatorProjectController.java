@@ -16,11 +16,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Project", description = "프로젝트 관련 API")
 @RestController
 @RequestMapping("/api/creator/projects")
 @Validated
 @RequiredArgsConstructor
+@Tag(name = "Project - Creator", description = "창작자용 프로젝트 API")
 public class CreatorProjectController {
 
     private final CreatorProjectService service;

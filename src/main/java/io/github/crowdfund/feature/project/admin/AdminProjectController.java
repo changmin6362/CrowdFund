@@ -11,11 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Project", description = "프로젝트 관련 API")
 @RestController
 @RequestMapping("/api/admin/projects")
 @Validated
 @RequiredArgsConstructor
+@Tag(name = "Project - Admin", description = "관리자용 프로젝트 API")
 public class AdminProjectController {
 
     private final AdminProjectService service;
