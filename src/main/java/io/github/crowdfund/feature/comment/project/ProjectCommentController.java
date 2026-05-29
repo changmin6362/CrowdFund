@@ -7,6 +7,7 @@ import io.github.crowdfund.feature.comment.project.dto.fetch.ProjectCommentsFetc
 import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateResponse;
 import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ public class ProjectCommentController {
      * @param request   댓글 작성 요청 데이터
      * @return message, createdComment
      */
+    @Operation(summary = "프로젝트에 댓글 작성")
     @PostMapping("/projects/{projectId}/comments/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<ProjectCommentCreateResponse> create(
@@ -42,6 +44,7 @@ public class ProjectCommentController {
      * @param projectId 프로젝트 아이디
      * @return message, comments
      */
+    @Operation(summary = "프로젝트의 댓글 목록 조회")
     @GetMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentsFetchResponse> fetch(
@@ -58,6 +61,7 @@ public class ProjectCommentController {
      * @param request   댓글 수정 요청 데이터
      * @return message, patchedComment
      */
+    @Operation(summary = "프로젝트 작성한 댓글 수정")
     @PatchMapping("/comments/{commentId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentUpdateResponse> update(
@@ -74,6 +78,7 @@ public class ProjectCommentController {
      * @param commentId 댓글 아이디
      * @return message, deletedCommentId
      */
+    @Operation(summary = "프로젝트에 작성한 댓글 삭제")
     @DeleteMapping("/comments/{commentId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentDeleteResponse> delete(

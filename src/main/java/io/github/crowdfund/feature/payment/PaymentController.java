@@ -4,6 +4,7 @@ import io.github.crowdfund.feature.payment.dto.create.PaymentCreateRequest;
 import io.github.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
 import io.github.crowdfund.feature.payment.dto.fetch.PaymentFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ public class PaymentController {
      * @param request 결제 요청 정보
      * @return message, paymentId
      */
+    @Operation(summary = "결제 요청")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<PaymentCreateResponse> create(@Valid @RequestBody PaymentCreateRequest request) {
@@ -34,6 +36,7 @@ public class PaymentController {
      * @param pledgeId 후원 ID
      * @return message, paymentDetail
      */
+    @Operation(summary = "후원별 결제 내역 조회")
     @GetMapping("/pledge/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<PaymentFetchResponse> fetch(@PathVariable Long pledgeId) {
@@ -46,6 +49,7 @@ public class PaymentController {
      * @param paymentId 결제 ID
      * @return message
      */
+    @Operation(summary = "결제 취소")
     @DeleteMapping("/{paymentId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> cancel(@PathVariable Long paymentId) {

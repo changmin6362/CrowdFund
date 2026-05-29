@@ -28,7 +28,7 @@ public class UserAddressController {
      * @param request 배송지 정보
      * @return message, addressId
      */
-    @Operation(summary = "내 배송지 등록", description = "사용자의 배송지를 등록합니다.")
+    @Operation(summary = "내 배송지 등록")
     @PostMapping("/address/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<UserAddressCreateResponse> create(@PathVariable Long userId, @Valid @RequestBody UserAddressCreateRequest request) {
@@ -41,7 +41,7 @@ public class UserAddressController {
      * @param userId 사용자 ID
      * @return message, addresses
      */
-    @Operation(summary = "내 배송지 목록 조회", description = "사용자의 배송지 목록을 조회합니다.")
+    @Operation(summary = "내 배송지 목록 조회")
     @GetMapping("/addresses/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserAddressesFetchResponse> fetch(@PathVariable Long userId) {
@@ -55,7 +55,7 @@ public class UserAddressController {
      * @param request   배송지 정보
      * @return message, updatedAddress
      */
-    @Operation(summary = "내 배송지 수정", description = "사용자의 특정 배송지를 수정합니다.")
+    @Operation(summary = "내 배송지 수정")
     @PatchMapping("/address/{addressId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserAddressUpdateResponse> update(@PathVariable Long addressId, @Valid @RequestBody UserAddressUpdateRequest request) {
@@ -68,7 +68,7 @@ public class UserAddressController {
      * @param addressId 배송지 ID
      * @return message, defaultAddressResult
      */
-    @Operation(summary = "기본 배송지 변경", description = "사용자의 특정 배송지를 기본 배송지로 변경합니다.")
+    @Operation(summary = "기본 배송지 변경")
     @PatchMapping("/address/{addressId}/default")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserAddressSetResponse> set(@PathVariable Long addressId) {
@@ -81,7 +81,7 @@ public class UserAddressController {
      * @param addressId 배송지 ID
      * @return message
      */
-    @Operation(summary = "내 배송지 삭제", description = "사용자의 특정 배송지를 삭제합니다.")
+    @Operation(summary = "내 배송지 삭제")
     @DeleteMapping("/address/{addressId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> delete(@PathVariable Long addressId) {

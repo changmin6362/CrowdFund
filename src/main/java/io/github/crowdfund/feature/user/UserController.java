@@ -27,7 +27,7 @@ public class UserController {
      * @param userId 사용자 ID
      * @return message, nickname
      */
-    @Operation(summary = "내 닉네임 조회", description = "사용자의 닉네임을 조회합니다.")
+    @Operation(summary = "내 닉네임 조회")
     @GetMapping("/nickname/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserViewResponse> view(@PathVariable Long userId) {
@@ -40,7 +40,7 @@ public class UserController {
      * @param userId 사용자 ID
      * @return message, user
      */
-    @Operation(summary = "내 정보 조회", description = "사용자의 정보를 조회합니다.")
+    @Operation(summary = "내 정보 조회")
     @GetMapping("/data/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserFetchResponse> fetch(@PathVariable Long userId) {
@@ -54,7 +54,7 @@ public class UserController {
      * @param request 수정할 데이터
      * @return message
      */
-    @Operation(summary = "내 정보 수정", description = "사용자의 정보를 수정합니다.")
+    @Operation(summary = "내 정보 수정")
     @PutMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> update(@PathVariable Long userId, @Valid @RequestBody UserUpdateRequest request) {
@@ -69,7 +69,7 @@ public class UserController {
      * @param userId 사용자 ID
      * @return message
      */
-    @Operation(summary = "회원 탈퇴", description = "사용자를 탈퇴시킵니다.")
+    @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> delete(@PathVariable Long userId) {
@@ -85,7 +85,7 @@ public class UserController {
      * @param status 후원 상태 필터 (null인 경우 모든 상태 조회)
      * @return message, pledgeList
      */
-    @Operation(summary = "내가 후원한 프로젝트 목록 조회", description = "사용자가 참여한 후원 내역을 조회합니다.")
+    @Operation(summary = "내가 후원한 프로젝트 목록 조회")
     @GetMapping("/pledges/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserExtractResponse> extract(

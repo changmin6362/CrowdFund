@@ -6,6 +6,7 @@ import io.github.crowdfund.feature.project.creator.dto.create.CreatorProjectCrea
 import io.github.crowdfund.feature.project.creator.dto.fetch.CreatorProjectsFetchResponse;
 import io.github.crowdfund.feature.project.creator.dto.extract.CreatorShippingInfosExtractResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class CreatorProjectController {
      * @param request 프로젝트 생성 정보
      * @return message, projectId
      */
+    @Operation(summary = "프로젝트 생성")
     @PostMapping("/{creatorId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<CreatorProjectCreateResponse> create(@PathVariable Long creatorId, @Valid @RequestBody CreatorProjectCreateRequest request) {
@@ -41,6 +43,7 @@ public class CreatorProjectController {
      * @param request   수정할 프로젝트 정보
      * @return message
      */
+    @Operation(summary = "프로젝트 제목과 본문 수정")
     @PatchMapping("/{projectId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> update(@PathVariable Long projectId, @Valid @RequestBody CreatorProjectUpdateRequest request) {
@@ -55,6 +58,7 @@ public class CreatorProjectController {
      * @param projectId 프로젝트 ID
      * @return message
      */
+    @Operation(summary = "프로젝트 삭제")
     @DeleteMapping("/{projectId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> delete(@PathVariable Long projectId) {
@@ -69,6 +73,7 @@ public class CreatorProjectController {
      * @param userId 사용자 ID
      * @return message, projects
      */
+    @Operation(summary = "내 프로젝트 조회")
     @GetMapping("/me/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorProjectsFetchResponse> fetch(@PathVariable Long userId) {
@@ -81,6 +86,7 @@ public class CreatorProjectController {
      * @param projectId 프로젝트 ID
      * @return message, shippingInfos
      */
+    @Operation(summary = "후원자들의 배송 정보 목록 조회")
     @GetMapping("/{projectId}/shipping-infos")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorShippingInfosExtractResponse> extract(@PathVariable Long projectId) {

@@ -6,6 +6,7 @@ import io.github.crowdfund.feature.auth.dto.signup.AuthSignUpRequest;
 import io.github.crowdfund.feature.auth.dto.signin.AuthSignInResponse;
 import io.github.crowdfund.feature.auth.dto.signup.AuthSignUpResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class AuthController {
      * @param request 회원가입 요청 정보
      * @return message, userId
      */
+    @Operation(summary = "회원가입")
     @PostMapping("signup")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<AuthSignUpResponse> signUp(@Valid @RequestBody AuthSignUpRequest request) {
@@ -38,6 +40,7 @@ public class AuthController {
      * @param request 로그인 요청 정보
      * @return message, access token, refresh token
      */
+    @Operation(summary = "로그인")
     @PostMapping("signin")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<AuthSignInResponse> signIn(@Valid @RequestBody AuthSignInRequest request) {
@@ -50,6 +53,7 @@ public class AuthController {
      * @param request 로그아웃 요청 정보
      * @return message
      */
+    @Operation(summary = "로그아웃")
     @PostMapping("logout")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> logout(@Valid @RequestBody AuthLogoutRequest request) {

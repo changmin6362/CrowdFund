@@ -4,6 +4,7 @@ import io.github.crowdfund.feature.pledgeaddress.dto.fetch.PledgeAddressFetchRes
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceRequest;
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ public class PledgeAddressController {
      * @param pledgesId 후원 ID
      * @return message, pledgeAddress
      */
+    @Operation(summary = "후원 주소 조회")
     @GetMapping("/pledges/{pledgesId}/addresses")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<PledgeAddressFetchResponse> fetch(
@@ -38,6 +40,7 @@ public class PledgeAddressController {
      * @param request  교체할 주소 정보
      * @return message, replacedPledgeAddress
      */
+    @Operation(summary = "후원 주소 교체")
     @PostMapping("/pledges/{pledgeId}/addresses")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<PledgeAddressReplaceResponse> replace(
