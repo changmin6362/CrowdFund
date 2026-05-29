@@ -47,6 +47,7 @@ public class ProjectCommentController {
      * @return message, comments
      */
     @Operation(summary = "프로젝트의 댓글 목록 조회")
+    @ApiResponse(responseCode = "200", description = "댓글 목록 조회 성공")
     @GetMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentsFetchResponse> fetch(
@@ -64,6 +65,7 @@ public class ProjectCommentController {
      * @return message, patchedComment
      */
     @Operation(summary = "프로젝트 작성한 댓글 수정")
+    @ApiResponse(responseCode = "200", description = "댓글 수정 성공")
     @PatchMapping("/comments/{commentId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentUpdateResponse> update(
@@ -81,6 +83,7 @@ public class ProjectCommentController {
      * @return message, deletedCommentId
      */
     @Operation(summary = "프로젝트에 작성한 댓글 삭제")
+    @ApiResponse(responseCode = "200", description = "댓글 삭제 성공")
     @DeleteMapping("/comments/{commentId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentDeleteResponse> delete(
