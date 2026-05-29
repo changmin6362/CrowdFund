@@ -53,6 +53,7 @@ public class PaymentController {
      * @return message
      */
     @Operation(summary = "결제 취소")
+    @ApiResponse(responseCode = "200", description = "결제 취소 성공")
     @DeleteMapping("/{paymentId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> cancel(@PathVariable Long paymentId) {
