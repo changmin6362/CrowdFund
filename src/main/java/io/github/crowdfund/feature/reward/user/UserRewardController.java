@@ -3,6 +3,7 @@ package io.github.crowdfund.feature.reward.user;
 import io.github.crowdfund.feature.reward.user.dto.fetch.UserRewardsFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ public class UserRewardController {
      * @return message, rewards
      */
     @Operation(summary = "프로젝트의 리워드 목록 조회")
+    @ApiResponse(responseCode = "200", description = "리워드 목록 조회 성공")
     @GetMapping("/projects/{projectId}/rewards")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserRewardsFetchResponse> fetch(@PathVariable Long projectId) {
