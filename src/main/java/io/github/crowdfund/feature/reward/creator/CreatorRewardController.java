@@ -7,6 +7,7 @@ import io.github.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDelete
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ public class CreatorRewardController {
      * @return message, createdReward
      */
     @Operation(summary = "프로젝트에 리워드 등록")
+    @ApiResponse(responseCode = "201", description = "리워드 등록 성공")
     @PostMapping("/projects/{projectId}/rewards")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<CreatorRewardCreateResponse> create(@Valid @PathVariable Long projectId, @RequestBody CreatorRewardCreateRequest request) {
@@ -38,9 +40,10 @@ public class CreatorRewardController {
      *
      * @param rewardId 프로젝트아이디
      * @param request  리워드 수정 요청 데이터
-     * @return message, patchedReward
+     * @return message, updatedReward
      */
     @Operation(summary = "리워드 수정")
+    @ApiResponse(responseCode = "200", description = "리워드 수정 성공")
     @PatchMapping("/rewards/{rewardId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorRewardUpdateResponse> update(@PathVariable @Valid Long rewardId, @RequestBody CreatorRewardUpdateReqeust request) {
@@ -54,6 +57,7 @@ public class CreatorRewardController {
      * @return message, deletedRewardId
      */
     @Operation(summary = "리워드 삭제")
+    @ApiResponse(responseCode = "200", description = "리워드 삭제 성공")
     @DeleteMapping("/rewards/{rewardId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorRewardDeleteResponse> delete(@PathVariable Long rewardId) {
