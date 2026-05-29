@@ -59,9 +59,9 @@ class UserCategoryControllerTest {
         ApiResult<UserFetchCategoryResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("카테고리 트리 조회에 성공했습니다.");
-        assertThat(apiResult.data().categoryTree()).isNotEmpty();
-        assertThat(apiResult.data().categoryTree()).anyMatch(node -> node.name().equals("Root Category"));
-        assertThat(apiResult.data().categoryTree().stream()
+        assertThat(apiResult.data().categories()).isNotEmpty();
+        assertThat(apiResult.data().categories()).anyMatch(node -> node.name().equals("Root Category"));
+        assertThat(apiResult.data().categories().stream()
                 .filter(node -> node.name().equals("Root Category"))
                 .flatMap(node -> node.children().stream())
                 .anyMatch(child -> child.name().equals("Child Category")))

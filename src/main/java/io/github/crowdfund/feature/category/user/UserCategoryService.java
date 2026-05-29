@@ -2,7 +2,7 @@ package io.github.crowdfund.feature.category.user;
 
 import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
-import io.github.crowdfund.feature.category.user.dto.fetch.CategoryNode;
+import io.github.crowdfund.feature.category.user.dto.fetch.CategoryTreeNode;
 import io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,21 +27,21 @@ public class UserCategoryService {
     public UserFetchCategoryResponse fetch() {
         List<Category> allCategories = repository.findByIsActiveTrue();
 
-        Map<Integer, CategoryNode> nodeMap = allCategories.stream()
+        Map<Integer, CategoryTreeNode> nodeMap = allCategories.stream()
                 .collect(Collectors.toMap(
                         Category::id,
-                        c -> new CategoryNode(c.id(), c.name(), c.depth(), c.sortOrder(), new ArrayList<>())
+                        c -> new CategoryTreeNode(c.id(), c.name(), c.depth(), c.sortOrder(), new ArrayList<>())
                 ));
 
-        List<CategoryNode> rootNodes = allCategories.stream()
+        List<CategoryTreeNode> rootNodes = allCategories.stream()
                 .filter(c -> c.parentId() == null)
                 .map(c -> nodeMap.get(c.id()))
                 .toList();
 
         for (Category category : allCategories) {
-            CategoryNode node = nodeMap.get(category.id());
+            CategoryTreeNode node = nodeMap.get(category.id());
             if (category.parentId() != null) {
-                CategoryNode parentNode = nodeMap.get(category.parentId());
+                CategoryTreeNode parentNode = nodeMap.get(category.parentId());
                 if (parentNode != null) {
                     parentNode.children().add(node);
                 }
