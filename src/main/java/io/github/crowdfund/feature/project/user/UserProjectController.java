@@ -5,6 +5,7 @@ import io.github.crowdfund.feature.project.user.dto.detail.UserProjectDetailResp
 import io.github.crowdfund.feature.project.user.dto.fetch.UserProjectFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class UserProjectController {
      * @return message, projectList, hasNext, nextCursor
      */
     @Operation(summary = "프로젝트 목록 조회")
+    @ApiResponse(responseCode = "200", description = "프로젝트 목록 조회 성공")
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserProjectFetchResponse> fetch(
@@ -51,6 +53,7 @@ public class UserProjectController {
      * @return message, projectDetail
      */
     @Operation(summary = "프로젝트 상세 조회")
+    @ApiResponse(responseCode = "200", description = "프로젝트 상세 조회 성공")
     @GetMapping("/{projectId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserProjectDetailResponse> detail(@PathVariable Long projectId) {
