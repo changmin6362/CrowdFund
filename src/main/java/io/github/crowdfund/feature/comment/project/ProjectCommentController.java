@@ -8,6 +8,7 @@ import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCrea
 import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ public class ProjectCommentController {
      * @return message, createdComment
      */
     @Operation(summary = "프로젝트에 댓글 작성")
+    @ApiResponse(responseCode = "201", description = "댓글 작성 성공")
     @PostMapping("/projects/{projectId}/comments/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<ProjectCommentCreateResponse> create(
