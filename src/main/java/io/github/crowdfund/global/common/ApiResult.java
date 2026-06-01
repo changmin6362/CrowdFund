@@ -1,6 +1,7 @@
 package io.github.crowdfund.global.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * 공통 응답 구조
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * @param <T> 응답 데이터 타입
  */
 public record ApiResult<T>(
+        @Schema(description = "응답 메시지", example = "이건 응답 메시지 샘플입니다.")
         String message,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         T data

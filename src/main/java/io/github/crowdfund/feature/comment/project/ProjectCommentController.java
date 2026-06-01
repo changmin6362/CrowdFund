@@ -7,6 +7,9 @@ import io.github.crowdfund.feature.comment.project.dto.fetch.ProjectCommentsFetc
 import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateResponse;
 import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Tag(name = "Comment - Project", description = "프로젝트의 댓글 API")
 public class ProjectCommentController {
 
     private final ProjectCommentService service;
@@ -26,6 +30,8 @@ public class ProjectCommentController {
      * @param request   댓글 작성 요청 데이터
      * @return message, createdComment
      */
+    @Operation(summary = "프로젝트에 댓글 작성")
+    @ApiResponse(responseCode = "201", description = "댓글 작성 성공 응답 예시")
     @PostMapping("/projects/{projectId}/comments/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<ProjectCommentCreateResponse> create(
@@ -42,6 +48,8 @@ public class ProjectCommentController {
      * @param projectId 프로젝트 아이디
      * @return message, comments
      */
+    @Operation(summary = "프로젝트의 댓글 목록 조회")
+    @ApiResponse(responseCode = "200", description = "댓글 목록 조회 성공 응답 예시")
     @GetMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentsFetchResponse> fetch(
@@ -58,6 +66,8 @@ public class ProjectCommentController {
      * @param request   댓글 수정 요청 데이터
      * @return message, patchedComment
      */
+    @Operation(summary = "프로젝트 작성한 댓글 수정")
+    @ApiResponse(responseCode = "200", description = "댓글 수정 성공 응답 예시")
     @PatchMapping("/comments/{commentId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentUpdateResponse> update(
@@ -74,6 +84,8 @@ public class ProjectCommentController {
      * @param commentId 댓글 아이디
      * @return message, deletedCommentId
      */
+    @Operation(summary = "프로젝트에 작성한 댓글 삭제")
+    @ApiResponse(responseCode = "200", description = "댓글 삭제 성공 응답 예시")
     @DeleteMapping("/comments/{commentId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentDeleteResponse> delete(

@@ -130,9 +130,9 @@ class CreatorRewardControllerTest {
         ApiResult<CreatorRewardUpdateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("리워드 수정에 성공했습니다.");
-        assertThat(apiResult.data().patchedReward().title()).isEqualTo("수정된 제목");
-        assertThat(apiResult.data().patchedReward().price()).isEqualByComparingTo("15000");
-        assertThat(apiResult.data().patchedReward().stock()).isEqualTo(50);
+        assertThat(apiResult.data().updatedReward().title()).isEqualTo("수정된 제목");
+        assertThat(apiResult.data().updatedReward().price()).isEqualByComparingTo("15000");
+        assertThat(apiResult.data().updatedReward().stock()).isEqualTo(50);
     }
 
     @Test

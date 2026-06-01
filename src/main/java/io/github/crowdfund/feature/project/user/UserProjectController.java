@@ -4,6 +4,8 @@ import io.github.crowdfund.domain.project.ProjectStatus;
 import io.github.crowdfund.feature.project.user.dto.detail.UserProjectDetailResponse;
 import io.github.crowdfund.feature.project.user.dto.fetch.UserProjectFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +16,11 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Tag(name = "Project", description = "프로젝트 관련 API")
 @RestController
 @RequestMapping("/api/projects")
 @Validated
 @RequiredArgsConstructor
+@Tag(name = "Project - User", description = "사용자용 프로젝트 관련 API")
 public class UserProjectController {
 
     private final UserProjectService service;
@@ -30,6 +32,8 @@ public class UserProjectController {
      * @param categoryId 카테고리 ID 필터링
      * @return message, projectList, hasNext, nextCursor
      */
+    @Operation(summary = "프로젝트 목록 조회")
+    @ApiResponse(responseCode = "200", description = "프로젝트 목록 조회 성공 응답 예시")
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserProjectFetchResponse> fetch(
@@ -48,6 +52,8 @@ public class UserProjectController {
      * @param projectId 프로젝트 ID
      * @return message, projectDetail
      */
+    @Operation(summary = "프로젝트 상세 조회")
+    @ApiResponse(responseCode = "200", description = "프로젝트 상세 조회 성공 응답 예시")
     @GetMapping("/{projectId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserProjectDetailResponse> detail(@PathVariable Long projectId) {

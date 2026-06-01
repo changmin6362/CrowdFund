@@ -3,6 +3,7 @@ package io.github.crowdfund.feature.category.admin;
 import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.category.mapper.CategoryMapper;
+import io.github.crowdfund.feature.category.admin.dto.create.CategoryInfo;
 import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateRequest;
 import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateResponse;
 import io.github.crowdfund.feature.category.admin.dto.move.AdminCategoryMoveRequest;
@@ -62,7 +63,7 @@ public class AdminCategoryService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("카테고리 생성 후 조회를 실패했습니다."));
 
-        return new AdminCategoryCreateResponse(savedCategory);
+        return new AdminCategoryCreateResponse(CategoryInfo.from(savedCategory));
     }
 
     /**
@@ -128,7 +129,7 @@ public class AdminCategoryService {
     @Transactional
     public void reorder(AdminCategoryReorderRequest request) {
         for (var item : request.categories()) {
-            categoryMapper.updateSortOrder(item.id().longValue(), item.sortOrder());
+            categoryMapper.updateSortOrder(item.categoryId().longValue(), item.sortOrder());
         }
     }
 

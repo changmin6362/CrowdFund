@@ -3,6 +3,7 @@ package io.github.crowdfund.domain.pledge;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -23,7 +24,7 @@ public record Pledge(
     Long userId,
     Long projectId,
     Long rewardId,
-    Long amount,
+    BigDecimal amount,
     FulfillmentStatus fulfillmentStatus,
     LocalDateTime fulfilledAt,
     LocalDateTime createdAt
