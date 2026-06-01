@@ -45,7 +45,7 @@ public class AdminCategoryController {
      */
     @Operation(summary = "카테고리 이름 변경")
     @ApiResponse(responseCode = "200", description = "카테고리 이름 변경 성공 응답 예시")
-    @PatchMapping("/{categoryId}/name")
+    @PatchMapping("/{categoryId}/rename")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> rename(@PathVariable Integer categoryId, @Valid @RequestBody AdminCategoryRenameRequest request) {
         service.rename(categoryId, request);
