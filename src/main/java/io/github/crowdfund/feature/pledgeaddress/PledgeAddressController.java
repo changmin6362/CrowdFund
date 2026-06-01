@@ -26,7 +26,7 @@ public class PledgeAddressController {
      * @return message, pledgeAddress
      */
     @Operation(summary = "참여한 후원의 배송 정보 조회")
-    @ApiResponse(responseCode = "200", description = "참여한 후원의 배송 정보 조회 성공")
+    @ApiResponse(responseCode = "200", description = "참여한 후원의 배송 정보 조회 성공 응답 예시")
     @GetMapping("/pledges/{pledgesId}/addresses")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<PledgeAddressFetchResponse> fetch(
@@ -43,7 +43,7 @@ public class PledgeAddressController {
      * @return message, replacedPledgeAddress
      */
     @Operation(summary = "참여한 후원의 배송 정보 교체")
-    @ApiResponse(responseCode = "200", description = "참여한 후원의 배송 정보 교체 성공")
+    @ApiResponse(responseCode = "200", description = "참여한 후원의 배송 정보 교체 성공 응답 예시")
     @PutMapping("/pledges/{pledgeId}/addresses")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<PledgeAddressReplaceResponse> replace(
