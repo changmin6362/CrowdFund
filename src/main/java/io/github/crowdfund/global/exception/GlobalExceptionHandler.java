@@ -5,6 +5,8 @@ import io.github.crowdfund.global.common.ApiResult;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,10 +44,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ApiResult.error(message));
     }
 
-    // 타입 변환 에러 감지 (엔드포인트 파라미터 형식 오류)
+    // 타입 변환 에러 감지 (@PathVariable, @RequestParam 형식 오류)
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiResult<Void>> handleTypeMismatchException() {
-        String message = "요청하신 엔드포인트 파라미터의 데이터 형식이 잘못되었습니다.";
+        String message = "요청하신 엔드포인트의 경로 변수나 쿼리스트링이 잘못되었습니다.";
+        return ResponseEntity.badRequest().body(ApiResult.error(message));
+    }
+
+    // JSON 파싱 에러 감지 (@RequestBody 형식 오류)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResult<Void>> handleHttpMessageNotReadableException() {
+        String message = "요청하신 데이터의 형식이 잘못되었거나 읽을 수 없습니다. (JSON 파싱 에러)";
         return ResponseEntity.badRequest().body(ApiResult.error(message));
     }
 

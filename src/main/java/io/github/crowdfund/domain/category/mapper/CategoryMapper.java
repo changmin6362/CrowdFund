@@ -19,6 +19,8 @@ public interface CategoryMapper {
 
     void updateSortOrder(@Param("id") Long id, @Param("sortOrder") Integer sortOrder);
 
+    void updateActiveStatus(@Param("id") Integer id, @Param("isActive") boolean isActive);
+
     void delete(Long id);
 
     void updateParentId(@Param("id") Integer id, @Param("parentId") Integer parentId, @Param("depth") Integer depth, @Param("sortOrder") Integer sortOrder);

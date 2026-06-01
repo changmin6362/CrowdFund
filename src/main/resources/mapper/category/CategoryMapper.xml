@@ -17,6 +17,10 @@
         UPDATE category SET sort_order = #{sortOrder} WHERE id = #{id}
     </update>
 
+    <update id="updateActiveStatus">
+        UPDATE category SET is_active = #{isActive} WHERE id = #{id}
+    </update>
+
     <update id="delete">
         UPDATE category SET is_active = 0 WHERE id = #{id}
     </update>

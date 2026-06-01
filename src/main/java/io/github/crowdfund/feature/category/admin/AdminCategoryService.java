@@ -3,6 +3,7 @@ package io.github.crowdfund.feature.category.admin;
 import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.category.mapper.CategoryMapper;
+import io.github.crowdfund.feature.category.admin.dto.active.AdminCategoryActiveRequest;
 import io.github.crowdfund.feature.category.admin.dto.create.CategoryInfo;
 import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateRequest;
 import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateResponse;
@@ -137,6 +138,21 @@ public class AdminCategoryService {
         for (var item : request.categories()) {
             categoryMapper.updateSortOrder(item.categoryId().longValue(), item.sortOrder());
         }
+    }
+
+    /**
+     * 카테고리 활성 여부 변경 도메인 로직
+     */
+    @Transactional
+    public void toggle(Integer id, AdminCategoryActiveRequest request) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
+
+        if (category.isActive() == request.isActive()) {
+            throw new IllegalArgumentException("이미 해당 활성 상태입니다.");
+        }
+
+        categoryMapper.updateActiveStatus(id, request.isActive());
     }
 
     /**

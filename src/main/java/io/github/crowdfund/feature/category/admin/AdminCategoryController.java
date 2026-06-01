@@ -1,5 +1,6 @@
 package io.github.crowdfund.feature.category.admin;
 
+import io.github.crowdfund.feature.category.admin.dto.active.AdminCategoryActiveRequest;
 import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateRequest;
 import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateResponse;
 import io.github.crowdfund.feature.category.admin.dto.move.AdminCategoryMoveRequest;
@@ -84,6 +85,23 @@ public class AdminCategoryController {
         service.reorder(request);
 
         return ApiResult.success("카테고리 정렬 순서 변경에 성공했습니다.");
+    }
+
+    /**
+     * 카테고리 활성 여부 변경
+     *
+     * @param categoryId 카테고리 ID
+     * @param request    활성 여부 정보
+     * @return message
+     */
+    @Operation(summary = "카테고리 활성 여부 변경")
+    @ApiResponse(responseCode = "200", description = "카테고리 활성 여부 변경 성공 응답 예시")
+    @PatchMapping("/{categoryId}/toggle")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<Void> toggle(@PathVariable Integer categoryId, @Valid @RequestBody AdminCategoryActiveRequest request) {
+        service.toggle(categoryId, request);
+
+        return ApiResult.success("카테고리 활성 상태 변경에 성공했습니다.");
     }
 
     /**

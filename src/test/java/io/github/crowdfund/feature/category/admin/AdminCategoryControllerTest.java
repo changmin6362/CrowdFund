@@ -167,6 +167,58 @@ class AdminCategoryControllerTest {
     }
 
     @Test
+    void 카테고리_활성_상태_변경_테스트() throws Exception {
+        String patchRequest = """
+                {
+                    "isActive": false
+                }
+                """;
+
+        mockMvc.perform(patch("/api/admin/categories/{categoryId}/toggle", savedRootCategory.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patchRequest))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        Category updated = categoryRepository.findById(savedRootCategory.id()).orElseThrow();
+        assertThat(updated.isActive()).isFalse();
+    }
+
+    @Test
+    void 카테고리_활성_상태_중복_변경_실패_테스트() throws Exception {
+        String patchRequest = """
+                {
+                    "isActive": true
+                }
+                """;
+
+        mockMvc.perform(patch("/api/admin/categories/{categoryId}/toggle", savedRootCategory.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patchRequest))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    void 카테고리_잘못된_JSON_요청_실패_테스트() throws Exception {
+        String invalidJson = """
+                {
+                    "isActive": true2
+                }
+                """;
+
+        MvcResult result = mockMvc.perform(patch("/api/admin/categories/{categoryId}/toggle", savedRootCategory.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest())
+                .andDo(print())
+                .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+        assertThat(responseBody).contains("요청하신 데이터의 형식이 잘못되었거나 읽을 수 없습니다. (JSON 파싱 에러)");
+    }
+
+    @Test
     void 카테고리_삭제_테스트() throws Exception {
         mockMvc.perform(delete("/api/admin/categories/{categoryId}", savedChildCategory.id()))
                 .andExpect(status().isOk())
