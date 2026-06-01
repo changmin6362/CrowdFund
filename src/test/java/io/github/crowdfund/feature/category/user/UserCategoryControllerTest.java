@@ -41,11 +41,11 @@ class UserCategoryControllerTest {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
 
         Category savedRootCategory = categoryRepository.save(new Category(
-                null, null, "Root Category", 1, 10, true
+                null, null, "Root Category", 0, 10, true
         ));
 
         Category savedChildCategory = categoryRepository.save(new Category(
-                null, savedRootCategory.id(), "Child Category", 2, 10, true
+                null, savedRootCategory.id(), "Child Category", 1, 10, true
         ));
     }
 

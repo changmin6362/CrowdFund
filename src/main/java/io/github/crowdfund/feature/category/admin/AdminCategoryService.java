@@ -30,8 +30,8 @@ public class AdminCategoryService {
     @Transactional
     public AdminCategoryCreateResponse create(@Valid AdminCategoryCreateRequest request) {
 
-        // 카테고리의 깊이 계산
-        int depth = 1;
+        // 카테고리의 깊이 계산 (0부터 시작)
+        int depth = 0;
         if (request.parentId() != null) {
             Category parent = categoryRepository.findById(request.parentId())
                     .orElseThrow(() -> new IllegalArgumentException("부모 카테고리를 찾을 수 없습니다. ID: " + request.parentId()));
@@ -48,20 +48,16 @@ public class AdminCategoryService {
                     .orElse(0) + 10;
         }
 
-        final int finalDepth = depth;
-        final int finalSortOrder = sortOrder;
-
+        CategoryMapper.CategoryInsertResult result = new CategoryMapper.CategoryInsertResult();
         categoryMapper.insert(
                 request,
                 depth,
-                sortOrder
+                sortOrder,
+                result
         );
 
-        Category savedCategory = categoryRepository.findByParentIdAndIsActiveTrueOrderBySortOrderAsc(request.parentId())
-                .stream()
-                .filter(c -> c.name().equals(request.name()) && c.depth().equals(finalDepth) && c.sortOrder().equals(finalSortOrder))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("카테고리 생성 후 조회를 실패했습니다."));
+        Category savedCategory = categoryRepository.findById(result.id.intValue())
+                .orElseThrow(() -> new IllegalStateException("생성한 카테고리 ID를 찾을 수 없습니다. ID: " + result.id));
 
         return new AdminCategoryCreateResponse(CategoryInfo.from(savedCategory));
     }
@@ -90,7 +86,7 @@ public class AdminCategoryService {
             throw new IllegalArgumentException("자기 자신을 부모로 설정할 수 없습니다.");
         }
 
-        int newDepth = 1;
+        int newDepth = 0;
         if (request.parentId() != null) {
             Category parent = categoryRepository.findById(request.parentId())
                     .orElseThrow(() -> new IllegalArgumentException("부모 카테고리를 찾을 수 없습니다. ID: " + request.parentId()));

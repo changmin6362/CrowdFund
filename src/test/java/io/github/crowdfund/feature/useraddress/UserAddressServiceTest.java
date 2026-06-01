@@ -80,7 +80,7 @@ class UserAddressServiceTest {
         ApiResult<UserAddressCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("배송지 등록에 성공했습니다.");
-        assertThat(apiResult.data().addressId()).isNotNull();
+        assertThat(apiResult.data().createdAddressId()).isNotNull();
     }
 
     @Test

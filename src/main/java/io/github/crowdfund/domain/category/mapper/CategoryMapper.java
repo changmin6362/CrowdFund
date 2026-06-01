@@ -8,7 +8,12 @@ import org.apache.ibatis.annotations.Param;
 public interface CategoryMapper {
     void insert(@Param("category") AdminCategoryCreateRequest request,
                 @Param("depth") Integer depth,
-                @Param("sortOrder") Integer sortOrder);
+                @Param("sortOrder") Integer sortOrder,
+                @Param("result") CategoryInsertResult result);
+
+    class CategoryInsertResult {
+        public Long id;
+    }
 
     void updateName(@Param("id") Long id, @Param("name") String name);
 

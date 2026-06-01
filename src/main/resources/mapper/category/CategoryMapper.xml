@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.crowdfund.domain.category.mapper.CategoryMapper">
 
-    <insert id="insert">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="result.id" keyColumn="id">
         INSERT INTO category (name, parent_id, depth, sort_order, is_active)
         VALUES (#{category.name}, #{category.parentId}, #{depth}, #{sortOrder}, 1)
     </insert>

@@ -45,11 +45,11 @@ class AdminCategoryControllerTest {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
 
         savedRootCategory = categoryRepository.save(new Category(
-                null, null, "Root Category", 1, 10, true
+                null, null, "Root Category", 0, 10, true
         ));
 
         savedChildCategory = categoryRepository.save(new Category(
-                null, savedRootCategory.id(), "Child Category", 2, 10, true
+                null, savedRootCategory.id(), "Child Category", 1, 10, true
         ));
     }
 
@@ -74,6 +74,9 @@ class AdminCategoryControllerTest {
         assertThat(apiResult.message()).isEqualTo("카테고리 생성에 성공했습니다.");
         assertThat(apiResult.data().category().name()).isEqualTo("새 카테고리");
         assertThat(apiResult.data().category().parentId()).isEqualTo(savedRootCategory.id());
+        assertThat(apiResult.data().category().depth()).isEqualTo(1);
+        assertThat(apiResult.data().category().isActive()).isTrue();
+        assertThat(apiResult.data().category().children()).isEmpty();
     }
 
     @Test
@@ -116,11 +119,11 @@ class AdminCategoryControllerTest {
                 {
                     "categories": [
                         {
-                            "id": %d,
+                            "categoryId": %d,
                             "sortOrder": 5
                         },
                         {
-                            "id": %d,
+                            "categoryId": %d,
                             "sortOrder": 15
                         }
                     ]
