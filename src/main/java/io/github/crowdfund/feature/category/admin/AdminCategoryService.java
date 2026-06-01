@@ -4,9 +4,9 @@ import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.category.mapper.CategoryMapper;
 import io.github.crowdfund.feature.category.admin.dto.active.AdminCategoryActiveRequest;
-import io.github.crowdfund.feature.category.admin.dto.create.CategoryInfo;
 import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateRequest;
 import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateResponse;
+import io.github.crowdfund.feature.category.admin.dto.create.CategoryInfo;
 import io.github.crowdfund.feature.category.admin.dto.move.AdminCategoryMoveRequest;
 import io.github.crowdfund.feature.category.admin.dto.rename.AdminCategoryRenameRequest;
 import io.github.crowdfund.feature.category.admin.dto.reorder.AdminCategoryReorderRequest;
@@ -24,6 +24,7 @@ public class AdminCategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final io.github.crowdfund.feature.category.user.UserCategoryService userCategoryService;
 
     /**
      * 카테고리 생성 도메인 로직
@@ -60,25 +61,27 @@ public class AdminCategoryService {
         Category savedCategory = categoryRepository.findById(result.id.intValue())
                 .orElseThrow(() -> new IllegalStateException("생성한 카테고리 ID를 찾을 수 없습니다. ID: " + result.id));
 
-        return new AdminCategoryCreateResponse(CategoryInfo.from(savedCategory));
+        return new AdminCategoryCreateResponse(CategoryInfo.from(savedCategory), userCategoryService.fetch().categoryTree());
     }
 
     /**
      * 카테고리 이름 변경 도메인 로직
      */
     @Transactional
-    public void rename(Integer id, AdminCategoryRenameRequest request) {
+    public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse rename(Integer id, AdminCategoryRenameRequest request) {
         categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
 
         categoryMapper.updateName(id.longValue(), request.name());
+
+        return userCategoryService.fetch();
     }
 
     /**
      * 카테고리 부모 변경 도메인 로직
      */
     @Transactional
-    public void move(Integer categoryId, AdminCategoryMoveRequest request) {
+    public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse move(Integer categoryId, AdminCategoryMoveRequest request) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + categoryId));
 
@@ -128,23 +131,27 @@ public class AdminCategoryService {
                 updateDescendantsDepth(allCategories, categoryId, depthDiff);
             }
         }
+
+        return userCategoryService.fetch();
     }
 
     /**
      * 카테고리 정렬 순서 변경 도메인 로직
      */
     @Transactional
-    public void reorder(AdminCategoryReorderRequest request) {
+    public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse reorder(AdminCategoryReorderRequest request) {
         for (var item : request.categories()) {
             categoryMapper.updateSortOrder(item.categoryId().longValue(), item.sortOrder());
         }
+
+        return userCategoryService.fetch();
     }
 
     /**
      * 카테고리 활성 여부 변경 도메인 로직
      */
     @Transactional
-    public void toggle(Integer id, AdminCategoryActiveRequest request) {
+    public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse toggle(Integer id, AdminCategoryActiveRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
 
@@ -153,17 +160,21 @@ public class AdminCategoryService {
         }
 
         categoryMapper.updateActiveStatus(id, request.isActive());
+
+        return userCategoryService.fetch();
     }
 
     /**
      * 카테고리 삭제 도메인 로직
      */
     @Transactional
-    public void delete(Integer id) {
+    public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse delete(Integer id) {
         categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
 
         categoryMapper.delete(id.longValue());
+
+        return userCategoryService.fetch();
     }
 
     private boolean isDescendant(List<Category> allCategories, int rootId, int targetId) {
