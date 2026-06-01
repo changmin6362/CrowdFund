@@ -3,10 +3,10 @@ package io.github.crowdfund.feature.useraddress.dto.set;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record DefaultAddressResult(
-        @Schema(description = "배송지 ID")
+        @Schema(description = "배송지 ID", example = "1")
         Long addressId,
 
-        @Schema(description = "기본 배송지 여부")
+        @Schema(description = "기본 배송지 여부", example = "true")
         boolean isDefault
 ) {
 }

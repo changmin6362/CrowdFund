@@ -27,10 +27,10 @@ public class UserAddressController {
      * 내 배송지 등록
      *
      * @param request 배송지 정보
-     * @return message, addressId
+     * @return message, createdAddressId
      */
     @Operation(summary = "내 배송지 등록")
-    @ApiResponse(responseCode = "201", description = "배송지 등록 성공")
+    @ApiResponse(responseCode = "201", description = "배송지 등록 성공 응답 예시")
     @PostMapping("/address/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<UserAddressCreateResponse> create(@PathVariable Long userId, @Valid @RequestBody UserAddressCreateRequest request) {
@@ -44,7 +44,7 @@ public class UserAddressController {
      * @return message, addresses
      */
     @Operation(summary = "내 배송지 목록 조회")
-    @ApiResponse(responseCode = "200", description = "배송지 목록 조회 성공")
+    @ApiResponse(responseCode = "200", description = "배송지 목록 조회 성공 응답 예시")
     @GetMapping("/addresses/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserAddressesFetchResponse> fetch(@PathVariable Long userId) {
@@ -59,7 +59,7 @@ public class UserAddressController {
      * @return message, updatedAddress
      */
     @Operation(summary = "내 배송지 수정")
-    @ApiResponse(responseCode = "200", description = "배송지 수정 성공")
+    @ApiResponse(responseCode = "200", description = "배송지 수정 성공 응답 예시")
     @PatchMapping("/address/{addressId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserAddressUpdateResponse> update(@PathVariable Long addressId, @Valid @RequestBody UserAddressUpdateRequest request) {
@@ -73,7 +73,7 @@ public class UserAddressController {
      * @return message, defaultAddressResult
      */
     @Operation(summary = "기본 배송지 변경")
-    @ApiResponse(responseCode = "200", description = "기본 배송지 변경 성공")
+    @ApiResponse(responseCode = "200", description = "기본 배송지 변경 성공 응답 예시")
     @PatchMapping("/address/{addressId}/default")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserAddressSetResponse> set(@PathVariable Long addressId) {
@@ -87,7 +87,7 @@ public class UserAddressController {
      * @return message
      */
     @Operation(summary = "내 배송지 삭제")
-    @ApiResponse(responseCode = "200", description = "배송지 삭제 성공")
+    @ApiResponse(responseCode = "200", description = "배송지 삭제 성공 응답 예시")
     @DeleteMapping("/address/{addressId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> delete(@PathVariable Long addressId) {

@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 public record UserAddressesFetchResponse(
-        @Schema(description = "배송지 목록")
+        @Schema(description = "배송지 정보 목록")
         List<UserAddressInfo> addresses
 ) {
 }
