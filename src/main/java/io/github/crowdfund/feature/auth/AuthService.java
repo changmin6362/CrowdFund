@@ -34,7 +34,7 @@ public class AuthService {
     public AuthSignInResponse login(AuthSignInRequest request) {
         // TODO: 로그인 로직 구현 (비밀번호 확인, 토큰 생성 등)
         // return ApiResponse.success("로그인에 성공했습니다.", new SignInResponse(accessToken, refreshToken));
-        return new AuthSignInResponse(null, null);
+        return new AuthSignInResponse(null, null, null);
     }
 
     /**
