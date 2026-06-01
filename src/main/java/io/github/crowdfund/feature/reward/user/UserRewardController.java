@@ -24,7 +24,7 @@ public class UserRewardController {
      * @return message, rewards
      */
     @Operation(summary = "프로젝트의 리워드 목록 조회")
-    @ApiResponse(responseCode = "200", description = "리워드 목록 조회 성공")
+    @ApiResponse(responseCode = "200", description = "리워드 목록 조회 성공 응답 예시")
     @GetMapping("/projects/{projectId}/rewards")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserRewardsFetchResponse> fetch(@PathVariable Long projectId) {

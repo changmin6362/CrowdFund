@@ -30,7 +30,7 @@ public class CreatorRewardController {
      * @return message, createdReward
      */
     @Operation(summary = "프로젝트에 리워드 등록")
-    @ApiResponse(responseCode = "201", description = "리워드 등록 성공")
+    @ApiResponse(responseCode = "201", description = "리워드 등록 성공 응답 예시")
     @PostMapping("/projects/{projectId}/rewards")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<CreatorRewardCreateResponse> create(@Valid @PathVariable Long projectId, @RequestBody CreatorRewardCreateRequest request) {
@@ -45,7 +45,7 @@ public class CreatorRewardController {
      * @return message, updatedReward
      */
     @Operation(summary = "리워드 수정")
-    @ApiResponse(responseCode = "200", description = "리워드 수정 성공")
+    @ApiResponse(responseCode = "200", description = "리워드 수정 성공 응답 예시")
     @PatchMapping("/rewards/{rewardId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorRewardUpdateResponse> update(@PathVariable @Valid Long rewardId, @RequestBody CreatorRewardUpdateReqeust request) {
@@ -59,7 +59,7 @@ public class CreatorRewardController {
      * @return message, deletedRewardId
      */
     @Operation(summary = "리워드 삭제")
-    @ApiResponse(responseCode = "200", description = "리워드 삭제 성공")
+    @ApiResponse(responseCode = "200", description = "리워드 삭제 성공 응답 예시")
     @DeleteMapping("/rewards/{rewardId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorRewardDeleteResponse> delete(@PathVariable Long rewardId) {
