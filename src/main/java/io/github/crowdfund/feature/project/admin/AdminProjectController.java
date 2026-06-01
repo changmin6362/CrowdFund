@@ -28,7 +28,7 @@ public class AdminProjectController {
      * @return UpdateProjectResponse 변경 성공 결과
      */
     @Operation(summary = "프로젝트 상태 변경")
-    @ApiResponse(responseCode = "200", description = "프로젝트 상태 변경 성공")
+    @ApiResponse(responseCode = "200", description = "프로젝트 상태 변경 성공 응답 예시")
     @PatchMapping("/{projectId}/status")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> update(

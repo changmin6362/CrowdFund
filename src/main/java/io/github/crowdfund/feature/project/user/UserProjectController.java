@@ -33,7 +33,7 @@ public class UserProjectController {
      * @return message, projectList, hasNext, nextCursor
      */
     @Operation(summary = "프로젝트 목록 조회")
-    @ApiResponse(responseCode = "200", description = "프로젝트 목록 조회 성공")
+    @ApiResponse(responseCode = "200", description = "프로젝트 목록 조회 성공 응답 예시")
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserProjectFetchResponse> fetch(
@@ -53,7 +53,7 @@ public class UserProjectController {
      * @return message, projectDetail
      */
     @Operation(summary = "프로젝트 상세 조회")
-    @ApiResponse(responseCode = "200", description = "프로젝트 상세 조회 성공")
+    @ApiResponse(responseCode = "200", description = "프로젝트 상세 조회 성공 응답 예시")
     @GetMapping("/{projectId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserProjectDetailResponse> detail(@PathVariable Long projectId) {
