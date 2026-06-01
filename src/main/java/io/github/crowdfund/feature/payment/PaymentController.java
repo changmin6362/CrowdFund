@@ -27,7 +27,7 @@ public class PaymentController {
      * @return message, paymentId
      */
     @Operation(summary = "결제 요청")
-    @ApiResponse(responseCode = "201", description = "결제 요청 성공")
+    @ApiResponse(responseCode = "201", description = "결제 요청 성공 응답 예시")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<PaymentCreateResponse> create(@Valid @RequestBody PaymentCreateRequest request) {
@@ -41,7 +41,7 @@ public class PaymentController {
      * @return message, paymentDetail
      */
     @Operation(summary = "결제 상세 조회")
-    @ApiResponse(responseCode = "200", description = "결제 상세 조회 성공")
+    @ApiResponse(responseCode = "200", description = "결제 상세 조회 성공 응답 예시")
     @GetMapping("/pledge/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<PaymentDetailResponse> detail(@PathVariable Long pledgeId) {
@@ -55,7 +55,7 @@ public class PaymentController {
      * @return message
      */
     @Operation(summary = "결제 취소")
-    @ApiResponse(responseCode = "200", description = "결제 취소 성공")
+    @ApiResponse(responseCode = "200", description = "결제 취소 성공 응답 예시")
     @DeleteMapping("/{paymentId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> cancel(@PathVariable Long paymentId) {

@@ -107,7 +107,7 @@ class CreatorProjectControllerTest {
         ApiResult<CreatorProjectCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("프로젝트 생성에 성공했습니다.");
-        assertThat(apiResult.data().projectId()).isNotNull();
+        assertThat(apiResult.data().createdProjectId()).isNotNull();
     }
 
     @Test
@@ -187,7 +187,7 @@ class CreatorProjectControllerTest {
 
         // 4. 후원 생성
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, pledger.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, pledger.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         // 5. 배송지 정보 생성

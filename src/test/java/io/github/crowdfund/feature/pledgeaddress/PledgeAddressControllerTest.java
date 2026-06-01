@@ -92,7 +92,7 @@ class PledgeAddressControllerTest {
         ));
 
         savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         savedPledgeAddress = pledgeAddressRepository.save(new PledgeAddress(

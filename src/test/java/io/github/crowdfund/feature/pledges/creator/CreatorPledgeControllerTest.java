@@ -90,7 +90,7 @@ class CreatorPledgeControllerTest {
     @Test
     void 보상_이행_상태_갱신_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         String updateRequest = """
@@ -109,6 +109,6 @@ class CreatorPledgeControllerTest {
         ApiResult<CreatorPledgeFulfillResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("보상 이행 상태 갱신에 성공했습니다.");
-        assertThat(apiResult.data().updatedInfo().fulfillmentStatus()).isEqualTo(FulfillmentStatus.COMPLETED);
+        assertThat(apiResult.data().fulfillment().fulfillmentStatus()).isEqualTo(FulfillmentStatus.COMPLETED);
     }
 }

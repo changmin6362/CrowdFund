@@ -3,6 +3,8 @@ package io.github.crowdfund.feature.pledges.user.dto.detail;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
+
 public record PledgeDetail(
         @Schema(description = "후원 ID")
         Long pledgeId,
@@ -17,7 +19,7 @@ public record PledgeDetail(
         String projectTitle,
 
         @Schema(description = "후원 금액")
-        Long amount,
+        BigDecimal amount,
 
         @Schema(description = "결제 방법")
         String paymentMethod,

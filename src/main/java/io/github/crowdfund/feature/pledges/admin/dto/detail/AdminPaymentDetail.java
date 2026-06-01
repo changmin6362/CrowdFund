@@ -1,7 +1,9 @@
 package io.github.crowdfund.feature.pledges.admin.dto.detail;
 
+import java.math.BigDecimal;
+
 public record AdminPaymentDetail(
-        Long amount,
+        BigDecimal amount,
         String paymentMethod
 ) {
 }

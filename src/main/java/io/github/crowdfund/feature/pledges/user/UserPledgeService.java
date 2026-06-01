@@ -55,7 +55,7 @@ public class UserPledgeService {
                 userId,
                 request.project_id(),
                 request.reward_id(),
-                reward.price().longValue(),
+                reward.price(),
                 FulfillmentStatus.READY,
                 null,
                 LocalDateTime.now()

@@ -92,7 +92,7 @@ class PaymentControllerTest {
         ));
 
         savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 50000L, FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("50000"), FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
     }
 
@@ -101,7 +101,7 @@ class PaymentControllerTest {
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
                 "CREDIT_CARD",
-                50000L
+                new BigDecimal("50000")
         );
 
         MvcResult result = mockMvc.perform(post("/api/payments")
@@ -122,7 +122,7 @@ class PaymentControllerTest {
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
                 "CREDIT_CARD",
-                30000L // Pledge는 50000L
+                new BigDecimal("30000") // Pledge는 50000L
         );
 
         mockMvc.perform(post("/api/payments")
@@ -135,7 +135,7 @@ class PaymentControllerTest {
     @Test
     void 결제_조회_테스트() throws Exception {
         Payment payment = paymentRepository.save(new Payment(
-                null, savedPledge.id(), "KAKAOPAY", 50000L, "PAID", LocalDateTime.now(), LocalDateTime.now()
+                null, savedPledge.id(), "KAKAOPAY", new BigDecimal("50000"), "PAID", LocalDateTime.now(), LocalDateTime.now()
         ));
 
         MvcResult result = mockMvc.perform(get("/api/payments/pledge/{pledgeId}", savedPledge.id()))
@@ -145,15 +145,39 @@ class PaymentControllerTest {
 
         ApiResult<PaymentDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
-        assertThat(apiResult.message()).isEqualTo("결제 내역 조회에 성공했습니다.");
-        assertThat(apiResult.data().paymentDetail().id()).isEqualTo(payment.id());
+        assertThat(apiResult.message()).isEqualTo("결제 상세 조회에 성공했습니다.");
+        assertThat(apiResult.data().paymentDetail().paymentId()).isEqualTo(payment.id());
         assertThat(apiResult.data().paymentDetail().paymentMethod()).isEqualTo("KAKAOPAY");
+    }
+
+    @Test
+    void 결제_생성_이미존재_실패_테스트() throws Exception {
+        // 이미 결제가 존재하는 상태로 만듦
+        paymentRepository.save(new Payment(
+                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("50000"), "PAID", LocalDateTime.now(), LocalDateTime.now()
+        ));
+
+        PaymentCreateRequest request = new PaymentCreateRequest(
+                savedPledge.id(),
+                "CREDIT_CARD",
+                new BigDecimal("50000")
+        );
+
+        MvcResult result = mockMvc.perform(post("/api/payments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        assertThat(apiResult.message()).isEqualTo("이미 결제가 완료되었습니다.");
     }
 
     @Test
     void 결제_취소_테스트() throws Exception {
         Payment payment = paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", 50000L, "PAID", LocalDateTime.now(), LocalDateTime.now()
+                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("50000"), "PAID", LocalDateTime.now(), LocalDateTime.now()
         ));
 
         MvcResult result = mockMvc.perform(delete("/api/payments/{paymentId}", payment.id()))

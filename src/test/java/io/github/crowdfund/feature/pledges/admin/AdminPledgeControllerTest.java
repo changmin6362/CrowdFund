@@ -95,7 +95,7 @@ class AdminPledgeControllerTest {
     @Test
     void 후원_목록_조회_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         MvcResult result = mockMvc.perform(get("/api/admin/pledge"))
@@ -113,11 +113,11 @@ class AdminPledgeControllerTest {
     @Test
     void 관리자_후원_상세_조회_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", 10000L, "PAID", LocalDateTime.now(), LocalDateTime.now()
+                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("10000"), "PAID", LocalDateTime.now(), LocalDateTime.now()
         ));
 
         MvcResult result = mockMvc.perform(get("/api/admin/pledge/{pledgeId}", savedPledge.id()))

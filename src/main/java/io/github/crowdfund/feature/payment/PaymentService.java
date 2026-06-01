@@ -26,10 +26,14 @@ public class PaymentService {
      */
     @Transactional
     public PaymentCreateResponse create(PaymentCreateRequest request) {
+        if (paymentRepository.findByPledgeId(request.pledgeId()).isPresent()) {
+            throw new IllegalStateException("이미 결제가 완료되었습니다.");
+        }
+
         Pledge pledge = pledgeRepository.findById(request.pledgeId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
 
-        if (!pledge.amount().equals(request.amount())) {
+        if (pledge.amount().compareTo(request.amount()) != 0) {
             throw new IllegalArgumentException("후원 금액과 결제 금액이 일치하지 않습니다.");
         }
 

@@ -123,11 +123,11 @@ class UserPledgeControllerTest {
     @Test
     void 후원_상세_조회_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", 10000L, "PAID", LocalDateTime.now(), LocalDateTime.now()
+                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("10000"), "PAID", LocalDateTime.now(), LocalDateTime.now()
         ));
 
         pledgeAddressRepository.save(new PledgeAddress(
@@ -149,7 +149,7 @@ class UserPledgeControllerTest {
     @Test
     void 후원_취소_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), 10000L, FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         MvcResult result = mockMvc.perform(delete("/api/pledges/{pledgeId}", savedPledge.id()))

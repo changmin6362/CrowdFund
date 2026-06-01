@@ -3,7 +3,7 @@ package io.github.crowdfund.feature.payment.dto.create;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record PaymentCreateResponse(
-        @Schema(description = "결제 ID")
+        @Schema(description = "결제 ID", example = "1")
         Long paymentId
 ) {
 }
