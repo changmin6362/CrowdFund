@@ -129,7 +129,7 @@ public class AdminCategoryService {
     @Transactional
     public void reorder(AdminCategoryReorderRequest request) {
         for (var item : request.categories()) {
-            categoryMapper.updateSortOrder(item.id().longValue(), item.sortOrder());
+            categoryMapper.updateSortOrder(item.categoryId().longValue(), item.sortOrder());
         }
     }
 

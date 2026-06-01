@@ -26,7 +26,7 @@ public class UserCategoryController {
      * @return message, categoryTree
      */
     @Operation(summary = "카테고리 트리 조회")
-    @ApiResponse(responseCode = "200", description = "카테고리 트리 조회 성공")
+    @ApiResponse(responseCode = "200", description = "카테고리 트리 조회 성공 응답 예시")
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserFetchCategoryResponse> fetch() {

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "카테고리 이름 변경 요청")
 public record AdminCategoryRenameRequest(
-        @Schema(description = "변경할 카테고리 이름", example = "변경된 카테고리명")
+        @Schema(description = "변경할 카테고리 이름", example = "게임기")
         @NotBlank(message = "이름은 필수 입력값입니다.")
         String name
 ) {}

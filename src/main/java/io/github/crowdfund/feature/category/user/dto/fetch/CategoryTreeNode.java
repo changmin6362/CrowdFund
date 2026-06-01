@@ -5,16 +5,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 public record CategoryTreeNode(
-        @Schema(description = "카테고리 ID")
-        Integer id,
+        @Schema(description = "카테고리 ID", example = "1")
+        Integer categoryId,
 
-        @Schema(description = "카테고리 이름")
+        @Schema(description = "카테고리 이름", example = "게임")
         String name,
 
-        @Schema(description = "카테고리 깊이", example = "1")
+        @Schema(description = "카테고리 깊이", example = "0")
         int depth,
 
-        @Schema(description = "카테고리 순서", example = "1")
+        @Schema(description = "카테고리 순서", example = "10")
         int sortOrder,
 
         @Schema(
