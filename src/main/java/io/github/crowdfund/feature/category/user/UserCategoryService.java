@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,6 +36,7 @@ public class UserCategoryService {
 
         List<CategoryTreeNode> rootNodes = allCategories.stream()
                 .filter(c -> c.parentId() == null)
+                .sorted(Comparator.comparingInt(Category::sortOrder))
                 .map(c -> nodeMap.get(c.id()))
                 .toList();
 
@@ -47,6 +49,10 @@ public class UserCategoryService {
                 }
             }
         }
+
+        nodeMap.values().forEach(node -> 
+                node.children().sort(Comparator.comparingInt(CategoryTreeNode::sortOrder))
+        );
 
         return new UserFetchCategoryResponse(rootNodes);
     }

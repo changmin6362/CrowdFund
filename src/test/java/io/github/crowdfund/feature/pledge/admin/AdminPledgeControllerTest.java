@@ -107,7 +107,7 @@ class AdminPledgeControllerTest {
 
         assertThat(apiResult.message()).isEqualTo("전체 후원 목록 조회에 성공했습니다.");
         assertThat(apiResult.data().pledges()).isNotEmpty();
-        assertThat(apiResult.data().pledges()).anyMatch(p -> p.id().equals(savedPledge.id()));
+        assertThat(apiResult.data().pledges()).anyMatch(p -> p.pledgeId().equals(savedPledge.id()));
     }
 
     @Test

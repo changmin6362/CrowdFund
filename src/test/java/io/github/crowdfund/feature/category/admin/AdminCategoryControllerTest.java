@@ -45,11 +45,11 @@ class AdminCategoryControllerTest {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
 
         savedRootCategory = categoryRepository.save(new Category(
-                null, null, "Root Category", 1, 10, true
+                null, null, "Root Category", 0, 10, true
         ));
 
         savedChildCategory = categoryRepository.save(new Category(
-                null, savedRootCategory.id(), "Child Category", 2, 10, true
+                null, savedRootCategory.id(), "Child Category", 1, 10, true
         ));
     }
 
@@ -74,6 +74,8 @@ class AdminCategoryControllerTest {
         assertThat(apiResult.message()).isEqualTo("카테고리 생성에 성공했습니다.");
         assertThat(apiResult.data().category().name()).isEqualTo("새 카테고리");
         assertThat(apiResult.data().category().parentId()).isEqualTo(savedRootCategory.id());
+        assertThat(apiResult.data().category().depth()).isEqualTo(1);
+        assertThat(apiResult.data().category().isActive()).isTrue();
     }
 
     @Test
@@ -84,7 +86,7 @@ class AdminCategoryControllerTest {
                 }
                 """;
 
-        mockMvc.perform(patch("/api/admin/categories/{categoryId}/name", savedRootCategory.id())
+        mockMvc.perform(patch("/api/admin/categories/{categoryId}/rename", savedRootCategory.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
@@ -93,8 +95,9 @@ class AdminCategoryControllerTest {
 
     @Test
     void 카테고리_부모_변경_테스트() throws Exception {
+        // Given
         Category anotherRoot = categoryRepository.save(new Category(
-                null, null, "Another Root", 1, 20, true
+                null, null, "Another Root", 0, 50, true
         ));
 
         String patchRequest = """
@@ -103,11 +106,40 @@ class AdminCategoryControllerTest {
                 }
                 """.formatted(anotherRoot.id());
 
+        // When
         mockMvc.perform(patch("/api/admin/categories/{categoryId}/parent", savedChildCategory.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        // Then
+        Category updated = categoryRepository.findById(savedChildCategory.id()).orElseThrow();
+        assertThat(updated.parentId()).isEqualTo(anotherRoot.id());
+        assertThat(updated.depth()).isEqualTo(1);
+        // 새로운 부모(anotherRoot)의 형제가 없으므로 기본값 10 예상 (기존 50은 root 레벨의 다른 카테고리이므로 무관)
+        assertThat(updated.sortOrder()).isEqualTo(10);
+
+        // 추가 검증: 자식이 있는 경우
+        Category subChild = categoryRepository.save(new Category(
+                null, savedChildCategory.id(), "Sub Child", 2, 10, true
+        ));
+
+        // When: savedChildCategory를 최상위로 다시 이동
+        String moveRootRequest = """
+                {
+                    "parentId": null
+                }
+                """;
+        mockMvc.perform(patch("/api/admin/categories/{categoryId}/parent", savedChildCategory.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(moveRootRequest))
+                .andExpect(status().isOk());
+
+        // Then: subChild의 depth도 같이 변경되어야 함 (2 -> 1)
+        Category updatedSub = categoryRepository.findById(subChild.id()).orElseThrow();
+        assertThat(updatedSub.depth()).isEqualTo(1);
+        assertThat(updatedSub.sortOrder()).isEqualTo(10); // subChild의 sortOrder는 유지되어야 함
     }
 
     @Test
@@ -116,11 +148,11 @@ class AdminCategoryControllerTest {
                 {
                     "categories": [
                         {
-                            "id": %d,
+                            "categoryId": %d,
                             "sortOrder": 5
                         },
                         {
-                            "id": %d,
+                            "categoryId": %d,
                             "sortOrder": 15
                         }
                     ]
@@ -135,6 +167,58 @@ class AdminCategoryControllerTest {
     }
 
     @Test
+    void 카테고리_활성_상태_변경_테스트() throws Exception {
+        String patchRequest = """
+                {
+                    "isActive": false
+                }
+                """;
+
+        mockMvc.perform(patch("/api/admin/categories/{categoryId}/toggle", savedRootCategory.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patchRequest))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        Category updated = categoryRepository.findById(savedRootCategory.id()).orElseThrow();
+        assertThat(updated.isActive()).isFalse();
+    }
+
+    @Test
+    void 카테고리_활성_상태_중복_변경_실패_테스트() throws Exception {
+        String patchRequest = """
+                {
+                    "isActive": true
+                }
+                """;
+
+        mockMvc.perform(patch("/api/admin/categories/{categoryId}/toggle", savedRootCategory.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patchRequest))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    void 카테고리_잘못된_JSON_요청_실패_테스트() throws Exception {
+        String invalidJson = """
+                {
+                    "isActive": true2
+                }
+                """;
+
+        MvcResult result = mockMvc.perform(patch("/api/admin/categories/{categoryId}/toggle", savedRootCategory.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest())
+                .andDo(print())
+                .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+        assertThat(responseBody).contains("요청하신 데이터의 형식이 잘못되었거나 읽을 수 없습니다. (JSON 파싱 에러)");
+    }
+
+    @Test
     void 카테고리_삭제_테스트() throws Exception {
         mockMvc.perform(delete("/api/admin/categories/{categoryId}", savedChildCategory.id()))
                 .andExpect(status().isOk())
@@ -143,7 +227,7 @@ class AdminCategoryControllerTest {
 
     @Test
     void 카테고리_조회_실패_테스트() throws Exception {
-        mockMvc.perform(patch("/api/admin/categories/9999/name")
+        mockMvc.perform(patch("/api/admin/categories/9999/rename")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"fail\"}"))
                 .andExpect(status().isBadRequest())

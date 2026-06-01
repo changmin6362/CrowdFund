@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.crowdfund.domain.category.mapper.CategoryMapper">
 
-    <insert id="insert">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="result.id" keyColumn="id">
         INSERT INTO category (name, parent_id, depth, sort_order, is_active)
         VALUES (#{category.name}, #{category.parentId}, #{depth}, #{sortOrder}, 1)
     </insert>
@@ -17,12 +17,16 @@
         UPDATE category SET sort_order = #{sortOrder} WHERE id = #{id}
     </update>
 
+    <update id="updateActiveStatus">
+        UPDATE category SET is_active = #{isActive} WHERE id = #{id}
+    </update>
+
     <update id="delete">
         UPDATE category SET is_active = 0 WHERE id = #{id}
     </update>
 
     <update id="updateParentId">
-        UPDATE category SET parent_id = #{parentId}, depth = #{depth} WHERE id = #{id}
+        UPDATE category SET parent_id = #{parentId}, depth = #{depth}, sort_order = #{sortOrder} WHERE id = #{id}
     </update>
 
 </mapper>
