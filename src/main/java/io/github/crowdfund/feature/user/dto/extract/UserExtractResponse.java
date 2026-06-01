@@ -7,6 +7,6 @@ import java.util.List;
 
 public record UserExtractResponse(
         @Schema(description = "유저가 후원한 프로젝트 목록")
-        List<UserPledgeResponse> pledgeList
+        List<UserPledgeResponse> pledges
 ) {
 }
