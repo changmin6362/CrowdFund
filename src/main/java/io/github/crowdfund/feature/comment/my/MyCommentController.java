@@ -23,7 +23,7 @@ public class MyCommentController {
      * @return message, myComments
      */
     @Operation(summary = "내 댓글 목록 조회")
-    @ApiResponse(responseCode = "200", description = "내 댓글 목록 조회 성공")
+    @ApiResponse(responseCode = "200", description = "내 댓글 목록 조회 성공 응답 예시")
     @GetMapping("/users/me/comments/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<MyCommentsResponse> fetch(@PathVariable Long userId) {
