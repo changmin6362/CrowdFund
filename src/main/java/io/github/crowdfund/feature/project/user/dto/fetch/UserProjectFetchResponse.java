@@ -9,7 +9,7 @@ public record UserProjectFetchResponse(
         List<ProjectElement> projectList,
 
         @Schema(description = "다음 페이지 존재 여부", example = "true")
-        Boolean hasNext,
+        boolean hasNext,
 
         @Schema(description = "다음 페이지 커서 정보")
         NextCursor nextCursor
