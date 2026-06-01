@@ -29,7 +29,7 @@ public class CreatorPledgeService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
         LocalDateTime fulfilledAt = pledge.fulfilledAt();
-        if (request.fulfillmentStatus() == FulfillmentStatus.COMPLETED) {
+        if (request.fulfillmentStatus() == FulfillmentStatus.FULFILLED) {
             fulfilledAt = LocalDateTime.now();
         }
 

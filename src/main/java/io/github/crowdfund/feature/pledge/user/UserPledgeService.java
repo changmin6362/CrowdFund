@@ -40,10 +40,10 @@ public class UserPledgeService {
      */
     @Transactional
     public UserPledgeCreateResponse create(Long userId, @Valid UserPledgeCreateRequest request) {
-        Reward reward = rewardRepository.findById(request.reward_id())
+        Reward reward = rewardRepository.findById(request.rewardId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리워드입니다."));
 
-        if (!reward.projectId().equals(request.project_id())) {
+        if (!reward.projectId().equals(request.projectId())) {
             throw new IllegalArgumentException("해당 프로젝트의 리워드가 아닙니다.");
         }
 
@@ -53,8 +53,8 @@ public class UserPledgeService {
         Pledge pledge = new Pledge(
                 null,
                 userId,
-                request.project_id(),
-                request.reward_id(),
+                request.projectId(),
+                request.rewardId(),
                 reward.price(),
                 FulfillmentStatus.READY,
                 null,

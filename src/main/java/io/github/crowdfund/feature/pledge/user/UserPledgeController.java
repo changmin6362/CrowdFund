@@ -28,7 +28,7 @@ public class UserPledgeController {
      * @return message, pledgeId
      */
     @Operation(summary = "프로젝트 후원하기")
-    @ApiResponse(responseCode = "201", description = "프로젝트 후원 성공")
+    @ApiResponse(responseCode = "201", description = "프로젝트 후원 성공 응답 예시")
     @PostMapping("/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<UserPledgeCreateResponse> create(
@@ -44,7 +44,7 @@ public class UserPledgeController {
      * @return message, pledgeDetail
      */
     @Operation(summary = "후원 상세 조회")
-    @ApiResponse(responseCode = "200", description = "후원 상세 조회 성공")
+    @ApiResponse(responseCode = "200", description = "후원 상세 조회 성공 응답 예시")
     @GetMapping("/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<UserPledgeDetailResponse> detail(@PathVariable Long pledgeId) {

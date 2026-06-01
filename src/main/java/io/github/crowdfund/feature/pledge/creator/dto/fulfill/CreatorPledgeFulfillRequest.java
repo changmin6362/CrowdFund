@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 public record CreatorPledgeFulfillRequest(
-        @Schema(description = "보상 이행 상태")
+        @Schema(description = "보상 이행 상태", example = "FULFILLED")
         @NotNull(message = "이행 상태는 필수 입력 항목입니다.")
         FulfillmentStatus fulfillmentStatus
 ) {

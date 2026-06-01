@@ -24,7 +24,7 @@ public class AdminPledgeController {
      * @return message, pledges
      */
     @Operation(summary = "관리자용 전체 후원 목록 조회")
-    @ApiResponse(responseCode = "200", description = "관리자용 전체 후원 목록 조회 성공")
+    @ApiResponse(responseCode = "200", description = "관리자용 전체 후원 목록 조회 성공 응답 예시")
     @GetMapping("/pledge")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<AdminPledgesFetchResponse> fetch() {
@@ -38,7 +38,7 @@ public class AdminPledgeController {
      * @return message, adminPledgeDetail
      */
     @Operation(summary = "관리자용 후원 상세 조회")
-    @ApiResponse(responseCode = "200", description = "관리자용 후원 상세 조회 성공")
+    @ApiResponse(responseCode = "200", description = "관리자용 후원 상세 조회 성공 응답 예시")
     @GetMapping("/pledge/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<AdminPledgeDetailResponse> detail(@PathVariable Long pledgeId) {
