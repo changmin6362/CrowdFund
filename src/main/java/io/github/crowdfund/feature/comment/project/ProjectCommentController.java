@@ -1,22 +1,27 @@
 package io.github.crowdfund.feature.comment.project;
 
 import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateRequest;
-import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateRequest;
+import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateResponse;
 import io.github.crowdfund.feature.comment.project.dto.delete.ProjectCommentDeleteResponse;
 import io.github.crowdfund.feature.comment.project.dto.fetch.ProjectCommentsFetchResponse;
-import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateResponse;
+import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateRequest;
 import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
+@Validated
 @RequiredArgsConstructor
 @Tag(name = "Comment - Project", description = "프로젝트의 댓글 API")
 public class ProjectCommentController {
@@ -43,7 +48,7 @@ public class ProjectCommentController {
     }
 
     /**
-     * 프로젝트의 댓글 목록 조회
+     * 프로젝트의 댓글 목록 조회 (복합 커서 기반 최신순 페이지네이션)
      *
      * @param projectId 프로젝트 아이디
      * @return message, comments
@@ -54,9 +59,11 @@ public class ProjectCommentController {
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentsFetchResponse> fetch(
             @PathVariable Long projectId,
-            @RequestParam(required = false) Long currentUserId) {
+            @RequestParam(required = false) Long currentUserId,
+            @ParameterObject CursorRequest cursorRequest,
+            @RequestParam(defaultValue = "10") @Positive Integer limit) {
 
-        return ApiResult.success("댓글 목록 조회에 성공했습니다.", service.fetch(projectId, currentUserId));
+        return ApiResult.success("댓글 목록 조회에 성공했습니다.", service.fetch(projectId, currentUserId, cursorRequest, limit));
     }
 
     /**

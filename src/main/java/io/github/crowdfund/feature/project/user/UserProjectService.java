@@ -4,14 +4,15 @@ import io.github.crowdfund.domain.project.ProjectStatus;
 import io.github.crowdfund.domain.project.mapper.ProjectMapper;
 import io.github.crowdfund.feature.project.user.dto.detail.ProjectDetail;
 import io.github.crowdfund.feature.project.user.dto.detail.UserProjectDetailResponse;
-import io.github.crowdfund.feature.project.user.dto.fetch.NextCursor;
 import io.github.crowdfund.feature.project.user.dto.fetch.ProjectElement;
 import io.github.crowdfund.feature.project.user.dto.fetch.UserProjectFetchResponse;
+import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
+import io.github.crowdfund.global.common.dto.pagination.CursorResponse;
+import io.github.crowdfund.global.common.pagination.CursorPaginationProcessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,32 +26,27 @@ public class UserProjectService {
      * 프로젝트 목록 조회 도메인 로직
      */
     @Transactional
-    public UserProjectFetchResponse fetch(List<ProjectStatus> statuses, Integer categoryId, LocalDateTime cursorCreatedAt, Long cursorId, Integer limit) {
+    public UserProjectFetchResponse fetch(List<ProjectStatus> statuses, Integer categoryId, CursorRequest cursorRequest, Integer limit) {
+        // 1. 객체 내부 로직을 활용해 입력값 검증
+        cursorRequest.validate();
 
-        // 복합 커서 검증
-        if ((cursorCreatedAt == null) != (cursorId == null)) {
-            throw new IllegalArgumentException("cursorCreatedAt와 cursorId는 함께 전달되어야 합니다.");
-        }
+        // 2. 데이터 목록 조회 (다음 페이지 존재 여부 확인을 위해 limit보다 1개를 더 조회)
+        List<ProjectElement> projectList = projectMapper.findAll(
+                statuses,
+                categoryId,
+                cursorRequest.createdAt(),
+                cursorRequest.id(),
+                limit + 1
+        );
 
-        // 다음 페이지 존재 여부 확인을 위해 limit보다 1개를 더 조회
-        List<ProjectElement> projectList = projectMapper.findAll(statuses, categoryId, cursorCreatedAt, cursorId, limit + 1);
+        // 3. 다음 요청에 사용할 복합 커서를 처리함
+        CursorResponse<ProjectElement, CursorRequest> response = CursorPaginationProcessor.convertToCursorResponse(
+                projectList,
+                limit,
+                item -> new CursorRequest(item.createdAt(), item.projectId())
+        );
 
-        boolean hasNext = false;
-        NextCursor nextCursor = null;
-
-        // 다음 페이지 존재 여부 확인 및 커서 생성 처리
-        if (projectList.size() > limit) {
-            hasNext = true;
-
-            // 실제 표기할 limit 범위 내의 가장 마지막(limit - 1) 아이템 추출
-            ProjectElement last = projectList.get(limit - 1);
-            nextCursor = new NextCursor(last.createdAt(), last.projectId());
-
-            // limit을 초과하여 조회된 N+1번째 가짜 데이터 제거
-            projectList.remove((int) limit);
-        }
-
-        return new UserProjectFetchResponse(projectList, hasNext, nextCursor);
+        return new UserProjectFetchResponse(response.content(), response.hasNext(), response.nextCursor());
     }
 
     /**
