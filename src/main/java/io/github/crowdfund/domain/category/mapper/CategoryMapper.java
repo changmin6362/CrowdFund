@@ -21,5 +21,5 @@ public interface CategoryMapper {
 
     void delete(Long id);
 
-    void updateParentId(@Param("id") Integer id, @Param("parentId") Integer parentId, @Param("depth") Integer depth);
+    void updateParentId(@Param("id") Integer id, @Param("parentId") Integer parentId, @Param("depth") Integer depth, @Param("sortOrder") Integer sortOrder);
 }

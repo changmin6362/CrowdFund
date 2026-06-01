@@ -22,7 +22,7 @@
     </update>
 
     <update id="updateParentId">
-        UPDATE category SET parent_id = #{parentId}, depth = #{depth} WHERE id = #{id}
+        UPDATE category SET parent_id = #{parentId}, depth = #{depth}, sort_order = #{sortOrder} WHERE id = #{id}
     </update>
 
 </mapper>

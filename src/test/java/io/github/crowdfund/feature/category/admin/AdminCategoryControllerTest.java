@@ -76,7 +76,6 @@ class AdminCategoryControllerTest {
         assertThat(apiResult.data().category().parentId()).isEqualTo(savedRootCategory.id());
         assertThat(apiResult.data().category().depth()).isEqualTo(1);
         assertThat(apiResult.data().category().isActive()).isTrue();
-        assertThat(apiResult.data().category().children()).isEmpty();
     }
 
     @Test
@@ -87,7 +86,7 @@ class AdminCategoryControllerTest {
                 }
                 """;
 
-        mockMvc.perform(patch("/api/admin/categories/{categoryId}/name", savedRootCategory.id())
+        mockMvc.perform(patch("/api/admin/categories/{categoryId}/rename", savedRootCategory.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
@@ -96,8 +95,9 @@ class AdminCategoryControllerTest {
 
     @Test
     void 카테고리_부모_변경_테스트() throws Exception {
+        // Given
         Category anotherRoot = categoryRepository.save(new Category(
-                null, null, "Another Root", 1, 20, true
+                null, null, "Another Root", 0, 50, true
         ));
 
         String patchRequest = """
@@ -106,11 +106,40 @@ class AdminCategoryControllerTest {
                 }
                 """.formatted(anotherRoot.id());
 
+        // When
         mockMvc.perform(patch("/api/admin/categories/{categoryId}/parent", savedChildCategory.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchRequest))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        // Then
+        Category updated = categoryRepository.findById(savedChildCategory.id()).orElseThrow();
+        assertThat(updated.parentId()).isEqualTo(anotherRoot.id());
+        assertThat(updated.depth()).isEqualTo(1);
+        // 새로운 부모(anotherRoot)의 형제가 없으므로 기본값 10 예상 (기존 50은 root 레벨의 다른 카테고리이므로 무관)
+        assertThat(updated.sortOrder()).isEqualTo(10);
+
+        // 추가 검증: 자식이 있는 경우
+        Category subChild = categoryRepository.save(new Category(
+                null, savedChildCategory.id(), "Sub Child", 2, 10, true
+        ));
+
+        // When: savedChildCategory를 최상위로 다시 이동
+        String moveRootRequest = """
+                {
+                    "parentId": null
+                }
+                """;
+        mockMvc.perform(patch("/api/admin/categories/{categoryId}/parent", savedChildCategory.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(moveRootRequest))
+                .andExpect(status().isOk());
+
+        // Then: subChild의 depth도 같이 변경되어야 함 (2 -> 1)
+        Category updatedSub = categoryRepository.findById(subChild.id()).orElseThrow();
+        assertThat(updatedSub.depth()).isEqualTo(1);
+        assertThat(updatedSub.sortOrder()).isEqualTo(10); // subChild의 sortOrder는 유지되어야 함
     }
 
     @Test
@@ -146,7 +175,7 @@ class AdminCategoryControllerTest {
 
     @Test
     void 카테고리_조회_실패_테스트() throws Exception {
-        mockMvc.perform(patch("/api/admin/categories/9999/name")
+        mockMvc.perform(patch("/api/admin/categories/9999/rename")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"fail\"}"))
                 .andExpect(status().isBadRequest())

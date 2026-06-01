@@ -106,11 +106,21 @@ public class AdminCategoryService {
                 }
             }
 
+            // 새로운 정렬 순서 계산 (새로운 부모 밑에서의 마지막 순서 + 10)
+            int newSortOrder = 10;
+            List<Category> siblings = categoryRepository.findByParentIdAndIsActiveTrueOrderBySortOrderAsc(request.parentId());
+            if (!siblings.isEmpty()) {
+                newSortOrder = siblings.stream()
+                        .mapToInt(Category::sortOrder)
+                        .max()
+                        .orElse(0) + 10;
+            }
+
             // 깊이 차이 계산
             int depthDiff = newDepth - category.depth();
 
-            // 상위 카테고리 업데이트
-            categoryMapper.updateParentId(categoryId, request.parentId(), newDepth);
+            // 상위 카테고리 업데이트 (부모, 깊이, 정렬 순서)
+            categoryMapper.updateParentId(categoryId, request.parentId(), newDepth, newSortOrder);
 
             // 하위 카테고리들의 깊이 일괄 업데이트
             if (depthDiff != 0) {
@@ -161,7 +171,7 @@ public class AdminCategoryService {
 
         for (Category child : children) {
             int newDepth = child.depth() + depthDiff;
-            categoryMapper.updateParentId(child.id(), child.parentId(), newDepth);
+            categoryMapper.updateParentId(child.id(), child.parentId(), newDepth, child.sortOrder());
             updateDescendantsDepth(allCategories, child.id(), depthDiff);
         }
     }
