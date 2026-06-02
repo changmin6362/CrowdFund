@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.crowdfund.domain.user.User;
 import io.github.crowdfund.domain.user.UserRepository;
-import io.github.crowdfund.feature.user.dto.extract.UserExtractResponse;
 import io.github.crowdfund.feature.user.dto.fetch.UserFetchResponse;
 import io.github.crowdfund.feature.user.dto.view.UserViewResponse;
 import io.github.crowdfund.global.common.ApiResult;
@@ -123,22 +122,6 @@ class UserServiceTest {
         ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("회원 탈퇴에 성공했습니다.");
-    }
-
-    @Test
-    void 내_후원_목록_조회_테스트() throws Exception {
-        User savedUser = userRepository.save(new User(
-                null, "pledge@test.com", "pass", "pl", "pl", "010-7777-8888", "USER", LocalDateTime.now(), LocalDateTime.now(), null
-        ));
-
-        MvcResult result = mockMvc.perform(get("/api/users/me/pledges/{userId}", savedUser.id()))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<UserExtractResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("내가 후원한 프로젝트 목록 조회에 성공했습니다.");
     }
 
     @Test

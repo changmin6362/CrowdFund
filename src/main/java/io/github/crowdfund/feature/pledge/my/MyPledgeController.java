@@ -1,8 +1,10 @@
-package io.github.crowdfund.feature.pledge.user;
+package io.github.crowdfund.feature.pledge.my;
 
-import io.github.crowdfund.feature.pledge.user.dto.create.UserPledgeCreateRequest;
-import io.github.crowdfund.feature.pledge.user.dto.create.UserPledgeCreateResponse;
-import io.github.crowdfund.feature.pledge.user.dto.detail.UserPledgeDetailResponse;
+import io.github.crowdfund.domain.pledge.FulfillmentStatus;
+import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateRequest;
+import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateResponse;
+import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetailResponse;
+import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgesFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,12 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/pledges")
+@RequestMapping("/api/pledges/me")
 @RequiredArgsConstructor
-@Tag(name = "Pledge - User", description = "사용자용 후원 API")
-public class UserPledgeController {
+@Tag(name = "Pledge - MY", description = "내 후원 API")
+public class MyPledgeController {
 
-    private final UserPledgeService service;
+    private final MyPledgeService service;
 
     /**
      * 프로젝트 후원하기
@@ -31,14 +33,14 @@ public class UserPledgeController {
     @ApiResponse(responseCode = "201", description = "프로젝트 후원 성공 응답 예시")
     @PostMapping("/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<UserPledgeCreateResponse> create(
+    public ApiResult<MyPledgeCreateResponse> create(
             @PathVariable Long userId,
-            @Valid @RequestBody UserPledgeCreateRequest request) {
+            @Valid @RequestBody MyPledgeCreateRequest request) {
         return ApiResult.success("프로젝트 후원에 성공했습니다.", service.create(userId, request));
     }
 
     /**
-     * 후원 상세 조회
+     * 내 후원 상세 조회
      *
      * @param pledgeId 해당 펀딩 아이디
      * @return message, pledgeDetail
@@ -47,7 +49,7 @@ public class UserPledgeController {
     @ApiResponse(responseCode = "200", description = "후원 상세 조회 성공 응답 예시")
     @GetMapping("/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<UserPledgeDetailResponse> detail(@PathVariable Long pledgeId) {
+    public ApiResult<MyPledgeDetailResponse> detail(@PathVariable Long pledgeId) {
         return ApiResult.success("후원 상세 조회에 성공했습니다.", service.detail(pledgeId));
     }
 
@@ -65,5 +67,23 @@ public class UserPledgeController {
         service.cancel(pledgeId);
 
         return ApiResult.success("후원 취소에 성공했습니다.");
+    }
+
+    /**
+     * 내가 후원한 프로젝트 목록 조회
+     *
+     * @param userId 사용자 ID
+     * @param status 후원 상태 필터 (null인 경우 모든 상태 조회)
+     * @return message, pledges
+     */
+    @Operation(summary = "내가 후원한 프로젝트 목록 조회")
+    @ApiResponse(responseCode = "200", description = "내가 후원한 프로젝트 목록 조회 성공 응답 예시")
+    @GetMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<MyPledgesFetchResponse> fetch(
+            @PathVariable Long userId,
+            @RequestParam(required = false) FulfillmentStatus status
+    ) {
+        return ApiResult.success("내가 후원한 프로젝트 목록 조회에 성공했습니다.", service.fetch(userId, status));
     }
 }

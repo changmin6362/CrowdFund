@@ -1,13 +1,9 @@
 package io.github.crowdfund.feature.user;
 
-import io.github.crowdfund.domain.pledge.FulfillmentStatus;
-import io.github.crowdfund.domain.pledge.mapper.PledgeMapper;
-import io.github.crowdfund.domain.pledge.response.UserPledgeResponse;
 import io.github.crowdfund.domain.user.User;
 import io.github.crowdfund.domain.user.UserRepository;
 import io.github.crowdfund.domain.user.mapper.UserMapper;
 import io.github.crowdfund.feature.user.dto.update.UserUpdateRequest;
-import io.github.crowdfund.feature.user.dto.extract.UserExtractResponse;
 import io.github.crowdfund.feature.user.dto.fetch.UserFetchResponse;
 import io.github.crowdfund.feature.user.dto.view.UserViewResponse;
 import io.github.crowdfund.feature.user.dto.fetch.UserDataInfo;
@@ -24,7 +20,6 @@ public class UserService {
 
     private final UserRepository repository;
     private final UserMapper userMapper;
-    private final PledgeMapper pledgeMapper;
 
     /**
      * 내 닉네임 조회 도메인 로직
@@ -80,15 +75,4 @@ public class UserService {
             throw new IllegalArgumentException("존재하지 않거나 이미 탈퇴한 사용자입니다.");
         }
     }
-
-    /**
-     * 내가 후원한 프로젝트 목록 조회 도메인 로직
-     */
-    @Transactional
-    public UserExtractResponse extract(Long userId, FulfillmentStatus status) {
-        List<UserPledgeResponse> pledgeList = pledgeMapper.findPledgesByUserId(userId, status);
-
-        return new UserExtractResponse(pledgeList);
-    }
-
 }

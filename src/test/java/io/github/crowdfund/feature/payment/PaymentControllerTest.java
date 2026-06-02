@@ -109,7 +109,7 @@ class PaymentControllerTest {
     void 결제_생성_테스트() throws Exception {
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                PaymentMethod.CREDIT_CARD,
+                PaymentMethod.CARD,
                 new BigDecimal("50000")
         );
 
@@ -130,7 +130,7 @@ class PaymentControllerTest {
     void 결제_생성_금액불일치_실패_테스트() throws Exception {
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                PaymentMethod.CREDIT_CARD,
+                PaymentMethod.CARD,
                 new BigDecimal("30000") // Pledge는 50000L
         );
 
@@ -165,12 +165,12 @@ class PaymentControllerTest {
         // 이미 결제가 존재하는 상태로 만듦
         LocalDateTime now = LocalDateTime.now();
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), PaymentMethod.CREDIT_CARD, new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.CARD, new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
         ));
 
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                PaymentMethod.CREDIT_CARD,
+                PaymentMethod.CARD,
                 new BigDecimal("50000")
         );
 
@@ -189,7 +189,7 @@ class PaymentControllerTest {
     void 결제_취소_테스트() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         Payment payment = paymentRepository.save(new Payment(
-                null, savedPledge.id(), PaymentMethod.CREDIT_CARD, new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.CARD, new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
         ));
 
         MvcResult result = mockMvc.perform(delete("/api/payments/{paymentId}", payment.id()))
@@ -211,7 +211,7 @@ class PaymentControllerTest {
         // 1. 결제 생성 (서비스를 통해 히스토리까지 자동 생성됨)
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                PaymentMethod.CREDIT_CARD,
+                PaymentMethod.CARD,
                 new BigDecimal("50000")
         );
         MvcResult createResult = mockMvc.perform(post("/api/payments")

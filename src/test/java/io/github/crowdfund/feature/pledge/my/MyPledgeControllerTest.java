@@ -1,4 +1,4 @@
-package io.github.crowdfund.feature.pledge.user;
+package io.github.crowdfund.feature.pledge.my;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,8 +20,9 @@ import io.github.crowdfund.domain.reward.Reward;
 import io.github.crowdfund.domain.reward.RewardRepository;
 import io.github.crowdfund.domain.user.User;
 import io.github.crowdfund.domain.user.UserRepository;
-import io.github.crowdfund.feature.pledge.user.dto.create.UserPledgeCreateResponse;
-import io.github.crowdfund.feature.pledge.user.dto.detail.UserPledgeDetailResponse;
+import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateResponse;
+import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetailResponse;
+import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgesFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.github.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class UserPledgeControllerTest {
+class MyPledgeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -116,7 +117,7 @@ class UserPledgeControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<UserPledgeCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<MyPledgeCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("프로젝트 후원에 성공했습니다.");
         assertThat(apiResult.data().pledgeId()).isNotNull();
@@ -130,7 +131,7 @@ class UserPledgeControllerTest {
 
         LocalDateTime now = LocalDateTime.now();
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), PaymentMethod.CREDIT_CARD, new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.CARD, new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
         ));
 
         pledgeAddressRepository.save(new PledgeAddress(
@@ -142,11 +143,11 @@ class UserPledgeControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<UserPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<MyPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("후원 상세 조회에 성공했습니다.");
-        assertThat(apiResult.data().userPledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
-        assertThat(apiResult.data().userPledgeDetail().projectTitle()).isEqualTo(savedProject.title());
+        assertThat(apiResult.data().myPledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
+        assertThat(apiResult.data().myPledgeDetail().projectTitle()).isEqualTo(savedProject.title());
     }
 
     @Test
@@ -163,5 +164,22 @@ class UserPledgeControllerTest {
         ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("후원 취소에 성공했습니다.");
+    }
+
+    @Test
+    void 내_후원_목록_조회_테스트() throws Exception {
+        Pledge savedPledge = pledgeRepository.save(new Pledge(
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+        ));
+
+        MvcResult result = mockMvc.perform(get("/api/pledges/user/{userId}", savedUser.id()))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<MyPledgesFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("내가 후원한 프로젝트 목록 조회에 성공했습니다.");
+        assertThat(apiResult.data().pledges()).isNotEmpty();
     }
 }

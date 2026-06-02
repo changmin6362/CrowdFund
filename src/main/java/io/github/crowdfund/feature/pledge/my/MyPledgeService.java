@@ -1,4 +1,4 @@
-package io.github.crowdfund.feature.pledge.user;
+package io.github.crowdfund.feature.pledge.my;
 
 import io.github.crowdfund.domain.payment.Payment;
 import io.github.crowdfund.domain.payment.PaymentMethod;
@@ -12,11 +12,13 @@ import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.reward.Reward;
 import io.github.crowdfund.domain.reward.RewardRepository;
-import io.github.crowdfund.feature.pledge.user.dto.create.UserPledgeCreateRequest;
-import io.github.crowdfund.feature.pledge.user.dto.create.UserPledgeCreateResponse;
-import io.github.crowdfund.feature.pledge.user.dto.detail.UserPledgeDetail;
-import io.github.crowdfund.feature.pledge.user.dto.detail.ShippingAddress;
-import io.github.crowdfund.feature.pledge.user.dto.detail.UserPledgeDetailResponse;
+import io.github.crowdfund.domain.pledge.mapper.PledgeMapper;
+import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateRequest;
+import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateResponse;
+import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetail;
+import io.github.crowdfund.feature.pledge.my.dto.detail.ShippingAddress;
+import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetailResponse;
+import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgesFetchResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,19 +30,20 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class UserPledgeService {
+public class MyPledgeService {
 
     private final PledgeRepository pledgeRepository;
     private final RewardRepository rewardRepository;
     private final ProjectRepository projectRepository;
     private final PaymentRepository paymentRepository;
     private final PledgeAddressRepository pledgeAddressRepository;
+    private final PledgeMapper pledgeMapper;
 
     /**
      * 후원 참여 도메인 로직
      */
     @Transactional
-    public UserPledgeCreateResponse create(Long userId, @Valid UserPledgeCreateRequest request) {
+    public MyPledgeCreateResponse create(Long userId, @Valid MyPledgeCreateRequest request) {
         Reward reward = rewardRepository.findById(request.rewardId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리워드입니다."));
 
@@ -64,14 +67,14 @@ public class UserPledgeService {
 
         Pledge savedPledge = pledgeRepository.save(pledge);
 
-        return new UserPledgeCreateResponse(savedPledge.id());
+        return new MyPledgeCreateResponse(savedPledge.id());
     }
 
     /**
      * 후원 상세 조회 도메인 로직
      */
     @Transactional
-    public UserPledgeDetailResponse detail(Long pledgeId) {
+    public MyPledgeDetailResponse detail(Long pledgeId) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
@@ -93,7 +96,7 @@ public class UserPledgeService {
                 addr.postalCode()
         )).orElse(null);
 
-        UserPledgeDetail userPledgeDetail = new UserPledgeDetail(
+        MyPledgeDetail myPledgeDetail = new MyPledgeDetail(
                 pledge.id(),
                 pledge.createdAt().toString(),
                 pledge.fulfillmentStatus(),
@@ -104,7 +107,7 @@ public class UserPledgeService {
                 shippingAddress
         );
 
-        return new UserPledgeDetailResponse(userPledgeDetail);
+        return new MyPledgeDetailResponse(myPledgeDetail);
     }
 
     /**
@@ -120,5 +123,12 @@ public class UserPledgeService {
         }
 
         pledgeRepository.deleteById(pledgeId);
+    }
+
+    /**
+     * 내가 후원한 프로젝트 목록 조회 도메인 로직
+     */
+    public MyPledgesFetchResponse fetch(Long userId, FulfillmentStatus status) {
+        return new MyPledgesFetchResponse(pledgeMapper.findPledgesByUserId(userId, status));
     }
 }

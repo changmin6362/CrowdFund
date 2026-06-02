@@ -120,7 +120,7 @@ class AdminPledgeControllerTest {
 
         LocalDateTime now = LocalDateTime.now();
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), PaymentMethod.CREDIT_CARD, new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.CARD, new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
         ));
 
         MvcResult result = mockMvc.perform(get("/api/admin/pledge/{pledgeId}", savedPledge.id()))

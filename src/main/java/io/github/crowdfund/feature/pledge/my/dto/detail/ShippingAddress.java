@@ -1,4 +1,4 @@
-package io.github.crowdfund.feature.pledge.user.dto.detail;
+package io.github.crowdfund.feature.pledge.my.dto.detail;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

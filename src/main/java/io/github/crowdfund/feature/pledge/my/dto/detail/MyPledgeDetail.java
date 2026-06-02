@@ -1,11 +1,11 @@
-package io.github.crowdfund.feature.pledge.user.dto.detail;
+package io.github.crowdfund.feature.pledge.my.dto.detail;
 
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
 
-public record UserPledgeDetail(
+public record MyPledgeDetail(
         @Schema(description = "후원 ID", example = "1")
         Long pledgeId,
 
