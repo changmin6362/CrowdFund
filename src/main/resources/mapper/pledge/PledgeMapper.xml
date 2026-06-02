@@ -12,7 +12,8 @@
             p.reward_id as rewardId,
             r.title as rewardTitle,
             p.amount as amount,
-            p.fulfillment_status as status,
+            p.status as status,
+            p.fulfillment_status as fulfillmentStatus,
             p.created_at as pledgedAt
         FROM pledge p
         JOIN project pj ON p.project_id = pj.id

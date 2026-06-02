@@ -6,6 +6,7 @@ import io.github.crowdfund.domain.payment.PaymentRepository;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddress;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.crowdfund.domain.project.Project;
@@ -15,6 +16,7 @@ import io.github.crowdfund.domain.reward.RewardRepository;
 import io.github.crowdfund.domain.pledge.mapper.PledgeMapper;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateRequest;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateResponse;
+import io.github.crowdfund.feature.pledge.my.dto.delete.MyPledgesDeleteResponse;
 import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetail;
 import io.github.crowdfund.feature.pledge.my.dto.detail.ShippingAddress;
 import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetailResponse;
@@ -60,6 +62,7 @@ public class MyPledgeService {
                 request.projectId(),
                 request.rewardId(),
                 reward.price(),
+                PledgeStatus.PENDING,
                 FulfillmentStatus.READY,
                 null,
                 LocalDateTime.now()
@@ -99,6 +102,7 @@ public class MyPledgeService {
         MyPledgeDetail myPledgeDetail = new MyPledgeDetail(
                 pledge.id(),
                 pledge.createdAt().toString(),
+                pledge.status(),
                 pledge.fulfillmentStatus(),
                 project.title(),
                 pledge.amount(),
@@ -114,7 +118,7 @@ public class MyPledgeService {
      * 후원 취소 도메인 로직
      */
     @Transactional
-    public void cancel(Long pledgeId) {
+    public MyPledgesDeleteResponse cancel(Long pledgeId) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
@@ -122,7 +126,10 @@ public class MyPledgeService {
             throw new IllegalStateException("이미 보상 이행이 시작되어 취소할 수 없습니다.");
         }
 
-        pledgeRepository.deleteById(pledgeId);
+        Pledge canceledPledge = pledge.cancel();
+        pledgeRepository.save(canceledPledge);
+
+        return new MyPledgesDeleteResponse(canceledPledge.id());
     }
 
     /**

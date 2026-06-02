@@ -3,6 +3,7 @@ package io.github.crowdfund.feature.pledge.my;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateRequest;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateResponse;
+import io.github.crowdfund.feature.pledge.my.dto.delete.MyPledgesDeleteResponse;
 import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetailResponse;
 import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgesFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
@@ -50,23 +51,22 @@ public class MyPledgeController {
     @GetMapping("/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<MyPledgeDetailResponse> detail(@PathVariable Long pledgeId) {
-        return ApiResult.success("후원 상세 조회에 성공했습니다.", service.detail(pledgeId));
+        return ApiResult.success("내 후원 상세 조회에 성공했습니다.", service.detail(pledgeId));
     }
 
     /**
      * 후원 취소
      *
      * @param pledgeId 해당 후원 아이디
-     * @return message
+     * @return message, deletedPledgeId
      */
     @Operation(summary = "후원 취소")
     @ApiResponse(responseCode = "200", description = "후원 취소 성공")
     @DeleteMapping("/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> cancel(@PathVariable Long pledgeId) {
-        service.cancel(pledgeId);
+    public ApiResult<MyPledgesDeleteResponse> cancel(@PathVariable Long pledgeId) {
 
-        return ApiResult.success("후원 취소에 성공했습니다.");
+        return ApiResult.success("후원 취소에 성공했습니다.", service.cancel(pledgeId));
     }
 
     /**
@@ -78,7 +78,7 @@ public class MyPledgeController {
      */
     @Operation(summary = "내가 후원한 프로젝트 목록 조회")
     @ApiResponse(responseCode = "200", description = "내가 후원한 프로젝트 목록 조회 성공 응답 예시")
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<MyPledgesFetchResponse> fetch(
             @PathVariable Long userId,

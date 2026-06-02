@@ -11,6 +11,7 @@ import io.github.crowdfund.domain.payment.PaymentStatus;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.project.ProjectStatus;
@@ -97,10 +98,10 @@ class AdminPledgeControllerTest {
     @Test
     void 후원_목록_조회_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
-        MvcResult result = mockMvc.perform(get("/api/admin/pledge"))
+        MvcResult result = mockMvc.perform(get("/api/admin/pledges"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -115,7 +116,7 @@ class AdminPledgeControllerTest {
     @Test
     void 관리자_후원_상세_조회_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         LocalDateTime now = LocalDateTime.now();
@@ -123,7 +124,7 @@ class AdminPledgeControllerTest {
                 null, savedPledge.id(), PaymentMethod.CARD, new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
         ));
 
-        MvcResult result = mockMvc.perform(get("/api/admin/pledge/{pledgeId}", savedPledge.id()))
+        MvcResult result = mockMvc.perform(get("/api/admin/pledges/{pledgeId}", savedPledge.id()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();

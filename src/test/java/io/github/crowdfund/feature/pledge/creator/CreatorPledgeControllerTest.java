@@ -7,6 +7,7 @@ import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.project.ProjectStatus;
@@ -90,12 +91,12 @@ class CreatorPledgeControllerTest {
     @Test
     void 보상_이행_상태_갱신_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         String updateRequest = """
                 {
-                    "fulfillmentStatus": "COMPLETED"
+                    "fulfillmentStatus": "FULFILLED"
                 }
                 """;
 
@@ -108,7 +109,7 @@ class CreatorPledgeControllerTest {
 
         ApiResult<CreatorPledgeFulfillResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
-        assertThat(apiResult.message()).isEqualTo("보상 이행 상태 갱신에 성공했습니다.");
+        assertThat(apiResult.message()).isEqualTo("보상 이행 상태 변경에 성공했습니다.");
         assertThat(apiResult.data().fulfillment().fulfillmentStatus()).isEqualTo(FulfillmentStatus.FULFILLED);
     }
 }

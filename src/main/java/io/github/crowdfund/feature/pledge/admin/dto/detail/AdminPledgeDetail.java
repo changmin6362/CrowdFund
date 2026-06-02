@@ -1,6 +1,7 @@
 package io.github.crowdfund.feature.pledge.admin.dto.detail;
 
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record AdminPledgeDetail(
@@ -9,6 +10,9 @@ public record AdminPledgeDetail(
 
         @Schema(description = "생성 일시", example = "2023-08-01T12:00:00")
         String createdAt,
+
+        @Schema(description = "후원 상태")
+        PledgeStatus status,
 
         @Schema(description = "보상 이행 상태")
         FulfillmentStatus fulfillmentStatus,

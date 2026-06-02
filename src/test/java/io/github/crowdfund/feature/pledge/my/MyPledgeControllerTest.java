@@ -11,6 +11,7 @@ import io.github.crowdfund.domain.payment.PaymentStatus;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddress;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.crowdfund.domain.project.Project;
@@ -110,7 +111,7 @@ class MyPledgeControllerTest {
                 }
                 """.formatted(savedProject.id(), savedReward.id());
 
-        MvcResult result = mockMvc.perform(post("/api/pledges/{userId}", savedUser.id())
+        MvcResult result = mockMvc.perform(post("/api/pledges/me/{userId}", savedUser.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isCreated())
@@ -126,7 +127,7 @@ class MyPledgeControllerTest {
     @Test
     void 후원_상세_조회_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         LocalDateTime now = LocalDateTime.now();
@@ -138,7 +139,7 @@ class MyPledgeControllerTest {
                 null, savedPledge.id(), savedUser.id(), "홍길동", "010-1234-5678", "12345", "서울특별시 강남구 테헤란로 123", "4층 개발팀", LocalDateTime.now(), LocalDateTime.now()
         ));
 
-        MvcResult result = mockMvc.perform(get("/api/pledges/{pledgeId}", savedPledge.id()))
+        MvcResult result = mockMvc.perform(get("/api/pledges/me/{pledgeId}", savedPledge.id()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -153,10 +154,10 @@ class MyPledgeControllerTest {
     @Test
     void 후원_취소_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
-        MvcResult result = mockMvc.perform(delete("/api/pledges/{pledgeId}", savedPledge.id()))
+        MvcResult result = mockMvc.perform(delete("/api/pledges/me/{pledgeId}", savedPledge.id()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -169,10 +170,10 @@ class MyPledgeControllerTest {
     @Test
     void 내_후원_목록_조회_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
-        MvcResult result = mockMvc.perform(get("/api/pledges/user/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(get("/api/pledges/me/user/{userId}", savedUser.id()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();

@@ -13,6 +13,7 @@ import io.github.crowdfund.domain.paymenthistory.PaymentHistoryRepository;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.project.ProjectStatus;
@@ -101,7 +102,7 @@ class PaymentControllerTest {
         ));
 
         savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("50000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("50000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
     }
 

@@ -7,6 +7,7 @@ import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddress;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.crowdfund.domain.project.Project;
@@ -187,7 +188,7 @@ class CreatorProjectControllerTest {
 
         // 4. 후원 생성
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, pledger.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, pledger.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         // 5. 배송지 정보 생성

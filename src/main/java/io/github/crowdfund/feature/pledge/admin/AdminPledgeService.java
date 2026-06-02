@@ -79,6 +79,7 @@ public class AdminPledgeService {
         AdminPledgeDetail pledgeDetail = new AdminPledgeDetail(
                 pledge.id(),
                 pledge.createdAt().toString(),
+                pledge.status(),
                 pledge.fulfillmentStatus(),
                 userDetail,
                 paymentDetail,
@@ -106,6 +107,7 @@ public class AdminPledgeService {
                 projectTitle,
                 pledge.rewardId(),
                 pledge.amount(),
+                pledge.status(),
                 pledge.fulfillmentStatus(),
                 pledge.createdAt().toString()
         );
