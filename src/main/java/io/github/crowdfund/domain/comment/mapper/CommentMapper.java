@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 댓글 관련 복합 쿼리를 담은 Mapper (MyBatis)
+ */
 @Mapper
 public interface CommentMapper {
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddress;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.crowdfund.domain.project.Project;
@@ -35,8 +36,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -92,7 +92,7 @@ class PledgeAddressControllerTest {
         ));
 
         savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         savedPledgeAddress = pledgeAddressRepository.save(new PledgeAddress(
@@ -109,7 +109,7 @@ class PledgeAddressControllerTest {
 
         ApiResult<PledgeAddressFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
-        assertThat(apiResult.message()).isEqualTo("후원 주소 조회에 성공했습니다.");
+        assertThat(apiResult.message()).isEqualTo("참여한 후원의 배송 정보 조회에 성공했습니다.");
         assertThat(apiResult.data().pledgeAddress().recipientName()).isEqualTo("수령인");
         assertThat(apiResult.data().pledgeAddress().addressMain()).isEqualTo("기본주소");
     }
@@ -127,7 +127,7 @@ class PledgeAddressControllerTest {
                 }
                 """.formatted(newAddress.id());
 
-        MvcResult result = mockMvc.perform(post("/api/pledges/{pledgeId}/addresses", savedPledge.id())
+        MvcResult result = mockMvc.perform(put("/api/pledges/{pledgeId}/addresses", savedPledge.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isOk())
@@ -136,7 +136,7 @@ class PledgeAddressControllerTest {
 
         ApiResult<PledgeAddressReplaceResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
-        assertThat(apiResult.message()).isEqualTo("후원 주소 교체에 성공했습니다.");
+        assertThat(apiResult.message()).isEqualTo("참여한 후원의 배송 정보 교체에 성공했습니다.");
         assertThat(apiResult.data().replacedPledgeAddress().recipientName()).isEqualTo("새수령인");
         assertThat(apiResult.data().replacedPledgeAddress().addressMain()).isEqualTo("새로운주소");
     }

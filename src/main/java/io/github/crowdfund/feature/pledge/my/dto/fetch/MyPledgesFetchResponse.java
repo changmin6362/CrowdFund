@@ -1,13 +1,13 @@
-package io.github.crowdfund.feature.project.user.dto.fetch;
+package io.github.crowdfund.feature.pledge.my.dto.fetch;
 
 import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
-public record UserProjectFetchResponse(
-        @Schema(description = "유저가 참여한 프로젝트 목록")
-        List<ProjectElement> projects,
+public record MyPledgesFetchResponse(
+        @Schema(description = "유저가 후원한 프로젝트 목록")
+        List<MyPledgeInfo> pledges,
 
         @Schema(description = "다음 페이지 존재 여부", example = "true")
         boolean hasNext,

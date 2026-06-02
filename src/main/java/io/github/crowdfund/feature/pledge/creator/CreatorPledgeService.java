@@ -1,6 +1,5 @@
 package io.github.crowdfund.feature.pledge.creator;
 
-import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
 import io.github.crowdfund.feature.pledge.creator.dto.fulfill.FulfillmentInfo;
@@ -21,32 +20,25 @@ public class CreatorPledgeService {
     private final PledgeRepository pledgeRepository;
 
     /**
-     * 보상 이행 도메인 로직
+     * 보상 이행 상태 변경 도메인 로직
      */
     @Transactional
     public CreatorPledgeFulfillResponse fulfill(Long pledgeId, @Valid CreatorPledgeFulfillRequest request) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
-        LocalDateTime fulfilledAt = pledge.fulfilledAt();
-        if (request.fulfillmentStatus() == FulfillmentStatus.FULFILLED) {
-            fulfilledAt = LocalDateTime.now();
-        }
+        // request의 fulfillmentStatus에 따라 Pledge 상태 변경
+        Pledge updatedPledge = switch (request.fulfillmentStatus()) {
+            case FULFILLED -> pledge.completeFulfillment(LocalDateTime.now());
+            case READY -> pledge.cancelFulfillment();
+        };
 
+        Pledge savedPledge = pledgeRepository.save(updatedPledge);
 
-        Pledge updatedPledge = new Pledge(
-                pledge.id(),
-                pledge.userId(),
-                pledge.projectId(),
-                pledge.rewardId(),
-                pledge.amount(),
-                request.fulfillmentStatus(),
-                fulfilledAt,
-                pledge.createdAt()
-        );
-
-        pledgeRepository.save(updatedPledge);
-
-        return new CreatorPledgeFulfillResponse(new FulfillmentInfo(pledgeId, request.fulfillmentStatus(), fulfilledAt));
+        return new CreatorPledgeFulfillResponse(new FulfillmentInfo(
+                savedPledge.id(),
+                savedPledge.fulfillmentStatus(),
+                savedPledge.fulfilledAt()
+        ));
     }
 }

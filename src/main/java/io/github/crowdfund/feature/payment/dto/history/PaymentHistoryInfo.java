@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public record PaymentHistoryInfo(
         @Schema(description = "히스토리 ID", example = "1")
-        Long id,
+        Long historyId,
 
         @Schema(description = "변경된 결제 상태")
         PaymentStatus status,

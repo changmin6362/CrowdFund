@@ -1,8 +1,6 @@
 package io.github.crowdfund.feature.user;
 
-import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.feature.user.dto.update.UserUpdateRequest;
-import io.github.crowdfund.feature.user.dto.extract.UserExtractResponse;
 import io.github.crowdfund.feature.user.dto.fetch.UserFetchResponse;
 import io.github.crowdfund.feature.user.dto.view.UserViewResponse;
 import io.github.crowdfund.global.common.ApiResult;
@@ -81,23 +79,5 @@ public class UserController {
         service.delete(userId);
 
         return ApiResult.success("회원 탈퇴에 성공했습니다.");
-    }
-
-    /**
-     * 내가 후원한 프로젝트 목록 조회
-     *
-     * @param userId 사용자 ID
-     * @param status 후원 상태 필터 (null인 경우 모든 상태 조회)
-     * @return message, pledges
-     */
-    @Operation(summary = "내가 후원한 프로젝트 목록 조회")
-    @ApiResponse(responseCode = "200", description = "내가 후원한 프로젝트 목록 조회 성공 응답 예시")
-    @GetMapping("/pledges/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<UserExtractResponse> extract(
-            @PathVariable Long userId,
-            @RequestParam(required = false) FulfillmentStatus status
-    ) {
-        return ApiResult.success("내가 후원한 프로젝트 목록 조회에 성공했습니다.", service.extract(userId, status));
     }
 }

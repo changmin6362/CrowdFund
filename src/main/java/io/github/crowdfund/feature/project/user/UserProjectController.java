@@ -31,7 +31,7 @@ public class UserProjectController {
      *
      * @param statuses   프로젝트 상태 필터링
      * @param categoryId 카테고리 ID 필터링
-     * @return message, projectList, hasNext, nextCursor
+     * @return message, projects, hasNext, nextCursor
      */
     @Operation(summary = "프로젝트 목록 조회")
     @ApiResponse(responseCode = "200", description = "프로젝트 목록 조회 성공 응답 예시")

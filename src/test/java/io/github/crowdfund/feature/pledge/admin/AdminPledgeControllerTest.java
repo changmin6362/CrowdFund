@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.payment.Payment;
+import io.github.crowdfund.domain.payment.PaymentMethod;
 import io.github.crowdfund.domain.payment.PaymentRepository;
 import io.github.crowdfund.domain.payment.PaymentStatus;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.project.ProjectStatus;
@@ -94,35 +96,49 @@ class AdminPledgeControllerTest {
     }
 
     @Test
-    void 후원_목록_조회_테스트() throws Exception {
-        Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+    void 후원_목록_조회_필터링_테스트() throws Exception {
+        // 1. PAID, READY 상태 후원
+        pledgeRepository.save(new Pledge(
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
+        ));
+        // 2. CANCELED 상태 후원
+        pledgeRepository.save(new Pledge(
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.CANCELED, FulfillmentStatus.FULFILLED, null, LocalDateTime.now().plusSeconds(1)
         ));
 
-        MvcResult result = mockMvc.perform(get("/api/admin/pledge"))
+        // PledgeStatus 필터링 테스트 (CANCELED만 조회)
+        MvcResult canceledResult = mockMvc.perform(get("/api/admin/pledges")
+                        .param("pledgeStatus", "CANCELED")
+                        .param("limit", "10"))
                 .andExpect(status().isOk())
-                .andDo(print())
                 .andReturn();
 
-        ApiResult<AdminPledgesFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<AdminPledgesFetchResponse> canceledApiResult = TestUtils.convertToApiResult(canceledResult, objectMapper, new TypeReference<>() {});
+        assertThat(canceledApiResult.data().pledges().stream().allMatch(p -> p.status() == PledgeStatus.CANCELED)).isTrue();
 
-        assertThat(apiResult.message()).isEqualTo("전체 후원 목록 조회에 성공했습니다.");
-        assertThat(apiResult.data().pledges()).isNotEmpty();
-        assertThat(apiResult.data().pledges()).anyMatch(p -> p.pledgeId().equals(savedPledge.id()));
+        // FulfillmentStatus 필터링 테스트 (FULFILLED만 조회)
+        MvcResult fulfilledResult = mockMvc.perform(get("/api/admin/pledges")
+                        .param("fulfillmentStatus", "FULFILLED")
+                        .param("limit", "10"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ApiResult<AdminPledgesFetchResponse> fulfilledApiResult = TestUtils.convertToApiResult(fulfilledResult, objectMapper, new TypeReference<>() {});
+        assertThat(fulfilledApiResult.data().pledges().stream().allMatch(p -> p.fulfillmentStatus() == FulfillmentStatus.FULFILLED)).isTrue();
     }
 
     @Test
     void 관리자_후원_상세_조회_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         LocalDateTime now = LocalDateTime.now();
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.CARD, new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
         ));
 
-        MvcResult result = mockMvc.perform(get("/api/admin/pledge/{pledgeId}", savedPledge.id()))
+        MvcResult result = mockMvc.perform(get("/api/admin/pledges/{pledgeId}", savedPledge.id()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();

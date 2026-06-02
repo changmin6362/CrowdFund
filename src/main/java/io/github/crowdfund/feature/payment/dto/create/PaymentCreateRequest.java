@@ -1,7 +1,7 @@
 package io.github.crowdfund.feature.payment.dto.create;
 
+import io.github.crowdfund.domain.payment.PaymentMethod;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
@@ -12,9 +12,9 @@ public record PaymentCreateRequest(
         @NotNull(message = "후원 ID는 필수입니다.")
         Long pledgeId,
 
-        @Schema(description = "결제 수단", example = "카드")
-        @NotBlank(message = "결제 수단은 필수입니다.")
-        String paymentMethod,
+        @Schema(description = "결제 수단", example = "CREDIT_CARD")
+        @NotNull(message = "결제 수단은 필수입니다.")
+        PaymentMethod paymentMethod,
 
         @Schema(description = "결제 금액", example = "35000")
         @NotNull(message = "결제 금액은 필수입니다.")

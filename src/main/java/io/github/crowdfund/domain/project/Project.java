@@ -34,4 +34,8 @@ public record Project(
     LocalDateTime endAt,
     ProjectStatus status,
     LocalDateTime createdAt
-) {}
+) {
+    public boolean isOngoing() {
+        return status == ProjectStatus.ONGOING;
+    }
+}

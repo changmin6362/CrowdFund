@@ -5,13 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.payment.Payment;
+import io.github.crowdfund.domain.payment.PaymentMethod;
 import io.github.crowdfund.domain.payment.PaymentRepository;
 import io.github.crowdfund.domain.payment.PaymentStatus;
-import io.github.crowdfund.domain.paymenthistory.PaymentHistory;
-import io.github.crowdfund.domain.paymenthistory.PaymentHistoryRepository;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.project.ProjectStatus;
@@ -37,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -59,9 +58,6 @@ class PaymentControllerTest {
     private PaymentRepository paymentRepository;
 
     @Autowired
-    private PaymentHistoryRepository paymentHistoryRepository;
-
-    @Autowired
     private PledgeRepository pledgeRepository;
 
     @Autowired
@@ -76,14 +72,11 @@ class PaymentControllerTest {
     @Autowired
     private RewardRepository rewardRepository;
 
-    private User savedUser;
-    private Project savedProject;
-    private Reward savedReward;
     private Pledge savedPledge;
 
     @BeforeEach
     void setup() {
-        savedUser = userRepository.save(new User(
+        User savedUser = userRepository.save(new User(
                 null, "payment@test.com", "pass", "pynick", "pay", "010-9999-8888", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
@@ -91,16 +84,16 @@ class PaymentControllerTest {
                 null, null, "결제 테스트 카테고리", 1, 10, true
         ));
 
-        savedProject = projectRepository.save(new Project(
+        Project savedProject = projectRepository.save(new Project(
                 null, category.id(), savedUser.id(), "결제 테스트 프로젝트", "[]", new BigDecimal("1000000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(30), ProjectStatus.ONGOING, LocalDateTime.now()
         ));
 
-        savedReward = rewardRepository.save(new Reward(
+        Reward savedReward = rewardRepository.save(new Reward(
                 null, savedProject.id(), "리워드", "설명", new BigDecimal("50000"), 100, LocalDateTime.now()
         ));
 
         savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("50000"), FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("50000"), PledgeStatus.PENDING, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
     }
 
@@ -108,7 +101,7 @@ class PaymentControllerTest {
     void 결제_생성_테스트() throws Exception {
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                "CREDIT_CARD",
+                PaymentMethod.CARD,
                 new BigDecimal("50000")
         );
 
@@ -119,17 +112,22 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<PaymentCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<PaymentCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {
+        });
 
         assertThat(apiResult.message()).isEqualTo("결제 요청에 성공했습니다.");
         assertThat(apiResult.data().paymentId()).isNotNull();
+
+        // 후원 상태 확인
+        Pledge updatedPledge = pledgeRepository.findById(savedPledge.id()).orElseThrow();
+        assertThat(updatedPledge.status()).isEqualTo(PledgeStatus.PAID);
     }
 
     @Test
     void 결제_생성_금액불일치_실패_테스트() throws Exception {
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                "CREDIT_CARD",
+                PaymentMethod.CARD,
                 new BigDecimal("30000") // Pledge는 50000L
         );
 
@@ -144,7 +142,7 @@ class PaymentControllerTest {
     void 결제_조회_테스트() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         Payment payment = paymentRepository.save(new Payment(
-                null, savedPledge.id(), "KAKAOPAY", new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.KAKAOPAY, new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
         ));
 
         MvcResult result = mockMvc.perform(get("/api/payments/pledge/{pledgeId}", savedPledge.id()))
@@ -152,11 +150,12 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<PaymentDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<PaymentDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {
+        });
 
         assertThat(apiResult.message()).isEqualTo("결제 상세 조회에 성공했습니다.");
         assertThat(apiResult.data().paymentDetail().paymentId()).isEqualTo(payment.id());
-        assertThat(apiResult.data().paymentDetail().paymentMethod()).isEqualTo("KAKAOPAY");
+        assertThat(apiResult.data().paymentDetail().paymentMethod()).isEqualTo(PaymentMethod.KAKAOPAY);
     }
 
     @Test
@@ -164,12 +163,12 @@ class PaymentControllerTest {
         // 이미 결제가 존재하는 상태로 만듦
         LocalDateTime now = LocalDateTime.now();
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.CARD, new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
         ));
 
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                "CREDIT_CARD",
+                PaymentMethod.CARD,
                 new BigDecimal("50000")
         );
 
@@ -180,7 +179,8 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {
+        });
         assertThat(apiResult.message()).isEqualTo("이미 결제가 완료되었습니다.");
     }
 
@@ -188,7 +188,7 @@ class PaymentControllerTest {
     void 결제_취소_테스트() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         Payment payment = paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.CARD, new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
         ));
 
         MvcResult result = mockMvc.perform(delete("/api/payments/{paymentId}", payment.id()))
@@ -196,7 +196,8 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {
+        });
 
         assertThat(apiResult.message()).isEqualTo("결제 취소에 성공했습니다.");
 
@@ -210,7 +211,7 @@ class PaymentControllerTest {
         // 1. 결제 생성 (서비스를 통해 히스토리까지 자동 생성됨)
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                "CREDIT_CARD",
+                PaymentMethod.CARD,
                 new BigDecimal("50000")
         );
         MvcResult createResult = mockMvc.perform(post("/api/payments")
@@ -219,16 +220,18 @@ class PaymentControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        ApiResult<PaymentCreateResponse> createResponse = TestUtils.convertToApiResult(createResult, objectMapper, new TypeReference<>() {});
+        ApiResult<PaymentCreateResponse> createResponse = TestUtils.convertToApiResult(createResult, objectMapper, new TypeReference<>() {
+        });
         Long paymentId = createResponse.data().paymentId();
 
         // 2. 이력 조회
-        MvcResult historyResult = mockMvc.perform(get("/api/payments/{paymentId}/histories", paymentId))
+        MvcResult historyResult = mockMvc.perform(get("/api/payments/{paymentId}/history", paymentId))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<PaymentHistoryResponse> apiResult = TestUtils.convertToApiResult(historyResult, objectMapper, new TypeReference<>() {});
+        ApiResult<PaymentHistoryResponse> apiResult = TestUtils.convertToApiResult(historyResult, objectMapper, new TypeReference<>() {
+        });
 
         assertThat(apiResult.message()).isEqualTo("결제 이력 조회에 성공했습니다.");
         assertThat(apiResult.data().paymentHistories()).isNotEmpty();

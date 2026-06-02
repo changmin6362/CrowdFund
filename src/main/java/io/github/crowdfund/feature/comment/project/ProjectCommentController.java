@@ -51,7 +51,7 @@ public class ProjectCommentController {
      * 프로젝트의 댓글 목록 조회 (복합 커서 기반 최신순 페이지네이션)
      *
      * @param projectId 프로젝트 아이디
-     * @return message, comments
+     * @return message, comments, hasNext, nextCursor
      */
     @Operation(summary = "프로젝트의 댓글 목록 조회")
     @ApiResponse(responseCode = "200", description = "댓글 목록 조회 성공 응답 예시")
