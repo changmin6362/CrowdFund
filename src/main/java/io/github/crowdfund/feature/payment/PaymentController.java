@@ -69,7 +69,7 @@ public class PaymentController {
      * 결제 이력 조회
      *
      * @param paymentId 결제 ID
-     * @return message, history
+     * @return message, paymentHistories
      */
     @Operation(summary = "결제 이력 조회")
     @ApiResponse(responseCode = "200", description = "결제 이력 조회 성공 응답 예시")
