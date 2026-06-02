@@ -6,12 +6,15 @@ import io.github.crowdfund.domain.comment.mapper.CommentMapper;
 import io.github.crowdfund.domain.user.User;
 import io.github.crowdfund.domain.user.UserRepository;
 import io.github.crowdfund.feature.comment.project.dto.CommentInfo;
-import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateResponse;
 import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateRequest;
+import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateResponse;
 import io.github.crowdfund.feature.comment.project.dto.delete.ProjectCommentDeleteResponse;
 import io.github.crowdfund.feature.comment.project.dto.fetch.ProjectCommentsFetchResponse;
-import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateResponse;
 import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateRequest;
+import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateResponse;
+import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
+import io.github.crowdfund.global.common.dto.pagination.CursorResponse;
+import io.github.crowdfund.global.common.pagination.CursorPaginationProcessor;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -63,11 +66,27 @@ public class ProjectCommentService {
     /**
      * 프로젝트의 댓글 목록 조회 도메인 로직
      */
-    public ProjectCommentsFetchResponse fetch(Long projectId, Long currentUserId) {
+    public ProjectCommentsFetchResponse fetch(Long projectId, Long currentUserId, CursorRequest cursorRequest, Integer limit) {
+        // 1. 객체 내부 로직을 활용해 입력값 검증
+        cursorRequest.validate();
 
-        List<CommentInfo> comments = mapper.findAllByProjectId(projectId, currentUserId);
+        // 2. 데이터 목록 조회 (다음 페이지 존재 여부 확인을 위해 limit보다 1개를 더 조회)
+        List<CommentInfo> comments = mapper.findAllByProjectId(
+                projectId,
+                currentUserId,
+                cursorRequest.createdAt(),
+                cursorRequest.id(),
+                limit + 1
+        );
 
-        return new ProjectCommentsFetchResponse(comments);
+        // 3. 다음 요청에 사용할 복합 커서를 처리함
+        CursorResponse<CommentInfo, CursorRequest> response = CursorPaginationProcessor.convertToCursorResponse(
+                comments,
+                limit,
+                item -> new CursorRequest(item.createdAt(), item.commentId())
+        );
+
+        return new ProjectCommentsFetchResponse(response.content(), response.hasNext(), response.nextCursor());
     }
 
 
@@ -80,11 +99,11 @@ public class ProjectCommentService {
         Comment comment = repository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
 
-        mapper.update(commentId, request.content());
-
         if (!comment.userId().equals(userId)) {
-            throw new IllegalArgumentException("본인의 댓글만 삭제할 수 있습니다.");
+            throw new IllegalArgumentException("본인의 댓글만 수정할 수 있습니다.");
         }
+
+        mapper.update(commentId, request.content());
 
         CommentInfo patchedComment = mapper.findByIdToCommentInfo(commentId, comment.userId())
                 .orElseThrow(() -> new IllegalStateException("댓글 수정 후 데이터를 가져오는 데 실패했습니다."));

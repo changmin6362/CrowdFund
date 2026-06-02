@@ -1,5 +1,6 @@
 package io.github.crowdfund.feature.project.user.dto.fetch;
 
+import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
@@ -12,6 +13,6 @@ public record UserProjectFetchResponse(
         boolean hasNext,
 
         @Schema(description = "다음 페이지 커서 정보")
-        NextCursor nextCursor
+        CursorRequest nextCursor
 ) {
 }

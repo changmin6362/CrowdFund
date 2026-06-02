@@ -20,12 +20,16 @@
             c.id AS comment_id,
             u.nickname AS writer_name,
             c.content,
-            DATE_FORMAT(c.created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+            c.created_at AS created_at,
             CASE WHEN c.user_id = #{currentUserId} THEN 1 ELSE 0 END AS is_editable
         FROM comment c
-        JOIN user u ON c.user_id = u.id
+        LEFT JOIN user u ON c.user_id = u.id
         WHERE c.project_id = #{projectId}
-        ORDER BY c.created_at DESC
+        <if test="cursorCreatedAt != null and cursorId != null">
+            AND (c.created_at &lt; #{cursorCreatedAt} OR (c.created_at = #{cursorCreatedAt} AND c.id &lt; #{cursorId}))
+        </if>
+        ORDER BY c.created_at DESC, c.id DESC
+        LIMIT #{limit}
     </select>
 
     <select id="findAllByUserId" resultType="io.github.crowdfund.feature.comment.my.dto.fetch.MyCommentInfo">
@@ -34,11 +38,15 @@
             p.id AS project_id,
             p.title AS project_title,
             c.content,
-            DATE_FORMAT(c.created_at, '%Y-%m-%d %H:%i:%s') AS created_at
+            c.created_at AS created_at
         FROM comment c
         JOIN project p ON c.project_id = p.id
         WHERE c.user_id = #{userId}
-        ORDER BY c.created_at DESC
+        <if test="cursorCreatedAt != null and cursorId != null">
+            AND (c.created_at &lt; #{cursorCreatedAt} OR (c.created_at = #{cursorCreatedAt} AND c.id &lt; #{cursorId}))
+        </if>
+        ORDER BY c.created_at DESC, c.id DESC
+        LIMIT #{limit}
     </select>
 
     <select id="findByIdToCommentInfo"
@@ -46,11 +54,11 @@
         SELECT c.id                                           AS comment_id,
                u.nickname                                     AS writer_name,
                c.content,
-               DATE_FORMAT(c.created_at, '%Y-%m-%d %H:%i:%s') AS created_at,
+               c.created_at                                   AS created_at,
                IF(c.user_id = #{currentUserId}, 1, 0)
                                                               AS is_editable
         FROM comment c
-                 JOIN user u ON c.user_id = u.id
+                 LEFT JOIN user u ON c.user_id = u.id
         WHERE c.id = #{commentId}
     </select>
 

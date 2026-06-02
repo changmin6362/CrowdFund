@@ -129,24 +129,37 @@ class ProjectCommentControllerTest {
     }
 
     @Test
-    void 프로젝트_댓글_목록_조회_테스트() throws Exception {
-        commentRepository.save(new Comment(
-                null, savedUser.id(), savedProject.id(), "댓글1", LocalDateTime.now()
-        ));
-        commentRepository.save(new Comment(
-                null, savedUser.id(), savedProject.id(), "댓글2", LocalDateTime.now()
-        ));
+    void 프로젝트_댓글_목록_조회_정렬_및_페이지네이션_테스트() throws Exception {
+        // 15개의 댓글 생성
+        for (int i = 1; i <= 15; i++) {
+            commentRepository.save(new Comment(
+                    null, savedUser.id(), savedProject.id(), "댓글" + i, LocalDateTime.now().plusSeconds(i)
+            ));
+        }
 
-        MvcResult result = mockMvc.perform(get("/api/projects/{projectId}/comments", savedProject.id())
-                        .param("currentUserId", String.valueOf(savedUser.id())))
+        // 첫 번째 페이지 조회 (limit=10)
+        MvcResult firstResult = mockMvc.perform(get("/api/projects/{projectId}/comments", savedProject.id())
+                        .param("limit", "10"))
                 .andExpect(status().isOk())
-                .andDo(print())
                 .andReturn();
 
-        ApiResult<ProjectCommentsFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<ProjectCommentsFetchResponse> firstPage = TestUtils.convertToApiResult(firstResult, objectMapper, new TypeReference<>() {});
+        assertThat(firstPage.data().comments()).hasSize(10);
+        assertThat(firstPage.data().hasNext()).isTrue();
+        assertThat(firstPage.data().nextCursor()).isNotNull();
 
-        assertThat(apiResult.message()).isEqualTo("댓글 목록 조회에 성공했습니다.");
-        assertThat(apiResult.data().comments()).hasSize(2);
+        // 두 번째 페이지 조회 (커서 사용)
+        MvcResult secondResult = mockMvc.perform(get("/api/projects/{projectId}/comments", savedProject.id())
+                        .param("limit", "10")
+                        .param("createdAt", firstPage.data().nextCursor().createdAt().toString())
+                        .param("id", firstPage.data().nextCursor().id().toString()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ApiResult<ProjectCommentsFetchResponse> secondPage = TestUtils.convertToApiResult(secondResult, objectMapper, new TypeReference<>() {});
+        assertThat(secondPage.data().comments()).hasSize(5);
+        assertThat(secondPage.data().hasNext()).isFalse();
+        assertThat(secondPage.data().nextCursor()).isNull();
     }
 
     @Test
