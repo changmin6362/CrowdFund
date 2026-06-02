@@ -11,11 +11,12 @@ import java.time.LocalDateTime;
  *
  * @param id             결제 ID
  * @param pledgeId       후원 ID
- * @param paymentMethod  결제 수단 (최대 50자)
+ * @param paymentMethod  결제 수단 (최대 20자)
  * @param amount         결제 금액
- * @param status         결제 상태 (최대 20자)
+ * @param status         결제 상태 [PENDING: 결제 대기중, PAID: 결제 완료, FAILED: 결제 실패, CANCELED: 결제 취소, REFUNDED: 환불]
  * @param paidAt         결제 완료 시간
  * @param createdAt      생성일시
+ * @param updatedAt      수정일시
  */
 @Table("payment")
 public record Payment(
@@ -23,7 +24,8 @@ public record Payment(
     Long pledgeId,
     String paymentMethod,
     BigDecimal amount,
-    String status,
+    PaymentStatus status,
     LocalDateTime paidAt,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt
 ) {}
