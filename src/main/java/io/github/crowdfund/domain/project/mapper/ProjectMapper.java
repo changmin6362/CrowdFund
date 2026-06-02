@@ -12,6 +12,9 @@ import org.apache.ibatis.annotations.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 프로젝트 관련 복합 쿼리를 담은 매퍼 (MyBatis)
+ */
 @Mapper
 public interface ProjectMapper {
     Long insert(@Param("creatorId") Long creatorId, @Param("command") Project project);

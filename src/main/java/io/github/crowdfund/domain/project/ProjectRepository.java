@@ -10,27 +10,4 @@ import java.util.List;
  */
 @Repository
 public interface ProjectRepository extends ListCrudRepository<Project, Long> {
-    /**
-     * 생성자 ID로 프로젝트 목록을 조회합니다.
-     *
-     * @param creatorId 생성자 ID
-     * @return 프로젝트 목록
-     */
-    List<Project> findByCreatorId(Long creatorId);
-
-    /**
-     * 카테고리 ID로 프로젝트 목록을 조회합니다.
-     *
-     * @param categoryId 카테고리 ID
-     * @return 프로젝트 목록
-     */
-    List<Project> findByCategoryId(Integer categoryId);
-
-    /**
-     * 프로젝트 상태로 프로젝트 목록을 조회합니다.
-     *
-     * @param status 프로젝트 상태
-     * @return 프로젝트 목록
-     */
-    List<Project> findByStatus(ProjectStatus status);
 }
