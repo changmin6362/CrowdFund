@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.payment.Payment;
+import io.github.crowdfund.domain.payment.PaymentMethod;
 import io.github.crowdfund.domain.payment.PaymentRepository;
 import io.github.crowdfund.domain.payment.PaymentStatus;
 import io.github.crowdfund.domain.paymenthistory.PaymentHistory;
@@ -108,7 +109,7 @@ class PaymentControllerTest {
     void 결제_생성_테스트() throws Exception {
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                "CREDIT_CARD",
+                PaymentMethod.CREDIT_CARD,
                 new BigDecimal("50000")
         );
 
@@ -129,7 +130,7 @@ class PaymentControllerTest {
     void 결제_생성_금액불일치_실패_테스트() throws Exception {
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                "CREDIT_CARD",
+                PaymentMethod.CREDIT_CARD,
                 new BigDecimal("30000") // Pledge는 50000L
         );
 
@@ -144,7 +145,7 @@ class PaymentControllerTest {
     void 결제_조회_테스트() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         Payment payment = paymentRepository.save(new Payment(
-                null, savedPledge.id(), "KAKAOPAY", new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.KAKAOPAY, new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
         ));
 
         MvcResult result = mockMvc.perform(get("/api/payments/pledge/{pledgeId}", savedPledge.id()))
@@ -156,7 +157,7 @@ class PaymentControllerTest {
 
         assertThat(apiResult.message()).isEqualTo("결제 상세 조회에 성공했습니다.");
         assertThat(apiResult.data().paymentDetail().paymentId()).isEqualTo(payment.id());
-        assertThat(apiResult.data().paymentDetail().paymentMethod()).isEqualTo("KAKAOPAY");
+        assertThat(apiResult.data().paymentDetail().paymentMethod()).isEqualTo(PaymentMethod.KAKAOPAY);
     }
 
     @Test
@@ -164,12 +165,12 @@ class PaymentControllerTest {
         // 이미 결제가 존재하는 상태로 만듦
         LocalDateTime now = LocalDateTime.now();
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.CREDIT_CARD, new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
         ));
 
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                "CREDIT_CARD",
+                PaymentMethod.CREDIT_CARD,
                 new BigDecimal("50000")
         );
 
@@ -188,7 +189,7 @@ class PaymentControllerTest {
     void 결제_취소_테스트() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         Payment payment = paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.CREDIT_CARD, new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
         ));
 
         MvcResult result = mockMvc.perform(delete("/api/payments/{paymentId}", payment.id()))
@@ -210,7 +211,7 @@ class PaymentControllerTest {
         // 1. 결제 생성 (서비스를 통해 히스토리까지 자동 생성됨)
         PaymentCreateRequest request = new PaymentCreateRequest(
                 savedPledge.id(),
-                "CREDIT_CARD",
+                PaymentMethod.CREDIT_CARD,
                 new BigDecimal("50000")
         );
         MvcResult createResult = mockMvc.perform(post("/api/payments")
@@ -223,7 +224,7 @@ class PaymentControllerTest {
         Long paymentId = createResponse.data().paymentId();
 
         // 2. 이력 조회
-        MvcResult historyResult = mockMvc.perform(get("/api/payments/{paymentId}/histories", paymentId))
+        MvcResult historyResult = mockMvc.perform(get("/api/payments/{paymentId}/history", paymentId))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();

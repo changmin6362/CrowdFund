@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 public record Payment(
     @Id Long id,
     Long pledgeId,
-    String paymentMethod,
+    PaymentMethod paymentMethod,
     BigDecimal amount,
     PaymentStatus status,
     LocalDateTime paidAt,

@@ -1,6 +1,7 @@
 package io.github.crowdfund.feature.pledge.admin;
 
 import io.github.crowdfund.domain.payment.Payment;
+import io.github.crowdfund.domain.payment.PaymentMethod;
 import io.github.crowdfund.domain.payment.PaymentRepository;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
@@ -67,8 +68,8 @@ public class AdminPledgeService {
         );
 
         AdminPaymentDetail paymentDetail = paymentOpt
-                .map(p -> new AdminPaymentDetail(p.amount(), p.paymentMethod()))
-                .orElse(new AdminPaymentDetail(pledge.amount(), "UNKNOWN"));
+                .map(p -> new AdminPaymentDetail(p.amount(), p.paymentMethod().name()))
+                .orElse(new AdminPaymentDetail(pledge.amount(), PaymentMethod.UNKNOWN.name()));
 
         AdminProjectDetail projectDetail = new AdminProjectDetail(
                 project.id(),

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.payment.Payment;
+import io.github.crowdfund.domain.payment.PaymentMethod;
 import io.github.crowdfund.domain.payment.PaymentRepository;
 import io.github.crowdfund.domain.payment.PaymentStatus;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
@@ -119,7 +120,7 @@ class AdminPledgeControllerTest {
 
         LocalDateTime now = LocalDateTime.now();
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.CREDIT_CARD, new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
         ));
 
         MvcResult result = mockMvc.perform(get("/api/admin/pledge/{pledgeId}", savedPledge.id()))

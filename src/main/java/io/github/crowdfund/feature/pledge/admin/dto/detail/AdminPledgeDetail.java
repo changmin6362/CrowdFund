@@ -10,7 +10,7 @@ public record AdminPledgeDetail(
         @Schema(description = "생성 일시", example = "2023-08-01T12:00:00")
         String createdAt,
 
-        @Schema(description = "후원 상태")
+        @Schema(description = "보상 이행 상태")
         FulfillmentStatus fulfillmentStatus,
 
         @Schema(description = "유저 정보")

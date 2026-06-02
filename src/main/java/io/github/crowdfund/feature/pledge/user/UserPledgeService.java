@@ -1,6 +1,7 @@
 package io.github.crowdfund.feature.pledge.user;
 
 import io.github.crowdfund.domain.payment.Payment;
+import io.github.crowdfund.domain.payment.PaymentMethod;
 import io.github.crowdfund.domain.payment.PaymentRepository;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
@@ -13,7 +14,7 @@ import io.github.crowdfund.domain.reward.Reward;
 import io.github.crowdfund.domain.reward.RewardRepository;
 import io.github.crowdfund.feature.pledge.user.dto.create.UserPledgeCreateRequest;
 import io.github.crowdfund.feature.pledge.user.dto.create.UserPledgeCreateResponse;
-import io.github.crowdfund.feature.pledge.user.dto.detail.PledgeDetail;
+import io.github.crowdfund.feature.pledge.user.dto.detail.UserPledgeDetail;
 import io.github.crowdfund.feature.pledge.user.dto.detail.ShippingAddress;
 import io.github.crowdfund.feature.pledge.user.dto.detail.UserPledgeDetailResponse;
 import jakarta.validation.Valid;
@@ -81,7 +82,7 @@ public class UserPledgeService {
                 .orElseThrow(() -> new IllegalStateException("해당 리워드를 찾을 수 없습니다. ID: " + pledge.rewardId()));
 
         Optional<Payment> paymentOpt = paymentRepository.findByPledgeId(pledge.id());
-        String paymentMethod = paymentOpt.map(p -> translatePaymentMethod(p.paymentMethod())).orElse("미지정");
+        String paymentMethod = paymentOpt.map(p -> p.paymentMethod().name()).orElse(PaymentMethod.UNKNOWN.name());
 
         Optional<PledgeAddress> addressOpt = pledgeAddressRepository.findByPledgeId(pledge.id());
         ShippingAddress shippingAddress = addressOpt.map(addr -> new ShippingAddress(
@@ -89,11 +90,10 @@ public class UserPledgeService {
                 addr.phone(),
                 addr.addressMain(),
                 addr.addressDetail(),
-                // 배송 시작 시(또는 완료 시) 노출될 수 있는 정보로 가정 (여기서는 status가 SHIPPED/COMPLETED일 때만 노출하는 예시 로직)
-                (pledge.fulfillmentStatus() == FulfillmentStatus.READY) ? "배송 준비중" : addr.postalCode()
+                addr.postalCode()
         )).orElse(null);
 
-        PledgeDetail pledgeDetail = new PledgeDetail(
+        UserPledgeDetail userPledgeDetail = new UserPledgeDetail(
                 pledge.id(),
                 pledge.createdAt().toString(),
                 pledge.fulfillmentStatus(),
@@ -104,17 +104,7 @@ public class UserPledgeService {
                 shippingAddress
         );
 
-        return new UserPledgeDetailResponse(pledgeDetail);
-    }
-
-    private String translatePaymentMethod(String method) {
-        if (method == null) return "미지정";
-        return switch (method.toUpperCase()) {
-            case "CREDIT_CARD" -> "신용카드";
-            case "TRANSFER" -> "계좌이체";
-            case "KAKAOPAY" -> "카카오페이";
-            default -> method;
-        };
+        return new UserPledgeDetailResponse(userPledgeDetail);
     }
 
     /**
@@ -122,9 +112,13 @@ public class UserPledgeService {
      */
     @Transactional
     public void cancel(Long pledgeId) {
-        if (!pledgeRepository.existsById(pledgeId)) {
-            throw new IllegalArgumentException("존재하지 않는 후원 내역입니다.");
+        Pledge pledge = pledgeRepository.findById(pledgeId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
+
+        if (!pledge.canCancel()) {
+            throw new IllegalStateException("이미 보상 이행이 시작되어 취소할 수 없습니다.");
         }
+
         pledgeRepository.deleteById(pledgeId);
     }
 }

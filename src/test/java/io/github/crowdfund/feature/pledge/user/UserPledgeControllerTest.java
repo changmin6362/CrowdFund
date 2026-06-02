@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.payment.Payment;
+import io.github.crowdfund.domain.payment.PaymentMethod;
 import io.github.crowdfund.domain.payment.PaymentRepository;
 import io.github.crowdfund.domain.payment.PaymentStatus;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
@@ -103,8 +104,8 @@ class UserPledgeControllerTest {
     void 후원_참여_테스트() throws Exception {
         String createRequest = """
                 {
-                    "project_id": %d,
-                    "reward_id": %d
+                    "projectId": %d,
+                    "rewardId": %d
                 }
                 """.formatted(savedProject.id(), savedReward.id());
 
@@ -129,7 +130,7 @@ class UserPledgeControllerTest {
 
         LocalDateTime now = LocalDateTime.now();
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
+                null, savedPledge.id(), PaymentMethod.CREDIT_CARD, new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
         ));
 
         pledgeAddressRepository.save(new PledgeAddress(
@@ -144,8 +145,8 @@ class UserPledgeControllerTest {
         ApiResult<UserPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("후원 상세 조회에 성공했습니다.");
-        assertThat(apiResult.data().pledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
-        assertThat(apiResult.data().pledgeDetail().projectTitle()).isEqualTo(savedProject.title());
+        assertThat(apiResult.data().userPledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
+        assertThat(apiResult.data().userPledgeDetail().projectTitle()).isEqualTo(savedProject.title());
     }
 
     @Test

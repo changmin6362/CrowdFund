@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
  * @param projectId         프로젝트 ID
  * @param rewardId          선택 보상 ID
  * @param amount            후원 금액
- * @param fulfillmentStatus 보상 이행 상태 [READY: 준비중, COMPLETED: 지급 완료]
+ * @param fulfillmentStatus 보상 이행 상태 [READY: 준비중, FULFILLED: 이행 완료]
  * @param fulfilledAt       보상 이행 완료 일시
- * @param createdAt         후원일시
+ * @param createdAt         후원 일시
  */
 @Table("pledge")
 public record Pledge(
@@ -28,4 +28,19 @@ public record Pledge(
     FulfillmentStatus fulfillmentStatus,
     LocalDateTime fulfilledAt,
     LocalDateTime createdAt
-) {}
+) {
+    public Pledge changeToFulfilled(LocalDateTime fulfilledAt) {
+        if (this.fulfillmentStatus == FulfillmentStatus.FULFILLED) {
+            return this;
+        }
+        return new Pledge(id, userId, projectId, rewardId, amount, FulfillmentStatus.FULFILLED, fulfilledAt, createdAt);
+    }
+
+    public Pledge resetToReady() {
+        return new Pledge(id, userId, projectId, rewardId, amount, FulfillmentStatus.READY, null, createdAt);
+    }
+
+    public boolean canCancel() {
+        return this.fulfillmentStatus == FulfillmentStatus.READY;
+    }
+}

@@ -1,5 +1,6 @@
 package io.github.crowdfund.feature.payment.dto.detail;
 
+import io.github.crowdfund.domain.payment.PaymentMethod;
 import io.github.crowdfund.domain.payment.PaymentStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -13,8 +14,8 @@ public record PaymentDetail(
         @Schema(description = "후원 ID", example = "1")
         Long pledgeId,
 
-        @Schema(description = "결제 방법", example = "카드")
-        String paymentMethod,
+        @Schema(description = "결제 방법", example = "CREDIT_CARD")
+        PaymentMethod paymentMethod,
 
         @Schema(description = "결제 금액", example = "35000")
         BigDecimal amount,
