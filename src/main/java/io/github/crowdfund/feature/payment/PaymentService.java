@@ -58,6 +58,8 @@ public class PaymentService {
 
         Payment saved = paymentRepository.save(payment);
 
+        pledgeRepository.save(pledge.completePayment());
+
         PaymentHistory history = new PaymentHistory(
                 null,
                 saved.id(),

@@ -27,4 +27,17 @@ public record Reward(
     Integer stock,
     LocalDateTime createdAt
 ) {
+    public boolean hasStock() {
+        return stock == null || stock > 0;
+    }
+
+    public Reward decreaseStock() {
+        if (stock == null) {
+            return this;
+        }
+        if (stock <= 0) {
+            throw new IllegalStateException("재고가 부족합니다.");
+        }
+        return new Reward(id, projectId, title, description, price, stock - 1, createdAt);
+    }
 }

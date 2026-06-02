@@ -102,7 +102,7 @@ class PaymentControllerTest {
         ));
 
         savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("50000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("50000"), PledgeStatus.PENDING, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
     }
 
@@ -125,6 +125,10 @@ class PaymentControllerTest {
 
         assertThat(apiResult.message()).isEqualTo("결제 요청에 성공했습니다.");
         assertThat(apiResult.data().paymentId()).isNotNull();
+
+        // 후원 상태 확인
+        Pledge updatedPledge = pledgeRepository.findById(savedPledge.id()).orElseThrow();
+        assertThat(updatedPledge.status()).isEqualTo(PledgeStatus.PAID);
     }
 
     @Test

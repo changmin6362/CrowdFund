@@ -146,7 +146,7 @@ class MyPledgeControllerTest {
 
         ApiResult<MyPledgeDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
-        assertThat(apiResult.message()).isEqualTo("후원 상세 조회에 성공했습니다.");
+        assertThat(apiResult.message()).isEqualTo("내 후원 상세 조회에 성공했습니다.");
         assertThat(apiResult.data().myPledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
         assertThat(apiResult.data().myPledgeDetail().projectTitle()).isEqualTo(savedProject.title());
     }
@@ -182,5 +182,70 @@ class MyPledgeControllerTest {
 
         assertThat(apiResult.message()).isEqualTo("내가 후원한 프로젝트 목록 조회에 성공했습니다.");
         assertThat(apiResult.data().pledges()).isNotEmpty();
+    }
+
+    @Test
+    void 종료된_프로젝트_후원_불가_테스트() throws Exception {
+        Project completedProject = projectRepository.save(new Project(
+                null, savedProject.categoryId(), savedUser.id(), "종료된 프로젝트", "[{\"type\":\"text\",\"content\":\"내용\"}]", new BigDecimal("1000000"), BigDecimal.ZERO, LocalDateTime.now().minusDays(1), ProjectStatus.COMPLETED, LocalDateTime.now()
+        ));
+
+        Reward completedReward = rewardRepository.save(new Reward(
+                null, completedProject.id(), "리워드", "설명", new BigDecimal("10000"), 100, LocalDateTime.now()
+        ));
+
+        String createRequest = """
+                {
+                    "projectId": %d,
+                    "rewardId": %d
+                }
+                """.formatted(completedProject.id(), completedReward.id());
+
+        mockMvc.perform(post("/api/pledges/me/{userId}", savedUser.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createRequest))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    void 재고가_없는_리워드_후원_불가_테스트() throws Exception {
+        Reward noStockReward = rewardRepository.save(new Reward(
+                null, savedProject.id(), "품절 리워드", "설명", new BigDecimal("10000"), 0, LocalDateTime.now()
+        ));
+
+        String createRequest = """
+                {
+                    "projectId": %d,
+                    "rewardId": %d
+                }
+                """.formatted(savedProject.id(), noStockReward.id());
+
+        mockMvc.perform(post("/api/pledges/me/{userId}", savedUser.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createRequest))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    void 중복_후원_불가_테스트() throws Exception {
+        // 이미 후원 기록 생성
+        pledgeRepository.save(new Pledge(
+                null, savedUser.id(), savedProject.id(), savedReward.id(), savedReward.price(), PledgeStatus.PENDING, FulfillmentStatus.READY, null, LocalDateTime.now()
+        ));
+
+        String createRequest = """
+                {
+                    "projectId": %d,
+                    "rewardId": %d
+                }
+                """.formatted(savedProject.id(), savedReward.id());
+
+        mockMvc.perform(post("/api/pledges/me/{userId}", savedUser.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createRequest))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
     }
 }

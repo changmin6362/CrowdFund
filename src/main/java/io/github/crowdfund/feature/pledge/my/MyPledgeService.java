@@ -42,10 +42,21 @@ public class MyPledgeService {
     private final PledgeMapper pledgeMapper;
 
     /**
-     * 후원 참여 도메인 로직
+     * 프로젝트 후원하기 도메인 로직
      */
     @Transactional
     public MyPledgeCreateResponse create(Long userId, @Valid MyPledgeCreateRequest request) {
+        Project project = projectRepository.findById(request.projectId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
+
+        if (!project.isOngoing()) {
+            throw new IllegalStateException("현재 진행 중인 프로젝트가 아닙니다.");
+        }
+
+        if (pledgeRepository.existsByUserIdAndProjectId(userId, request.projectId())) {
+            throw new IllegalStateException("이미 이 프로젝트에 후원하셨습니다.");
+        }
+
         Reward reward = rewardRepository.findById(request.rewardId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리워드입니다."));
 
@@ -53,8 +64,11 @@ public class MyPledgeService {
             throw new IllegalArgumentException("해당 프로젝트의 리워드가 아닙니다.");
         }
 
-        // TODO: 재고(stock) 체크 로직 추가 필요 여부 확인 (현재 Reward에 stock 필드 존재)
-        // if (reward.stock() <= 0) { throw new RuntimeException("재고가 부족합니다."); }
+        if (!reward.hasStock()) {
+            throw new IllegalStateException("리워드 재고가 부족합니다.");
+        }
+
+        rewardRepository.save(reward.decreaseStock());
 
         Pledge pledge = new Pledge(
                 null,
@@ -126,7 +140,7 @@ public class MyPledgeService {
             throw new IllegalStateException("이미 보상 이행이 시작되어 취소할 수 없습니다.");
         }
 
-        Pledge canceledPledge = pledge.cancel();
+        Pledge canceledPledge = pledge.cancelPledge();
         pledgeRepository.save(canceledPledge);
 
         return new MyPledgesDeleteResponse(canceledPledge.id());

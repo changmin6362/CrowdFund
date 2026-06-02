@@ -27,9 +27,10 @@ public class CreatorPledgeService {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
+        // request의 fulfillmentStatus에 따라 Pledge 상태 변경
         Pledge updatedPledge = switch (request.fulfillmentStatus()) {
-            case FULFILLED -> pledge.changeToFulfilled(LocalDateTime.now());
-            case READY -> pledge.resetToReady();
+            case FULFILLED -> pledge.completeFulfillment(LocalDateTime.now());
+            case READY -> pledge.cancelFulfillment();
         };
 
         Pledge savedPledge = pledgeRepository.save(updatedPledge);

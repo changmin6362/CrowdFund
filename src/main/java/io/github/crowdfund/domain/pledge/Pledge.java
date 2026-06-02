@@ -20,33 +20,43 @@ import java.time.LocalDateTime;
  * @param createdAt         후원 일시
  */
 @Table("pledge")
-public record Pledge(
-    @Id Long id,
-    Long userId,
-    Long projectId,
-    Long rewardId,
-    BigDecimal amount,
-    PledgeStatus status,
-    FulfillmentStatus fulfillmentStatus,
-    LocalDateTime fulfilledAt,
-    LocalDateTime createdAt
-) {
-    public Pledge changeToFulfilled(LocalDateTime fulfilledAt) {
+public record Pledge(@Id Long id, Long userId, Long projectId, Long rewardId, BigDecimal amount, PledgeStatus status,
+                     FulfillmentStatus fulfillmentStatus, LocalDateTime fulfilledAt, LocalDateTime createdAt) {
+    /**\
+     * 보상 이행 완료 처리 메서드
+     */
+    public Pledge completeFulfillment(LocalDateTime fulfilledAt) {
         if (this.fulfillmentStatus == FulfillmentStatus.FULFILLED) {
             return this;
         }
         return new Pledge(id, userId, projectId, rewardId, amount, status, FulfillmentStatus.FULFILLED, fulfilledAt, createdAt);
     }
 
-    public Pledge resetToReady() {
+    /**
+     * 보상 이행 취소 처리 메서드
+     */
+    public Pledge cancelFulfillment() {
         return new Pledge(id, userId, projectId, rewardId, amount, status, FulfillmentStatus.READY, null, createdAt);
     }
 
-    public Pledge cancel() {
+    /**
+     * 후원 취소 처리 메서드
+     */
+    public Pledge cancelPledge() {
         return new Pledge(id, userId, projectId, rewardId, amount, PledgeStatus.CANCELED, fulfillmentStatus, fulfilledAt, createdAt);
     }
 
+    /**
+     * 결제 완료 처리 메서드
+     */
+    public Pledge completePayment() {
+        return new Pledge(id, userId, projectId, rewardId, amount, PledgeStatus.PAID, fulfillmentStatus, fulfilledAt, createdAt);
+    }
+
+    /**
+     * 후원 취소 가능 여부 확인 메서드
+     */
     public boolean canCancel() {
-        return this.fulfillmentStatus == FulfillmentStatus.READY;
+        return this.status == PledgeStatus.PAID && this.fulfillmentStatus == FulfillmentStatus.READY;
     }
 }
