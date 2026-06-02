@@ -1,18 +1,22 @@
 package io.github.crowdfund.feature.pledgeaddress;
 
+import io.github.crowdfund.domain.pledge.FulfillmentStatus;
+import io.github.crowdfund.domain.pledge.Pledge;
+import io.github.crowdfund.domain.pledge.PledgeRepository;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddress;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.crowdfund.domain.useraddress.UserAddress;
 import io.github.crowdfund.domain.useraddress.UserAddressRepository;
-import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceRequest;
-import io.github.crowdfund.feature.pledgeaddress.dto.fetch.PledgeAddressFetchResponse;
 import io.github.crowdfund.feature.pledgeaddress.dto.PledgeAddressInfo;
+import io.github.crowdfund.feature.pledgeaddress.dto.fetch.PledgeAddressFetchResponse;
+import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceRequest;
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -21,9 +25,10 @@ public class PledgeAddressService {
 
     private final PledgeAddressRepository repository;
     private final UserAddressRepository userAddressRepository;
+    private final PledgeRepository pledgeRepository;
 
     /**
-     * 후원 주소 조회 도메인 로직
+     * 참여한 후원의 배송 정보 조회 도메인 로직
      */
     public PledgeAddressFetchResponse fetch(Long pledgeId) {
         PledgeAddress address = repository.findByPledgeId(pledgeId)
@@ -33,12 +38,25 @@ public class PledgeAddressService {
     }
 
     /**
-     * 후원 주소 교체 도메인 로직
+     * 참여한 후원의 배송 정보 교체 도메인 로직
      */
     @Transactional
     public PledgeAddressReplaceResponse replace(Long pledgeId, PledgeAddressReplaceRequest request) {
+        Pledge pledge = pledgeRepository.findById(pledgeId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 후원 정보를 찾을 수 없습니다."));
+
+        // 배송 정보 수정 가능 여부 확인 (이행 상태가 READY 인 경우만 가능)
+        if (pledge.fulfillmentStatus() != FulfillmentStatus.READY) {
+            throw new IllegalStateException("배송이 이미 시작되었거나 완료되어 주소를 변경할 수 없습니다.");
+        }
+
         UserAddress userAddress = userAddressRepository.findById(request.addressId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 주소 정보를 찾을 수 없습니다."));
+
+        // 소유권 검증: 교체하려는 주소지가 후원자의 주소지인지 확인
+        if (!Objects.equals(userAddress.userId(), pledge.userId())) {
+            throw new IllegalArgumentException("자신의 배송지만 선택할 수 있습니다.");
+        }
 
         PledgeAddress existingAddress = repository.findByPledgeId(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 후원의 주소 정보를 찾을 수 없습니다."));
