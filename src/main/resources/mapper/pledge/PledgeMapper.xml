@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.crowdfund.domain.pledge.mapper.PledgeMapper">
 
-    <select id="findPledgesByUserId" resultType="UserPledgeResponse">
+    <select id="findPledgesByUserId" resultType="io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgeInfo">
         SELECT
             p.id as pledgeId,
             pj.id as projectId,
@@ -22,7 +22,11 @@
         <if test="status != null">
             AND p.fulfillment_status = #{status}
         </if>
-        ORDER BY p.created_at DESC
+        <if test="cursorCreatedAt != null and cursorId != null">
+            AND (p.created_at &lt; #{cursorCreatedAt} OR (p.created_at = #{cursorCreatedAt} AND p.id &lt; #{cursorId}))
+        </if>
+        ORDER BY p.created_at DESC, p.id DESC
+        LIMIT #{limit}
     </select>
 
 </mapper>

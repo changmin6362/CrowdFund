@@ -7,11 +7,14 @@ import io.github.crowdfund.feature.pledge.my.dto.delete.MyPledgesDeleteResponse;
 import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetailResponse;
 import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgesFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,7 +73,7 @@ public class MyPledgeController {
     }
 
     /**
-     * 내가 후원한 프로젝트 목록 조회
+     * 내가 후원한 프로젝트 목록 조회 (복합 커서 기반 최신순 페이지네이션)
      *
      * @param userId 사용자 ID
      * @param status 후원 상태 필터 (null인 경우 모든 상태 조회)
@@ -82,8 +85,10 @@ public class MyPledgeController {
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<MyPledgesFetchResponse> fetch(
             @PathVariable Long userId,
-            @RequestParam(required = false) FulfillmentStatus status
+            @RequestParam(required = false) FulfillmentStatus status,
+            @ParameterObject CursorRequest cursorRequest,
+            @RequestParam(defaultValue = "10") @Positive Integer limit
     ) {
-        return ApiResult.success("내가 후원한 프로젝트 목록 조회에 성공했습니다.", service.fetch(userId, status));
+        return ApiResult.success("내가 후원한 프로젝트 목록 조회에 성공했습니다.", service.fetch(userId, status, cursorRequest, limit));
     }
 }

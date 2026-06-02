@@ -1,8 +1,11 @@
 package io.github.crowdfund.domain.pledge.mapper;
 
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
-import io.github.crowdfund.domain.pledge.response.UserPledgeResponse;
+import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgeInfo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -17,5 +20,11 @@ public interface PledgeMapper {
      * @param status 후원 상태 필터 (null인 경우 모든 상태 조회)
      * @return 후원 정보 목록
      */
-    List<UserPledgeResponse> findPledgesByUserId(Long userId, FulfillmentStatus status);
+    List<MyPledgeInfo> findPledgesByUserId(
+            @Param("userId") Long userId,
+            @Param("status") FulfillmentStatus status,
+            @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
+            @Param("cursorId") Long cursorId,
+            @Param("limit") Integer limit
+    );
 }

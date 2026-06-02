@@ -101,7 +101,8 @@ class AdminPledgeControllerTest {
                 null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
-        MvcResult result = mockMvc.perform(get("/api/admin/pledges"))
+        MvcResult result = mockMvc.perform(get("/api/admin/pledges")
+                        .param("limit", "10"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -111,6 +112,7 @@ class AdminPledgeControllerTest {
         assertThat(apiResult.message()).isEqualTo("전체 후원 목록 조회에 성공했습니다.");
         assertThat(apiResult.data().pledges()).isNotEmpty();
         assertThat(apiResult.data().pledges()).anyMatch(p -> p.pledgeId().equals(savedPledge.id()));
+        // assertThat(apiResult.data().hasNext()).isFalse(); // DB에 데이터가 많아 true일 수 있음
     }
 
     @Test

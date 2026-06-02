@@ -12,10 +12,15 @@ import io.github.crowdfund.domain.user.UserRepository;
 import io.github.crowdfund.feature.pledge.admin.dto.detail.*;
 import io.github.crowdfund.feature.pledge.admin.dto.fetch.PledgeSummary;
 import io.github.crowdfund.feature.pledge.admin.dto.fetch.AdminPledgesFetchResponse;
+import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
+import io.github.crowdfund.global.common.dto.pagination.CursorResponse;
+import io.github.crowdfund.global.common.pagination.CursorPaginationProcessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,13 +38,46 @@ public class AdminPledgeService {
     /**
      * 관리자용 전체 후원 목록 조회 도메인 로직
      */
-    @Transactional
-    public AdminPledgesFetchResponse fetch() {
-        List<Pledge> pledges = pledgeRepository.findAll();
-        List<PledgeSummary> summaries = pledges.stream()
+    public AdminPledgesFetchResponse fetch(CursorRequest cursorRequest, Integer limit) {
+        cursorRequest.validate();
+
+        // 관리자용은 데이터량이 많을 수 있으나 현재 Repository에 커서 기반 조회 메서드가 없으므로 
+        // 전체 조회 후 메모리에서 처리하거나 Repository를 확장해야 함.
+        // 여기서는 프로젝트 일관성을 위해 전체 조회 후 페이징 처리하는 방식으로 우선 구현함 (추후 Repository 확장 권장)
+        List<Pledge> allPledges = pledgeRepository.findAll();
+        
+        // 최신순 정렬 (createdAt DESC, id DESC)
+        List<Pledge> sortedPledges = allPledges.stream()
+                .sorted(Comparator.comparing(Pledge::createdAt).reversed()
+                        .thenComparing(Comparator.comparing(Pledge::id).reversed()))
+                .collect(Collectors.toList());
+
+        // 커서 적용
+        List<Pledge> filteredPledges = sortedPledges;
+        if (cursorRequest.createdAt() != null && cursorRequest.id() != null) {
+            filteredPledges = sortedPledges.stream()
+                    .filter(p -> p.createdAt().isBefore(cursorRequest.createdAt()) || 
+                            (p.createdAt().isEqual(cursorRequest.createdAt()) && p.id() < cursorRequest.id()))
+                    .collect(Collectors.toList());
+        }
+
+        // limit + 1개 추출
+        List<PledgeSummary> summaries = filteredPledges.stream()
+                .limit(limit + 1)
                 .map(this::mapToPledgeSummary)
                 .collect(Collectors.toList());
-        return new AdminPledgesFetchResponse(summaries);
+
+        CursorResponse<PledgeSummary, CursorRequest> response = CursorPaginationProcessor.convertToCursorResponse(
+                summaries,
+                limit,
+                item -> {
+                    // PledgeSummary의 createdAt은 String이므로 LocalDateTime으로 파싱 필요
+                    LocalDateTime createdAt = LocalDateTime.parse(item.createdAt());
+                    return new CursorRequest(createdAt, item.pledgeId());
+                }
+        );
+
+        return new AdminPledgesFetchResponse(response.content(), response.hasNext(), response.nextCursor());
     }
 
 

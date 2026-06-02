@@ -173,7 +173,8 @@ class MyPledgeControllerTest {
                 null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
-        MvcResult result = mockMvc.perform(get("/api/pledges/me/user/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(get("/api/pledges/me/user/{userId}", savedUser.id())
+                        .param("limit", "10"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -182,6 +183,7 @@ class MyPledgeControllerTest {
 
         assertThat(apiResult.message()).isEqualTo("내가 후원한 프로젝트 목록 조회에 성공했습니다.");
         assertThat(apiResult.data().pledges()).isNotEmpty();
+        assertThat(apiResult.data().hasNext()).isFalse();
     }
 
     @Test

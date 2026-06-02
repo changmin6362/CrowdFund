@@ -21,12 +21,17 @@ import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetail;
 import io.github.crowdfund.feature.pledge.my.dto.detail.ShippingAddress;
 import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetailResponse;
 import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgesFetchResponse;
+import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgeInfo;
+import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
+import io.github.crowdfund.global.common.dto.pagination.CursorResponse;
+import io.github.crowdfund.global.common.pagination.CursorPaginationProcessor;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -149,7 +154,23 @@ public class MyPledgeService {
     /**
      * 내가 후원한 프로젝트 목록 조회 도메인 로직
      */
-    public MyPledgesFetchResponse fetch(Long userId, FulfillmentStatus status) {
-        return new MyPledgesFetchResponse(pledgeMapper.findPledgesByUserId(userId, status));
+    public MyPledgesFetchResponse fetch(Long userId, FulfillmentStatus status, CursorRequest cursorRequest, Integer limit) {
+        cursorRequest.validate();
+
+        List<MyPledgeInfo> pledges = pledgeMapper.findPledgesByUserId(
+                userId,
+                status,
+                cursorRequest.createdAt(),
+                cursorRequest.id(),
+                limit + 1
+        );
+
+        CursorResponse<MyPledgeInfo, CursorRequest> response = CursorPaginationProcessor.convertToCursorResponse(
+                pledges,
+                limit,
+                item -> new CursorRequest(item.pledgedAt(), item.pledgeId())
+        );
+
+        return new MyPledgesFetchResponse(response.content(), response.hasNext(), response.nextCursor());
     }
 }

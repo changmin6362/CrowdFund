@@ -3,10 +3,13 @@ package io.github.crowdfund.feature.pledge.admin;
 import io.github.crowdfund.feature.pledge.admin.dto.detail.AdminPledgeDetailResponse;
 import io.github.crowdfund.feature.pledge.admin.dto.fetch.AdminPledgesFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,16 +22,19 @@ public class AdminPledgeController {
     private final AdminPledgeService service;
 
     /**
-     * 관리자용 전체 후원 목록 조회
+     * 관리자용 전체 후원 목록 조회 (복합 커서 기반 최신순 페이지네이션)
      *
-     * @return message, pledges
+     * @return message, pledges, hasNext, nextCursor
      */
     @Operation(summary = "관리자용 전체 후원 목록 조회")
     @ApiResponse(responseCode = "200", description = "관리자용 전체 후원 목록 조회 성공 응답 예시")
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<AdminPledgesFetchResponse> fetch() {
-        return ApiResult.success("전체 후원 목록 조회에 성공했습니다.", service.fetch());
+    public ApiResult<AdminPledgesFetchResponse> fetch(
+            @ParameterObject CursorRequest cursorRequest,
+            @RequestParam(defaultValue = "10") @Positive Integer limit
+    ) {
+        return ApiResult.success("전체 후원 목록 조회에 성공했습니다.", service.fetch(cursorRequest, limit));
     }
 
     /**
