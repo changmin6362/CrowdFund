@@ -42,7 +42,11 @@
         FROM comment c
         JOIN project p ON c.project_id = p.id
         WHERE c.user_id = #{userId}
-        ORDER BY c.created_at DESC
+        <if test="cursorCreatedAt != null and cursorId != null">
+            AND (c.created_at &lt; #{cursorCreatedAt} OR (c.created_at = #{cursorCreatedAt} AND c.id &lt; #{cursorId}))
+        </if>
+        ORDER BY c.created_at DESC, c.id DESC
+        LIMIT #{limit}
     </select>
 
     <select id="findByIdToCommentInfo"

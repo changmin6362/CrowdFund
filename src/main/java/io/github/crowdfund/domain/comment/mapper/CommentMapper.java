@@ -22,7 +22,12 @@ public interface CommentMapper {
             @Param("limit") Integer limit
     );
 
-    List<MyCommentInfo> findAllByUserId(Long userId);
+    List<MyCommentInfo> findAllByUserId(
+            @Param("userId") Long userId,
+            @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
+            @Param("cursorId") Long cursorId,
+            @Param("limit") Integer limit
+    );
 
     Optional<CommentInfo> findByIdToCommentInfo(@Param("commentId") Long commentId, @Param("currentUserId") Long currentUserId);
 }
