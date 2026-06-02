@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/pledges/{pledgeId}/address")
 @RequiredArgsConstructor
 @Tag(name = "PledgeAddress", description = "후원별 배송 정보 API")
 public class PledgeAddressController {
@@ -22,17 +22,17 @@ public class PledgeAddressController {
     /**
      * 참여한 후원의 배송 정보 조회
      *
-     * @param pledgesId 후원 ID
+     * @param pledgeId 후원 ID
      * @return message, pledgeAddress
      */
     @Operation(summary = "참여한 후원의 배송 정보 조회")
     @ApiResponse(responseCode = "200", description = "참여한 후원의 배송 정보 조회 성공 응답 예시")
-    @GetMapping("/pledges/{pledgesId}/addresses")
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<PledgeAddressFetchResponse> fetch(
-            @PathVariable Long pledgesId
+            @PathVariable Long pledgeId
     ) {
-        return ApiResult.success("참여한 후원의 배송 정보 조회에 성공했습니다.", service.fetch(pledgesId));
+        return ApiResult.success("참여한 후원의 배송 정보 조회에 성공했습니다.", service.fetch(pledgeId));
     }
 
     /**
@@ -44,7 +44,7 @@ public class PledgeAddressController {
      */
     @Operation(summary = "참여한 후원의 배송 정보 교체")
     @ApiResponse(responseCode = "200", description = "참여한 후원의 배송 정보 교체 성공 응답 예시")
-    @PutMapping("/pledges/{pledgeId}/addresses")
+    @PutMapping()
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<PledgeAddressReplaceResponse> replace(
             @PathVariable Long pledgeId,

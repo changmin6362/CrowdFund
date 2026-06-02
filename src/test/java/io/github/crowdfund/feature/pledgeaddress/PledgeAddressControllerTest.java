@@ -102,7 +102,7 @@ class PledgeAddressControllerTest {
 
     @Test
     void 후원_주소_조회_테스트() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/pledges/{pledgesId}/addresses", savedPledge.id()))
+        MvcResult result = mockMvc.perform(get("/api/pledges/{pledgeId}/address", savedPledge.id()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -127,7 +127,7 @@ class PledgeAddressControllerTest {
                 }
                 """.formatted(newAddress.id());
 
-        MvcResult result = mockMvc.perform(put("/api/pledges/{pledgeId}/addresses", savedPledge.id())
+        MvcResult result = mockMvc.perform(put("/api/pledges/{pledgeId}/address", savedPledge.id())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isOk())
@@ -143,7 +143,60 @@ class PledgeAddressControllerTest {
 
     @Test
     void 존재하지_않는_후원_주소_조회_실패_테스트() throws Exception {
-        mockMvc.perform(get("/api/pledges/{pledgesId}/addresses", 99999L))
+        mockMvc.perform(get("/api/pledges/{pledgeId}/address", 99999L))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    void 이미_이행된_후원_주소_교체_실패_테스트() throws Exception {
+        // 이행 완료 상태로 변경
+        Pledge fulfilledPledge = pledgeRepository.save(new Pledge(
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.FULFILLED, LocalDateTime.now(), LocalDateTime.now()
+        ));
+
+        pledgeAddressRepository.save(new PledgeAddress(
+                null, fulfilledPledge.id(), savedUser.id(), "수령인", "010-1111-2222", "12345", "기본주소", "상세주소", LocalDateTime.now(), LocalDateTime.now()
+        ));
+
+        UserAddress newAddress = userAddressRepository.save(new UserAddress(
+                null, savedUser.id(), "새수령인", "010-9999-8888", "54321", "새로운주소", "새로운상세", false, LocalDateTime.now(), LocalDateTime.now()
+        ));
+
+        String request = """
+                {
+                    "addressId": %d
+                }
+                """.formatted(newAddress.id());
+
+        mockMvc.perform(put("/api/pledges/{pledgeId}/address", fulfilledPledge.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    void 타인의_주소로_교체_실패_테스트() throws Exception {
+        // 다른 사용자 생성
+        User anotherUser = userRepository.save(new User(
+                null, "another" + (System.currentTimeMillis() % 1000000) + "@ex.com", "password", "another", "타인", "010-0000-0000", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+        ));
+
+        // 다른 사용자의 주소 등록
+        UserAddress anotherAddress = userAddressRepository.save(new UserAddress(
+                null, anotherUser.id(), "타인수령인", "010-0000-0000", "00000", "타인주소", "타인상세", false, LocalDateTime.now(), LocalDateTime.now()
+        ));
+
+        String request = """
+                {
+                    "addressId": %d
+                }
+                """.formatted(anotherAddress.id());
+
+        mockMvc.perform(put("/api/pledges/{pledgeId}/address", savedPledge.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
     }

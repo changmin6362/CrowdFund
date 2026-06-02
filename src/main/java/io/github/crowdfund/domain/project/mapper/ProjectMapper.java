@@ -14,7 +14,7 @@ import java.util.List;
 
 @Mapper
 public interface ProjectMapper {
-    long insert(@Param("creatorId") Long creatorId, @Param("command") Project project);
+    Long insert(@Param("creatorId") Long creatorId, @Param("command") Project project);
 
     List<ProjectElement> findAll(@Param("statuses") List<ProjectStatus> statuses, @Param("categoryId") Integer categoryId, @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt, @Param("cursorId") Long cursorId, @Param("limit") Integer limit);
 
