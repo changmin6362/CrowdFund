@@ -1,5 +1,6 @@
 package io.github.crowdfund.feature.payment.dto.detail;
 
+import io.github.crowdfund.domain.payment.PaymentStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
@@ -18,8 +19,8 @@ public record PaymentDetail(
         @Schema(description = "결제 금액", example = "35000")
         BigDecimal amount,
 
-        @Schema(description = "결제 상태", example = "완료")
-        String status,
+        @Schema(description = "결제 상태")
+        PaymentStatus status,
 
         @Schema(description = "결제 일시", example = "2023-09-01T12:00:00")
         LocalDateTime paidAt,

@@ -6,6 +6,9 @@ import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.payment.Payment;
 import io.github.crowdfund.domain.payment.PaymentRepository;
+import io.github.crowdfund.domain.payment.PaymentStatus;
+import io.github.crowdfund.domain.paymenthistory.PaymentHistory;
+import io.github.crowdfund.domain.paymenthistory.PaymentHistoryRepository;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
@@ -19,6 +22,7 @@ import io.github.crowdfund.domain.user.UserRepository;
 import io.github.crowdfund.feature.payment.dto.create.PaymentCreateRequest;
 import io.github.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
 import io.github.crowdfund.feature.payment.dto.detail.PaymentDetailResponse;
+import io.github.crowdfund.feature.payment.dto.history.PaymentHistoryResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.github.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -52,6 +57,9 @@ class PaymentControllerTest {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private PaymentHistoryRepository paymentHistoryRepository;
 
     @Autowired
     private PledgeRepository pledgeRepository;
@@ -134,8 +142,9 @@ class PaymentControllerTest {
 
     @Test
     void 결제_조회_테스트() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
         Payment payment = paymentRepository.save(new Payment(
-                null, savedPledge.id(), "KAKAOPAY", new BigDecimal("50000"), "PAID", LocalDateTime.now(), LocalDateTime.now()
+                null, savedPledge.id(), "KAKAOPAY", new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
         ));
 
         MvcResult result = mockMvc.perform(get("/api/payments/pledge/{pledgeId}", savedPledge.id()))
@@ -153,8 +162,9 @@ class PaymentControllerTest {
     @Test
     void 결제_생성_이미존재_실패_테스트() throws Exception {
         // 이미 결제가 존재하는 상태로 만듦
+        LocalDateTime now = LocalDateTime.now();
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("50000"), "PAID", LocalDateTime.now(), LocalDateTime.now()
+                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
         ));
 
         PaymentCreateRequest request = new PaymentCreateRequest(
@@ -176,8 +186,9 @@ class PaymentControllerTest {
 
     @Test
     void 결제_취소_테스트() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
         Payment payment = paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("50000"), "PAID", LocalDateTime.now(), LocalDateTime.now()
+                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("50000"), PaymentStatus.PAID, now, now, now
         ));
 
         MvcResult result = mockMvc.perform(delete("/api/payments/{paymentId}", payment.id()))
@@ -191,6 +202,36 @@ class PaymentControllerTest {
 
         // 상태 확인
         Payment canceled = paymentRepository.findById(payment.id()).orElseThrow();
-        assertThat(canceled.status()).isEqualTo("CANCELED");
+        assertThat(canceled.status()).isEqualTo(PaymentStatus.CANCELED);
+    }
+
+    @Test
+    void 결제_이력_조회_테스트() throws Exception {
+        // 1. 결제 생성 (서비스를 통해 히스토리까지 자동 생성됨)
+        PaymentCreateRequest request = new PaymentCreateRequest(
+                savedPledge.id(),
+                "CREDIT_CARD",
+                new BigDecimal("50000")
+        );
+        MvcResult createResult = mockMvc.perform(post("/api/payments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        ApiResult<PaymentCreateResponse> createResponse = TestUtils.convertToApiResult(createResult, objectMapper, new TypeReference<>() {});
+        Long paymentId = createResponse.data().paymentId();
+
+        // 2. 이력 조회
+        MvcResult historyResult = mockMvc.perform(get("/api/payments/{paymentId}/histories", paymentId))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<PaymentHistoryResponse> apiResult = TestUtils.convertToApiResult(historyResult, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("결제 이력 조회에 성공했습니다.");
+        assertThat(apiResult.data().paymentHistories()).isNotEmpty();
+        assertThat(apiResult.data().paymentHistories().get(0).status()).isEqualTo(PaymentStatus.PAID);
     }
 }
