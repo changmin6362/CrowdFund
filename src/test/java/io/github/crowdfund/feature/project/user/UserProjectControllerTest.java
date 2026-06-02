@@ -83,7 +83,7 @@ class UserProjectControllerTest {
         ApiResult<UserProjectFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("프로젝트 목록 조회에 성공했습니다.");
-        assertThat(apiResult.data().projectList()).isNotEmpty();
+        assertThat(apiResult.data().projects()).isNotEmpty();
     }
 
     @Test

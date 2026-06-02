@@ -3,8 +3,10 @@ package io.github.crowdfund.feature.pledge.admin;
 import io.github.crowdfund.domain.payment.Payment;
 import io.github.crowdfund.domain.payment.PaymentMethod;
 import io.github.crowdfund.domain.payment.PaymentRepository;
+import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.user.User;
@@ -38,7 +40,7 @@ public class AdminPledgeService {
     /**
      * 관리자용 전체 후원 목록 조회 도메인 로직
      */
-    public AdminPledgesFetchResponse fetch(CursorRequest cursorRequest, Integer limit) {
+    public AdminPledgesFetchResponse fetch(FulfillmentStatus fulfillmentStatus, PledgeStatus pledgeStatus, CursorRequest cursorRequest, Integer limit) {
         cursorRequest.validate();
 
         // 관리자용은 데이터량이 많을 수 있으나 현재 Repository에 커서 기반 조회 메서드가 없으므로 
@@ -46,23 +48,29 @@ public class AdminPledgeService {
         // 여기서는 프로젝트 일관성을 위해 전체 조회 후 페이징 처리하는 방식으로 우선 구현함 (추후 Repository 확장 권장)
         List<Pledge> allPledges = pledgeRepository.findAll();
         
+        // 필터링 적용
+        List<Pledge> filteredPledges = allPledges.stream()
+                .filter(p -> fulfillmentStatus == null || p.fulfillmentStatus() == fulfillmentStatus)
+                .filter(p -> pledgeStatus == null || p.status() == pledgeStatus)
+                .collect(Collectors.toList());
+
         // 최신순 정렬 (createdAt DESC, id DESC)
-        List<Pledge> sortedPledges = allPledges.stream()
+        List<Pledge> sortedPledges = filteredPledges.stream()
                 .sorted(Comparator.comparing(Pledge::createdAt).reversed()
                         .thenComparing(Comparator.comparing(Pledge::id).reversed()))
                 .collect(Collectors.toList());
 
         // 커서 적용
-        List<Pledge> filteredPledges = sortedPledges;
+        List<Pledge> cursorFilteredPledges = sortedPledges;
         if (cursorRequest.createdAt() != null && cursorRequest.id() != null) {
-            filteredPledges = sortedPledges.stream()
+            cursorFilteredPledges = sortedPledges.stream()
                     .filter(p -> p.createdAt().isBefore(cursorRequest.createdAt()) || 
                             (p.createdAt().isEqual(cursorRequest.createdAt()) && p.id() < cursorRequest.id()))
                     .collect(Collectors.toList());
         }
 
         // limit + 1개 추출
-        List<PledgeSummary> summaries = filteredPledges.stream()
+        List<PledgeSummary> summaries = cursorFilteredPledges.stream()
                 .limit(limit + 1)
                 .map(this::mapToPledgeSummary)
                 .collect(Collectors.toList());

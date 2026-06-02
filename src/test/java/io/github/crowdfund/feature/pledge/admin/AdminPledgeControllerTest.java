@@ -96,23 +96,35 @@ class AdminPledgeControllerTest {
     }
 
     @Test
-    void 후원_목록_조회_테스트() throws Exception {
-        Pledge savedPledge = pledgeRepository.save(new Pledge(
+    void 후원_목록_조회_필터링_테스트() throws Exception {
+        // 1. PAID, READY 상태 후원
+        pledgeRepository.save(new Pledge(
                 null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
+        // 2. CANCELED 상태 후원
+        pledgeRepository.save(new Pledge(
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.CANCELED, FulfillmentStatus.FULFILLED, null, LocalDateTime.now().plusSeconds(1)
+        ));
 
-        MvcResult result = mockMvc.perform(get("/api/admin/pledges")
+        // PledgeStatus 필터링 테스트 (CANCELED만 조회)
+        MvcResult canceledResult = mockMvc.perform(get("/api/admin/pledges")
+                        .param("pledgeStatus", "CANCELED")
                         .param("limit", "10"))
                 .andExpect(status().isOk())
-                .andDo(print())
                 .andReturn();
 
-        ApiResult<AdminPledgesFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<AdminPledgesFetchResponse> canceledApiResult = TestUtils.convertToApiResult(canceledResult, objectMapper, new TypeReference<>() {});
+        assertThat(canceledApiResult.data().pledges().stream().allMatch(p -> p.status() == PledgeStatus.CANCELED)).isTrue();
 
-        assertThat(apiResult.message()).isEqualTo("전체 후원 목록 조회에 성공했습니다.");
-        assertThat(apiResult.data().pledges()).isNotEmpty();
-        assertThat(apiResult.data().pledges()).anyMatch(p -> p.pledgeId().equals(savedPledge.id()));
-        // assertThat(apiResult.data().hasNext()).isFalse(); // DB에 데이터가 많아 true일 수 있음
+        // FulfillmentStatus 필터링 테스트 (FULFILLED만 조회)
+        MvcResult fulfilledResult = mockMvc.perform(get("/api/admin/pledges")
+                        .param("fulfillmentStatus", "FULFILLED")
+                        .param("limit", "10"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ApiResult<AdminPledgesFetchResponse> fulfilledApiResult = TestUtils.convertToApiResult(fulfilledResult, objectMapper, new TypeReference<>() {});
+        assertThat(fulfilledApiResult.data().pledges().stream().allMatch(p -> p.fulfillmentStatus() == FulfillmentStatus.FULFILLED)).isTrue();
     }
 
     @Test

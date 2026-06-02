@@ -19,8 +19,11 @@
         JOIN project pj ON p.project_id = pj.id
         LEFT JOIN reward r ON p.reward_id = r.id
         WHERE p.user_id = #{userId}
-        <if test="status != null">
-            AND p.fulfillment_status = #{status}
+        <if test="fulfillmentStatus != null">
+            AND p.fulfillment_status = #{fulfillmentStatus}
+        </if>
+        <if test="pledgeStatus != null">
+            AND p.status = #{pledgeStatus}
         </if>
         <if test="cursorCreatedAt != null and cursorId != null">
             AND (p.created_at &lt; #{cursorCreatedAt} OR (p.created_at = #{cursorCreatedAt} AND p.id &lt; #{cursorId}))

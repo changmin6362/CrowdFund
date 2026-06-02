@@ -1,6 +1,7 @@
 package io.github.crowdfund.domain.pledge.mapper;
 
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgeInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -22,7 +23,8 @@ public interface PledgeMapper {
      */
     List<MyPledgeInfo> findPledgesByUserId(
             @Param("userId") Long userId,
-            @Param("status") FulfillmentStatus status,
+            @Param("fulfillmentStatus") FulfillmentStatus fulfillmentStatus,
+            @Param("pledgeStatus") PledgeStatus pledgeStatus,
             @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
             @Param("cursorId") Long cursorId,
             @Param("limit") Integer limit

@@ -168,22 +168,36 @@ class MyPledgeControllerTest {
     }
 
     @Test
-    void 내_후원_목록_조회_테스트() throws Exception {
-        Pledge savedPledge = pledgeRepository.save(new Pledge(
+    void 내_후원_목록_조회_필터링_테스트() throws Exception {
+        // 1. PAID, READY 상태 후원
+        pledgeRepository.save(new Pledge(
                 null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
+        // 2. CANCELED 상태 후원
+        pledgeRepository.save(new Pledge(
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.CANCELED, FulfillmentStatus.READY, null, LocalDateTime.now().plusSeconds(1)
+        ));
 
-        MvcResult result = mockMvc.perform(get("/api/pledges/me/user/{userId}", savedUser.id())
+        // PledgeStatus 필터링 테스트 (CANCELED만 조회)
+        MvcResult canceledResult = mockMvc.perform(get("/api/pledges/me/user/{userId}", savedUser.id())
+                        .param("pledgeStatus", "CANCELED")
                         .param("limit", "10"))
                 .andExpect(status().isOk())
-                .andDo(print())
                 .andReturn();
 
-        ApiResult<MyPledgesFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<MyPledgesFetchResponse> canceledApiResult = TestUtils.convertToApiResult(canceledResult, objectMapper, new TypeReference<>() {});
+        assertThat(canceledApiResult.data().pledges()).hasSize(1);
+        assertThat(canceledApiResult.data().pledges().get(0).status()).isEqualTo(PledgeStatus.CANCELED);
 
-        assertThat(apiResult.message()).isEqualTo("내가 후원한 프로젝트 목록 조회에 성공했습니다.");
-        assertThat(apiResult.data().pledges()).isNotEmpty();
-        assertThat(apiResult.data().hasNext()).isFalse();
+        // FulfillmentStatus 필터링 테스트 (READY만 조회)
+        MvcResult readyResult = mockMvc.perform(get("/api/pledges/me/user/{userId}", savedUser.id())
+                        .param("fulfillmentStatus", "READY")
+                        .param("limit", "10"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ApiResult<MyPledgesFetchResponse> readyApiResult = TestUtils.convertToApiResult(readyResult, objectMapper, new TypeReference<>() {});
+        assertThat(readyApiResult.data().pledges()).hasSize(2);
     }
 
     @Test

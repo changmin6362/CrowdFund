@@ -154,12 +154,13 @@ public class MyPledgeService {
     /**
      * 내가 후원한 프로젝트 목록 조회 도메인 로직
      */
-    public MyPledgesFetchResponse fetch(Long userId, FulfillmentStatus status, CursorRequest cursorRequest, Integer limit) {
+    public MyPledgesFetchResponse fetch(Long userId, FulfillmentStatus fulfillmentStatus, PledgeStatus pledgeStatus, CursorRequest cursorRequest, Integer limit) {
         cursorRequest.validate();
 
         List<MyPledgeInfo> pledges = pledgeMapper.findPledgesByUserId(
                 userId,
-                status,
+                fulfillmentStatus,
+                pledgeStatus,
                 cursorRequest.createdAt(),
                 cursorRequest.id(),
                 limit + 1

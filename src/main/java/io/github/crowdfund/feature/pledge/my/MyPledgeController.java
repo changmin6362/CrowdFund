@@ -1,6 +1,7 @@
 package io.github.crowdfund.feature.pledge.my;
 
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
+import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateRequest;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateResponse;
 import io.github.crowdfund.feature.pledge.my.dto.delete.MyPledgesDeleteResponse;
@@ -76,7 +77,8 @@ public class MyPledgeController {
      * 내가 후원한 프로젝트 목록 조회 (복합 커서 기반 최신순 페이지네이션)
      *
      * @param userId 사용자 ID
-     * @param status 후원 상태 필터 (null인 경우 모든 상태 조회)
+     * @param fulfillmentStatus 후원 이행 상태 필터 (null인 경우 모든 상태 조회)
+     * @param pledgeStatus 후원 상태 필터 (null인 경우 모든 상태 조회)
      * @return message, pledges
      */
     @Operation(summary = "내가 후원한 프로젝트 목록 조회")
@@ -85,10 +87,11 @@ public class MyPledgeController {
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<MyPledgesFetchResponse> fetch(
             @PathVariable Long userId,
-            @RequestParam(required = false) FulfillmentStatus status,
+            @RequestParam(required = false) FulfillmentStatus fulfillmentStatus,
+            @RequestParam(required = false) PledgeStatus pledgeStatus,
             @ParameterObject CursorRequest cursorRequest,
             @RequestParam(defaultValue = "10") @Positive Integer limit
     ) {
-        return ApiResult.success("내가 후원한 프로젝트 목록 조회에 성공했습니다.", service.fetch(userId, status, cursorRequest, limit));
+        return ApiResult.success("내가 후원한 프로젝트 목록 조회에 성공했습니다.", service.fetch(userId, fulfillmentStatus, pledgeStatus, cursorRequest, limit));
     }
 }
