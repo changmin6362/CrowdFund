@@ -12,9 +12,6 @@ import java.util.Optional;
 public interface PaymentRepository extends ListCrudRepository<Payment, Long> {
     /**
      * 후원 ID로 결제 내역을 조회합니다.
-     *
-     * @param pledgeId 후원 ID
-     * @return 결제 내역 (존재하지 않을 경우 빈 Optional)
      */
     Optional<Payment> findByPledgeId(Long pledgeId);
 }

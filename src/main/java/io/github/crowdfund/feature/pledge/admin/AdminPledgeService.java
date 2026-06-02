@@ -52,7 +52,7 @@ public class AdminPledgeService {
         List<Pledge> filteredPledges = allPledges.stream()
                 .filter(p -> fulfillmentStatus == null || p.fulfillmentStatus() == fulfillmentStatus)
                 .filter(p -> pledgeStatus == null || p.status() == pledgeStatus)
-                .collect(Collectors.toList());
+                .toList();
 
         // 최신순 정렬 (createdAt DESC, id DESC)
         List<Pledge> sortedPledges = filteredPledges.stream()
@@ -66,7 +66,7 @@ public class AdminPledgeService {
             cursorFilteredPledges = sortedPledges.stream()
                     .filter(p -> p.createdAt().isBefore(cursorRequest.createdAt()) || 
                             (p.createdAt().isEqual(cursorRequest.createdAt()) && p.id() < cursorRequest.id()))
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         // limit + 1개 추출

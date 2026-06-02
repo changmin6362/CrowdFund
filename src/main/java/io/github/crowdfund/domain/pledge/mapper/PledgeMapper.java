@@ -16,10 +16,6 @@ import java.util.List;
 public interface PledgeMapper {
     /**
      * 특정 사용자가 참여한 후원 목록을 조회합니다.
-     *
-     * @param userId 사용자 ID
-     * @param status 후원 상태 필터 (null인 경우 모든 상태 조회)
-     * @return 후원 정보 목록
      */
     List<MyPledgeInfo> findPledgesByUserId(
             @Param("userId") Long userId,

@@ -12,9 +12,6 @@ import java.util.List;
 public interface PaymentHistoryRepository extends ListCrudRepository<PaymentHistory, Long> {
     /**
      * 결제 ID로 상태 변경 이력을 조회합니다.
-     *
-     * @param paymentId 결제 ID
-     * @return 상태 변경 이력 목록 (최신순)
      */
     List<PaymentHistory> findByPaymentIdOrderByChangedAtDesc(Long paymentId);
 }

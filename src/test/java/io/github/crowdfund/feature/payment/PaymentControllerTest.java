@@ -8,8 +8,6 @@ import io.github.crowdfund.domain.payment.Payment;
 import io.github.crowdfund.domain.payment.PaymentMethod;
 import io.github.crowdfund.domain.payment.PaymentRepository;
 import io.github.crowdfund.domain.payment.PaymentStatus;
-import io.github.crowdfund.domain.paymenthistory.PaymentHistory;
-import io.github.crowdfund.domain.paymenthistory.PaymentHistoryRepository;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
@@ -39,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -61,9 +58,6 @@ class PaymentControllerTest {
     private PaymentRepository paymentRepository;
 
     @Autowired
-    private PaymentHistoryRepository paymentHistoryRepository;
-
-    @Autowired
     private PledgeRepository pledgeRepository;
 
     @Autowired
@@ -78,14 +72,11 @@ class PaymentControllerTest {
     @Autowired
     private RewardRepository rewardRepository;
 
-    private User savedUser;
-    private Project savedProject;
-    private Reward savedReward;
     private Pledge savedPledge;
 
     @BeforeEach
     void setup() {
-        savedUser = userRepository.save(new User(
+        User savedUser = userRepository.save(new User(
                 null, "payment@test.com", "pass", "pynick", "pay", "010-9999-8888", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
 
@@ -93,11 +84,11 @@ class PaymentControllerTest {
                 null, null, "결제 테스트 카테고리", 1, 10, true
         ));
 
-        savedProject = projectRepository.save(new Project(
+        Project savedProject = projectRepository.save(new Project(
                 null, category.id(), savedUser.id(), "결제 테스트 프로젝트", "[]", new BigDecimal("1000000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(30), ProjectStatus.ONGOING, LocalDateTime.now()
         ));
 
-        savedReward = rewardRepository.save(new Reward(
+        Reward savedReward = rewardRepository.save(new Reward(
                 null, savedProject.id(), "리워드", "설명", new BigDecimal("50000"), 100, LocalDateTime.now()
         ));
 
@@ -121,7 +112,8 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<PaymentCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<PaymentCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {
+        });
 
         assertThat(apiResult.message()).isEqualTo("결제 요청에 성공했습니다.");
         assertThat(apiResult.data().paymentId()).isNotNull();
@@ -158,7 +150,8 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<PaymentDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<PaymentDetailResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {
+        });
 
         assertThat(apiResult.message()).isEqualTo("결제 상세 조회에 성공했습니다.");
         assertThat(apiResult.data().paymentDetail().paymentId()).isEqualTo(payment.id());
@@ -186,7 +179,8 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {
+        });
         assertThat(apiResult.message()).isEqualTo("이미 결제가 완료되었습니다.");
     }
 
@@ -202,7 +196,8 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {
+        });
 
         assertThat(apiResult.message()).isEqualTo("결제 취소에 성공했습니다.");
 
@@ -225,7 +220,8 @@ class PaymentControllerTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        ApiResult<PaymentCreateResponse> createResponse = TestUtils.convertToApiResult(createResult, objectMapper, new TypeReference<>() {});
+        ApiResult<PaymentCreateResponse> createResponse = TestUtils.convertToApiResult(createResult, objectMapper, new TypeReference<>() {
+        });
         Long paymentId = createResponse.data().paymentId();
 
         // 2. 이력 조회
@@ -234,7 +230,8 @@ class PaymentControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<PaymentHistoryResponse> apiResult = TestUtils.convertToApiResult(historyResult, objectMapper, new TypeReference<>() {});
+        ApiResult<PaymentHistoryResponse> apiResult = TestUtils.convertToApiResult(historyResult, objectMapper, new TypeReference<>() {
+        });
 
         assertThat(apiResult.message()).isEqualTo("결제 이력 조회에 성공했습니다.");
         assertThat(apiResult.data().paymentHistories()).isNotEmpty();
