@@ -6,6 +6,7 @@ import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
 import io.github.crowdfund.domain.payment.Payment;
 import io.github.crowdfund.domain.payment.PaymentRepository;
+import io.github.crowdfund.domain.payment.PaymentStatus;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
@@ -126,8 +127,9 @@ class UserPledgeControllerTest {
                 null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
+        LocalDateTime now = LocalDateTime.now();
         paymentRepository.save(new Payment(
-                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("10000"), "PAID", LocalDateTime.now(), LocalDateTime.now()
+                null, savedPledge.id(), "CREDIT_CARD", new BigDecimal("10000"), PaymentStatus.PAID, now, now, now
         ));
 
         pledgeAddressRepository.save(new PledgeAddress(

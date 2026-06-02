@@ -2,23 +2,30 @@ package io.github.crowdfund.feature.payment;
 
 import io.github.crowdfund.domain.payment.Payment;
 import io.github.crowdfund.domain.payment.PaymentRepository;
+import io.github.crowdfund.domain.payment.PaymentStatus;
+import io.github.crowdfund.domain.paymenthistory.PaymentHistory;
+import io.github.crowdfund.domain.paymenthistory.PaymentHistoryRepository;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
 import io.github.crowdfund.feature.payment.dto.create.PaymentCreateRequest;
 import io.github.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
 import io.github.crowdfund.feature.payment.dto.detail.PaymentDetailResponse;
 import io.github.crowdfund.feature.payment.dto.detail.PaymentDetail;
+import io.github.crowdfund.feature.payment.dto.history.PaymentHistoryInfo;
+import io.github.crowdfund.feature.payment.dto.history.PaymentHistoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final PaymentHistoryRepository paymentHistoryRepository;
     private final PledgeRepository pledgeRepository;
 
     /**
@@ -37,17 +44,29 @@ public class PaymentService {
             throw new IllegalArgumentException("후원 금액과 결제 금액이 일치하지 않습니다.");
         }
 
+        LocalDateTime now = LocalDateTime.now();
         Payment payment = new Payment(
                 null,
                 request.pledgeId(),
                 request.paymentMethod(),
                 request.amount(),
-                "PAID",
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                PaymentStatus.PAID,
+                now,
+                now,
+                now
         );
 
         Payment saved = paymentRepository.save(payment);
+
+        PaymentHistory history = new PaymentHistory(
+                null,
+                saved.id(),
+                PaymentStatus.PAID,
+                now,
+                "최초 결제 완료",
+                null
+        );
+        paymentHistoryRepository.save(history);
 
         return new PaymentCreateResponse(saved.id());
     }
@@ -81,20 +100,51 @@ public class PaymentService {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 정보입니다."));
 
-        if ("CANCELED".equals(payment.status())) {
+        if (payment.status() == PaymentStatus.CANCELED) {
             throw new IllegalStateException("이미 취소된 결제입니다.");
         }
 
+        LocalDateTime now = LocalDateTime.now();
         Payment canceledPayment = new Payment(
                 payment.id(),
                 payment.pledgeId(),
                 payment.paymentMethod(),
                 payment.amount(),
-                "CANCELED",
+                PaymentStatus.CANCELED,
                 payment.paidAt(),
-                payment.createdAt()
+                payment.createdAt(),
+                now
         );
 
         paymentRepository.save(canceledPayment);
+
+        PaymentHistory history = new PaymentHistory(
+                null,
+                payment.id(),
+                PaymentStatus.CANCELED,
+                now,
+                "사용자 요청에 의한 결제 취소",
+                null
+        );
+        paymentHistoryRepository.save(history);
+    }
+
+    /**
+     * 결제 이력 조회 도메인 로직
+     */
+    @Transactional(readOnly = true)
+    public PaymentHistoryResponse history(Long paymentId) {
+        List<PaymentHistoryInfo> items = paymentHistoryRepository.findByPaymentIdOrderByChangedAtDesc(paymentId)
+                .stream()
+                .map(it -> new PaymentHistoryInfo(
+                        it.id(),
+                        it.status(),
+                        it.changedAt(),
+                        it.reason(),
+                        it.pgTransactionId()
+                ))
+                .toList();
+
+        return new PaymentHistoryResponse(items);
     }
 }
