@@ -22,17 +22,17 @@ public class PledgeAddressController {
     /**
      * 참여한 후원의 배송 정보 조회
      *
-     * @param pledgesId 후원 ID
+     * @param pledgeId 후원 ID
      * @return message, pledgeAddress
      */
     @Operation(summary = "참여한 후원의 배송 정보 조회")
     @ApiResponse(responseCode = "200", description = "참여한 후원의 배송 정보 조회 성공 응답 예시")
-    @GetMapping("/pledges/{pledgesId}/addresses")
+    @GetMapping("/pledges/{pledgeId}/addresses")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<PledgeAddressFetchResponse> fetch(
-            @PathVariable Long pledgesId
+            @PathVariable Long pledgeId
     ) {
-        return ApiResult.success("참여한 후원의 배송 정보 조회에 성공했습니다.", service.fetch(pledgesId));
+        return ApiResult.success("참여한 후원의 배송 정보 조회에 성공했습니다.", service.fetch(pledgeId));
     }
 
     /**

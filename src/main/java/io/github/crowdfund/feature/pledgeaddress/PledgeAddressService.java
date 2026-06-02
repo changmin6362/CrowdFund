@@ -25,8 +25,8 @@ public class PledgeAddressService {
     /**
      * 후원 주소 조회 도메인 로직
      */
-    public PledgeAddressFetchResponse fetch(Long pledgesId) {
-        PledgeAddress address = repository.findByPledgeId(pledgesId)
+    public PledgeAddressFetchResponse fetch(Long pledgeId) {
+        PledgeAddress address = repository.findByPledgeId(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 후원의 주소 정보를 찾을 수 없습니다."));
 
         return new PledgeAddressFetchResponse(mapToInfo(address));
