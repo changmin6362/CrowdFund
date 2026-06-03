@@ -21,6 +21,7 @@ import io.github.crowdfund.feature.project.creator.dto.create.CreatorProjectCrea
 import io.github.crowdfund.feature.project.creator.dto.extract.CreatorShippingInfosExtractResponse;
 import io.github.crowdfund.feature.project.creator.dto.fetch.CreatorProjectsFetchResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.security.SecurityUser;
 import io.github.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,12 +30,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -84,6 +89,10 @@ class CreatorProjectControllerTest {
         savedCategory = categoryRepository.save(new Category(
                 null, null, "테스트 카테고리", 1, 10, true
         ));
+
+        SecurityUser securityUser = new SecurityUser(savedUser.id(), savedUser.email(), savedUser.password(), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
@@ -92,13 +101,13 @@ class CreatorProjectControllerTest {
                 {
                     "categoryId": %d,
                     "title": "새로운 프로젝트",
-                    "contentBlocks": "[{\\"type\\":\\"text\\",\\"content\\":\\"내용\\"}]",
+                    "contentBlocks": {"type":"text","content":"내용"},
                     "goalAmount": 1000000,
                     "endAt": "%s"
                 }
                 """.formatted(savedCategory.id(), LocalDateTime.now().plusDays(30));
 
-        MvcResult result = mockMvc.perform(post("/api/creator/projects/{creatorId}", savedUser.id())
+        MvcResult result = mockMvc.perform(post("/api/creator/projects")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isCreated())
@@ -120,7 +129,7 @@ class CreatorProjectControllerTest {
         String patchRequest = """
                 {
                     "title": "수정된 제목",
-                    "contentBlocks": "[{\\"type\\":\\"text\\",\\"content\\":\\"수정된 내용\\"}]"
+                    "contentBlocks": {"type":"text","content":"수정된 내용"}
                 }
                 """;
 
@@ -158,10 +167,10 @@ class CreatorProjectControllerTest {
                 null, savedCategory.id(), savedUser.id(), "내 프로젝트", "[{\"type\":\"text\",\"content\":\"내용\"}]", new BigDecimal("50000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(10), ProjectStatus.ONGOING, LocalDateTime.now()
         ));
 
-        MvcResult result = mockMvc.perform(get("/api/creator/projects/me/{userId}", savedUser.id()))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
+        MvcResult result = mockMvc.perform(get("/api/creator/projects/me"))
+                        .andExpect(status().isOk())
+                        .andDo(print())
+                        .andReturn();
 
         ApiResult<CreatorProjectsFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 

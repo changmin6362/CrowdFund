@@ -1,5 +1,7 @@
 package io.github.crowdfund.feature.project.creator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.project.ProjectStatus;
@@ -27,6 +29,7 @@ public class CreatorProjectService {
 
     private final ProjectMapper projectMapper;
     private final ProjectRepository projectRepository;
+    private final ObjectMapper objectMapper;
 
     /**
      * 프로젝트 생성 도메인 로직
@@ -38,7 +41,7 @@ public class CreatorProjectService {
                 request.categoryId(),
                 creatorId,
                 request.title(),
-                request.contentBlocks(),
+                toJsonString(request.contentBlocks()),
                 request.goalAmount(),
                 BigDecimal.ZERO,
                 request.endAt(),
@@ -55,7 +58,15 @@ public class CreatorProjectService {
     @Transactional
     public void update(SecurityUser securityUser, Long projectId, CreatorProjectUpdateRequest request) {
         projectRepository.validateProjectOwner(projectId, securityUser.getUserId());
-        projectMapper.update(projectId, request.title(), request.contentBlocks());
+        projectMapper.update(projectId, request.title(), toJsonString(request.contentBlocks()));
+    }
+
+    private String toJsonString(Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("콘텐트 블록 데이터를 JSON으로 변환하는 중 에러가 발생했습니다.", e);
+        }
     }
 
     /**

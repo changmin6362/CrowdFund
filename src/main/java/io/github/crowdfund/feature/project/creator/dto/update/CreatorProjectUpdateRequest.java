@@ -2,6 +2,7 @@ package io.github.crowdfund.feature.project.creator.dto.update;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record CreatorProjectUpdateRequest(
         @Schema(description = "프로젝트 제목", example = "프로젝트 제목 예시")
@@ -32,7 +33,7 @@ public record CreatorProjectUpdateRequest(
                   "version": "2.28.2"
                 }
                 """)
-        @NotBlank(message = "프로젝트 콘텐트 블럭 데이터는 필수입니다.")
-        String contentBlocks
+        @NotNull(message = "프로젝트 콘텐트 블럭 데이터는 필수입니다.")
+        Object contentBlocks
 ) {
 }
