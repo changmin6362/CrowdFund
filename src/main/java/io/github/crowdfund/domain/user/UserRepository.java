@@ -10,19 +10,4 @@ import java.util.Optional;
  */
 @Repository
 public interface UserRepository extends ListCrudRepository<User, Long> {
-    /**
-     * 이메일로 사용자를 조회합니다.
-     *
-     * @param email 사용자 이메일
-     * @return 사용자 정보 (존재하지 않을 경우 빈 Optional)
-     */
-    Optional<User> findByEmail(String email);
-
-    /**
-     * 닉네임으로 사용자를 조회합니다.
-     *
-     * @param nickname 사용자 닉네임
-     * @return 사용자 정보 (존재하지 않을 경우 빈 Optional)
-     */
-    Optional<User> findByNickname(String nickname);
 }

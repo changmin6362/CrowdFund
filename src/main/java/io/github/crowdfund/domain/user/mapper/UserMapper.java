@@ -4,6 +4,9 @@ import io.github.crowdfund.feature.user.dto.update.UserUpdateRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+/**
+ * 사용자 관련 복합 쿼리를 담은 매퍼 (MyBatis)
+ */
 @Mapper
 public interface UserMapper {
 
