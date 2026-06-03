@@ -2,10 +2,7 @@ package io.github.crowdfund.feature.comment.project;
 
 import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateRequest;
 import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateResponse;
-import io.github.crowdfund.feature.comment.project.dto.delete.ProjectCommentDeleteResponse;
 import io.github.crowdfund.feature.comment.project.dto.fetch.ProjectCommentsFetchResponse;
-import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateRequest;
-import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.github.crowdfund.global.security.SecurityUser;
@@ -66,41 +63,5 @@ public class ProjectCommentController {
             @RequestParam(defaultValue = "10") @Positive Integer limit) {
 
         return ApiResult.success("댓글 목록 조회에 성공했습니다.", service.fetch(projectId, currentUserId, cursorRequest, limit));
-    }
-
-    /**
-     * 프로젝트 작성한 댓글 수정
-     *
-     * @param commentId 댓글 ID
-     * @param request   댓글 수정 요청 데이터
-     * @return message, patchedComment
-     */
-    @Operation(summary = "프로젝트 작성한 댓글 수정")
-    @ApiResponse(responseCode = "200", description = "댓글 수정 성공 응답 예시")
-    @PatchMapping("/comments/{commentId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<ProjectCommentUpdateResponse> update(
-            @PathVariable Long commentId,
-            @AuthenticationPrincipal SecurityUser securityUser,
-            @Valid @RequestBody ProjectCommentUpdateRequest request) {
-
-        return ApiResult.success("댓글 수정에 성공했습니다.", service.update(commentId, securityUser.getUserId(), request));
-    }
-
-    /**
-     * 프로젝트에 작성한 댓글 삭제
-     *
-     * @param commentId 댓글 ID
-     * @return message, deletedCommentId
-     */
-    @Operation(summary = "프로젝트에 작성한 댓글 삭제")
-    @ApiResponse(responseCode = "200", description = "댓글 삭제 성공 응답 예시")
-    @DeleteMapping("/comments/{commentId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<ProjectCommentDeleteResponse> delete(
-            @PathVariable Long commentId,
-            @AuthenticationPrincipal SecurityUser securityUser) {
-
-        return ApiResult.success("내 댓글 삭제에 성공했습니다.", service.delete(commentId, securityUser.getUserId()));
     }
 }

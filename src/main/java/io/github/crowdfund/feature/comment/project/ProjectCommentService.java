@@ -8,10 +8,7 @@ import io.github.crowdfund.domain.user.UserRepository;
 import io.github.crowdfund.feature.comment.project.dto.CommentInfo;
 import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateRequest;
 import io.github.crowdfund.feature.comment.project.dto.create.ProjectCommentCreateResponse;
-import io.github.crowdfund.feature.comment.project.dto.delete.ProjectCommentDeleteResponse;
 import io.github.crowdfund.feature.comment.project.dto.fetch.ProjectCommentsFetchResponse;
-import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateRequest;
-import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateResponse;
 import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.github.crowdfund.global.common.dto.pagination.CursorResponse;
 import io.github.crowdfund.global.common.pagination.CursorPaginationProcessor;
@@ -87,44 +84,5 @@ public class ProjectCommentService {
         );
 
         return new ProjectCommentsFetchResponse(response.content(), response.hasNext(), response.nextCursor());
-    }
-
-
-    /**
-     * 프로젝트에 작성한 댓글 수정 도메인 로직
-     */
-    @Transactional
-    public ProjectCommentUpdateResponse update(Long commentId, Long userId, @Valid ProjectCommentUpdateRequest request) {
-
-        Comment comment = repository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
-
-        if (!comment.userId().equals(userId)) {
-            throw new IllegalArgumentException("본인의 댓글만 수정할 수 있습니다.");
-        }
-
-        mapper.update(commentId, request.content());
-
-        CommentInfo patchedComment = mapper.findByIdToCommentInfo(commentId, comment.userId())
-                .orElseThrow(() -> new IllegalStateException("댓글 수정 후 데이터를 가져오는 데 실패했습니다."));
-
-        return new ProjectCommentUpdateResponse(patchedComment);
-    }
-
-    /**
-     * 프로젝트에 작성한 댓글 삭제 도메인 로직
-     */
-    @Transactional
-    public ProjectCommentDeleteResponse delete(Long commentId, Long userId) {
-
-        Comment comment = repository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
-
-        if (!comment.userId().equals(userId)) {
-            throw new IllegalArgumentException("본인의 댓글만 삭제할 수 있습니다.");
-        }
-
-        repository.deleteById(commentId);
-        return new ProjectCommentDeleteResponse(commentId);
     }
 }

@@ -1,4 +1,4 @@
-package io.github.crowdfund.feature.comment.project.dto.update;
+package io.github.crowdfund.feature.comment.my.dto.update;
 
 import io.github.crowdfund.feature.comment.project.dto.CommentInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
