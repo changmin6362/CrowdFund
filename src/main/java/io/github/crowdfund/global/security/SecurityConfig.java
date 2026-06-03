@@ -57,9 +57,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/user/projects/*/rewards").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/projects/*/comments").permitAll()
-                        // 관리자 및 창작자 전용 경로 설정
+                        // 관리자 전용 경로 설정
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/creator/**").hasAnyRole("CREATOR", "ADMIN")
                         // 그 외 모든 /api/** 경로는 인증이 필요하도록 설정
                         .requestMatchers("/api/**").authenticated()
                         // 그 외 모든 요청은 허용 (정적 리소스 등)

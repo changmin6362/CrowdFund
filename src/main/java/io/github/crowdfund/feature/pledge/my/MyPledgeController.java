@@ -57,8 +57,10 @@ public class MyPledgeController {
     @ApiResponse(responseCode = "200", description = "후원 상세 조회 성공 응답 예시")
     @GetMapping("/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<MyPledgeDetailResponse> detail(@PathVariable Long pledgeId) {
-        return ApiResult.success("내 후원 상세 조회에 성공했습니다.", service.detail(pledgeId));
+    public ApiResult<MyPledgeDetailResponse> detail(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long pledgeId) {
+        return ApiResult.success("내 후원 상세 조회에 성공했습니다.", service.detail(securityUser.getUserId(), pledgeId));
     }
 
     /**
@@ -71,9 +73,11 @@ public class MyPledgeController {
     @ApiResponse(responseCode = "200", description = "후원 취소 성공")
     @DeleteMapping("/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<MyPledgesDeleteResponse> cancel(@PathVariable Long pledgeId) {
+    public ApiResult<MyPledgesDeleteResponse> cancel(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long pledgeId) {
 
-        return ApiResult.success("후원 취소에 성공했습니다.", service.cancel(pledgeId));
+        return ApiResult.success("후원 취소에 성공했습니다.", service.cancel(securityUser.getUserId(), pledgeId));
     }
 
     /**

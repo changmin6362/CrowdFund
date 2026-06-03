@@ -67,9 +67,13 @@ public class UserAddressService {
      * 내 배송지 수정 도메인 로직
      */
     @Transactional
-    public UserAddressUpdateResponse update(Long addressId, UserAddressUpdateRequest request) {
+    public UserAddressUpdateResponse update(Long userId, Long addressId, UserAddressUpdateRequest request) {
         UserAddress existing = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
+
+        if (!existing.userId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 배송지만 수정할 수 있습니다.");
+        }
 
         UserAddress updated = new UserAddress(
                 existing.id(),
@@ -92,9 +96,13 @@ public class UserAddressService {
      * 기본 배송지 수정 도메인 로직
      */
     @Transactional
-    public UserAddressSetResponse set(Long addressId) {
+    public UserAddressSetResponse set(Long userId, Long addressId) {
         UserAddress target = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
+
+        if (!target.userId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 배송지만 기본 배송지로 설정할 수 있습니다.");
+        }
 
         // 기존 기본 배송지 해제
         repository.findByUserIdAndIsDefaultTrue(target.userId())
@@ -136,9 +144,13 @@ public class UserAddressService {
      * 내 배송지 삭제 도메인 로직
      */
     @Transactional
-    public void delete(Long addressId) {
+    public void delete(Long userId, Long addressId) {
         UserAddress target = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
+
+        if (!target.userId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 배송지만 삭제할 수 있습니다.");
+        }
 
         if (target.isDefault()) {
             throw new IllegalStateException("기본 배송지는 삭제할 수 없습니다. 다른 배송지를 기본으로 설정한 후 삭제해주세요.");

@@ -68,8 +68,11 @@ public class UserAddressController {
     @ApiResponse(responseCode = "200", description = "배송지 수정 성공 응답 예시")
     @PatchMapping("/address/{addressId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<UserAddressUpdateResponse> update(@PathVariable Long addressId, @Valid @RequestBody UserAddressUpdateRequest request) {
-        return ApiResult.success("배송지 수정에 성공했습니다.", service.update(addressId, request));
+    public ApiResult<UserAddressUpdateResponse> update(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long addressId,
+            @Valid @RequestBody UserAddressUpdateRequest request) {
+        return ApiResult.success("배송지 수정에 성공했습니다.", service.update(securityUser.getUserId(), addressId, request));
     }
 
     /**
@@ -82,8 +85,10 @@ public class UserAddressController {
     @ApiResponse(responseCode = "200", description = "기본 배송지 변경 성공 응답 예시")
     @PatchMapping("/address/{addressId}/default")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<UserAddressSetResponse> set(@PathVariable Long addressId) {
-        return ApiResult.success("기본 배송지 변경에 성공했습니다.", service.set(addressId));
+    public ApiResult<UserAddressSetResponse> set(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long addressId) {
+        return ApiResult.success("기본 배송지 변경에 성공했습니다.", service.set(securityUser.getUserId(), addressId));
     }
 
     /**
@@ -96,8 +101,10 @@ public class UserAddressController {
     @ApiResponse(responseCode = "200", description = "배송지 삭제 성공 응답 예시")
     @DeleteMapping("/address/{addressId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> delete(@PathVariable Long addressId) {
-        service.delete(addressId);
+    public ApiResult<Void> delete(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long addressId) {
+        service.delete(securityUser.getUserId(), addressId);
 
         return ApiResult.success("배송지 삭제에 성공했습니다.");
     }

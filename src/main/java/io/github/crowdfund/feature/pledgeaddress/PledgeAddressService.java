@@ -30,7 +30,14 @@ public class PledgeAddressService {
     /**
      * 참여한 후원의 배송 정보 조회 도메인 로직
      */
-    public PledgeAddressFetchResponse fetch(Long pledgeId) {
+    public PledgeAddressFetchResponse fetch(Long userId, Long pledgeId) {
+        Pledge pledge = pledgeRepository.findById(pledgeId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 후원 정보를 찾을 수 없습니다."));
+
+        if (!pledge.userId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 후원 주소 정보만 조회할 수 있습니다.");
+        }
+
         PledgeAddress address = repository.findByPledgeId(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 후원의 주소 정보를 찾을 수 없습니다."));
 
@@ -41,9 +48,13 @@ public class PledgeAddressService {
      * 참여한 후원의 배송 정보 교체 도메인 로직
      */
     @Transactional
-    public PledgeAddressReplaceResponse replace(Long pledgeId, PledgeAddressReplaceRequest request) {
+    public PledgeAddressReplaceResponse replace(Long userId, Long pledgeId, PledgeAddressReplaceRequest request) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 후원 정보를 찾을 수 없습니다."));
+
+        if (!pledge.userId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 후원 주소 정보만 교체할 수 있습니다.");
+        }
 
         // 배송 정보 수정 가능 여부 확인 (이행 상태가 READY 인 경우만 가능)
         if (pledge.fulfillmentStatus() != FulfillmentStatus.READY) {

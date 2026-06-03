@@ -32,13 +32,17 @@ public class PaymentService {
      * 결제 요청 도메인 로직
      */
     @Transactional
-    public PaymentCreateResponse create(PaymentCreateRequest request) {
+    public PaymentCreateResponse create(Long userId, PaymentCreateRequest request) {
         if (paymentRepository.findByPledgeId(request.pledgeId()).isPresent()) {
             throw new IllegalStateException("이미 결제가 완료되었습니다.");
         }
 
         Pledge pledge = pledgeRepository.findById(request.pledgeId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
+
+        if (!pledge.userId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 후원 내역만 결제할 수 있습니다.");
+        }
 
         if (pledge.amount().compareTo(request.amount()) != 0) {
             throw new IllegalArgumentException("후원 금액과 결제 금액이 일치하지 않습니다.");
@@ -77,7 +81,14 @@ public class PaymentService {
      * 후원별 결제 내역 조회 도메인 로직
      */
     @Transactional(readOnly = true)
-    public PaymentDetailResponse detail(Long pledgeId) {
+    public PaymentDetailResponse detail(Long userId, Long pledgeId) {
+        Pledge pledge = pledgeRepository.findById(pledgeId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
+
+        if (!pledge.userId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 결제 내역만 조회할 수 있습니다.");
+        }
+
         Payment payment = paymentRepository.findByPledgeId(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("결제 내역이 존재하지 않습니다."));
 
@@ -98,9 +109,16 @@ public class PaymentService {
      * 결제 취소 도메인 로직
      */
     @Transactional
-    public void cancel(Long paymentId) {
+    public void cancel(Long userId, Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 정보입니다."));
+
+        Pledge pledge = pledgeRepository.findById(payment.pledgeId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
+
+        if (!pledge.userId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 결제만 취소할 수 있습니다.");
+        }
 
         if (payment.status() == PaymentStatus.CANCELED) {
             throw new IllegalStateException("이미 취소된 결제입니다.");
@@ -135,7 +153,17 @@ public class PaymentService {
      * 결제 이력 조회 도메인 로직
      */
     @Transactional(readOnly = true)
-    public PaymentHistoryResponse history(Long paymentId) {
+    public PaymentHistoryResponse history(Long userId, Long paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 정보입니다."));
+
+        Pledge pledge = pledgeRepository.findById(payment.pledgeId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
+
+        if (!pledge.userId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 결제 이력만 조회할 수 있습니다.");
+        }
+
         List<PaymentHistoryInfo> items = paymentHistoryRepository.findByPaymentIdOrderByChangedAtDesc(paymentId)
                 .stream()
                 .map(it -> new PaymentHistoryInfo(

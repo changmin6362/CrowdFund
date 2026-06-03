@@ -96,9 +96,13 @@ public class MyPledgeService {
      * 후원 상세 조회 도메인 로직
      */
     @Transactional
-    public MyPledgeDetailResponse detail(Long pledgeId) {
+    public MyPledgeDetailResponse detail(Long userId, Long pledgeId) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
+
+        if (!pledge.userId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 후원 내역만 조회할 수 있습니다.");
+        }
 
         Project project = projectRepository.findById(pledge.projectId())
                 .orElseThrow(() -> new IllegalStateException("해당 프로젝트를 찾을 수 없습니다. ID: " + pledge.projectId()));
@@ -137,9 +141,13 @@ public class MyPledgeService {
      * 후원 취소 도메인 로직
      */
     @Transactional
-    public MyPledgesDeleteResponse cancel(Long pledgeId) {
+    public MyPledgesDeleteResponse cancel(Long userId, Long pledgeId) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
+
+        if (!pledge.userId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 후원 내역만 취소할 수 있습니다.");
+        }
 
         if (!pledge.canCancel()) {
             throw new IllegalStateException("이미 보상 이행이 시작되어 취소할 수 없습니다.");

@@ -21,12 +21,14 @@ import java.time.LocalDateTime;
 public class CreatorRewardService {
 
     private final RewardRepository repository;
+    private final io.github.crowdfund.domain.project.ProjectRepository projectRepository;
 
     /**
      * 프로젝트에 리워드 등록 도메인 로직
      */
     @Transactional
-    public CreatorRewardCreateResponse create(@Valid Long projectId, CreatorRewardCreateRequest request) {
+    public CreatorRewardCreateResponse create(Long creatorId, @Valid Long projectId, CreatorRewardCreateRequest request) {
+        validateProjectOwner(creatorId, projectId);
 
         Reward reward = new Reward(
                 null,
@@ -57,9 +59,11 @@ public class CreatorRewardService {
      * 리워드 수정 도메인 로직
      */
     @Transactional
-    public CreatorRewardUpdateResponse update(Long rewardId, CreatorRewardUpdateReqeust request) {
+    public CreatorRewardUpdateResponse update(Long creatorId, Long rewardId, CreatorRewardUpdateReqeust request) {
         Reward reward = repository.findById(rewardId)
                 .orElseThrow(() -> new IllegalArgumentException("리워드를 찾을 수 없습니다."));
+
+        validateProjectOwner(creatorId, reward.projectId());
 
         Reward updatedReward = new Reward(
                 reward.id(),
@@ -90,10 +94,25 @@ public class CreatorRewardService {
      * 리워드 삭제 도메인 로직
      */
     @Transactional
-    public CreatorRewardDeleteResponse delete(@Valid Long rewardId) {
+    public CreatorRewardDeleteResponse delete(Long creatorId, @Valid Long rewardId) {
+        Reward reward = repository.findById(rewardId)
+                .orElseThrow(() -> new IllegalArgumentException("리워드를 찾을 수 없습니다."));
+
+        validateProjectOwner(creatorId, reward.projectId());
 
         repository.deleteById(rewardId);
 
         return new CreatorRewardDeleteResponse(rewardId);
+    }
+
+    private void validateProjectOwner(Long creatorId, Long projectId) {
+        projectRepository.findById(projectId)
+                .ifPresentOrElse(project -> {
+                    if (!project.creatorId().equals(creatorId)) {
+                        throw new IllegalArgumentException("본인의 프로젝트만 관리할 수 있습니다.");
+                    }
+                }, () -> {
+                    throw new IllegalArgumentException("존재하지 않는 프로젝트입니다.");
+                });
     }
 }
