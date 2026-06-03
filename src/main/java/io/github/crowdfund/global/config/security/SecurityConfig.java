@@ -1,5 +1,8 @@
 package io.github.crowdfund.global.config.security;
 
+import io.github.crowdfund.global.config.security.jwt.JwtAuthenticationFilter;
+import io.github.crowdfund.global.config.security.jwt.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,10 +12,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtTokenProvider tokenProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -40,7 +47,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/**").authenticated()
                         // 그 외 모든 요청은 허용 (정적 리소스 등)
                         .anyRequest().permitAll()
-                );
+                )
+                // JWT 필터 추가
+                .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
