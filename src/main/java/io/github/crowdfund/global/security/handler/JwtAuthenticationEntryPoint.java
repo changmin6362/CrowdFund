@@ -29,8 +29,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
 
-        String message = authException.getMessage() != null && !authException.getMessage().isBlank() 
-                ? authException.getMessage() : "인증이 필요한 서비스입니다. 로그인 후 이용해주세요.";
+        String message = "인증이 필요한 서비스입니다. 로그인 후 이용해주세요.";
         
         ApiResult<Void> apiResult = ApiResult.error(message);
         response.getWriter().write(objectMapper.writeValueAsString(apiResult));

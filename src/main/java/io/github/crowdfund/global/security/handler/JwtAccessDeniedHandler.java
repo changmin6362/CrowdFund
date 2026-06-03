@@ -29,8 +29,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpStatus.FORBIDDEN.value());
 
-        String message = accessDeniedException.getMessage() != null && !accessDeniedException.getMessage().isBlank()
-                ? accessDeniedException.getMessage() : "해당 리소스에 접근할 권한이 없습니다.";
+        String message = "해당 리소스에 접근할 권한이 없습니다.";
 
         ApiResult<Void> apiResult = ApiResult.error(message);
         response.getWriter().write(objectMapper.writeValueAsString(apiResult));
