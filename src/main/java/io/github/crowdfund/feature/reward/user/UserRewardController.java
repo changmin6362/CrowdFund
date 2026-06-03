@@ -20,7 +20,7 @@ public class UserRewardController {
     /**
      * 프로젝트의 리워드 목록 조회
      *
-     * @param projectId 프로젝트아이디
+     * @param projectId 프로젝트 ID
      * @return message, rewards
      */
     @Operation(summary = "프로젝트의 리워드 목록 조회")
