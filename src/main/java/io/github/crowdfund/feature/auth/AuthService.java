@@ -4,8 +4,8 @@ import io.github.crowdfund.domain.user.User;
 import io.github.crowdfund.domain.user.UserRepository;
 import io.github.crowdfund.feature.auth.dto.login.LoginRequest;
 import io.github.crowdfund.feature.auth.dto.login.LoginResponse;
+import io.github.crowdfund.feature.auth.dto.login.UserProfileInfo;
 import io.github.crowdfund.feature.auth.dto.signup.SignUpRequest;
-import io.github.crowdfund.feature.user.dto.fetch.UserDataInfo;
 import io.github.crowdfund.global.config.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,14 +42,11 @@ public class AuthService {
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         String accessToken = tokenProvider.createToken(authentication);
 
-        // 4. 유저 정보 조회 (프론트엔드 전달용)
-        UserDataInfo userInfo = userRepository.findByEmail(request.email())
-                .map(user -> new UserDataInfo(
+        // 4. 유저 정보 조회 (프론트엔드 프로필용)
+        UserProfileInfo userInfo = userRepository.findByEmail(request.email())
+                .map(user -> new UserProfileInfo(
                         user.email(),
-                        user.nickname(),
-                        user.name(),
-                        user.phone(),
-                        user.role()
+                        user.nickname()
                 ))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 

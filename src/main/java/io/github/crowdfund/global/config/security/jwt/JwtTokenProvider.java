@@ -1,5 +1,6 @@
 package io.github.crowdfund.global.config.security.jwt;
 
+import io.github.crowdfund.global.config.security.SecurityUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -9,7 +10,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -37,25 +37,48 @@ public class JwtTokenProvider {
 
     /**
      * Access Token 생성
+     *
+     * @param authentication 인증 정보 (사용자 식별자 및 권한 포함)
+     * @return 생성된 JWT Access Token
      */
     public String createToken(Authentication authentication) {
         return createToken(authentication, this.tokenValidityInMilliseconds);
     }
 
+    /**
+     * 실제 JWT 토큰 생성 로직
+     * accessToken에는 다음과 같은 정보가 포함됩니다:
+     * 1. Subject: 사용자의 식별자 (email)
+     * 2. Claim ("auth"): 사용자의 권한 정보 (예: ROLE_USER, ROLE_ADMIN)
+     * 3. Expiration: 토큰의 만료 일시
+     * 4. Signature: 서버의 Secret Key로 서명되어 위변조를 방지함
+     *
+     * @param authentication         인증 정보
+     * @param validityInMilliseconds 토큰 유효 시간 (밀리초)
+     * @return 암호화된 JWT 토큰 문자열
+     */
     private String createToken(Authentication authentication, long validityInMilliseconds) {
+        // SecurityUser에서 userId 추출
+        Long userId = null;
+        if (authentication.getPrincipal() instanceof SecurityUser userDetails) {
+            userId = userDetails.getUserId();
+        }
+
+        // 사용자의 권한 목록을 콤마(,)로 구분된 문자열로 변환 (예: "ROLE_USER,ROLE_ADMIN")
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
-        Date validity = new Date(now + validityInMilliseconds);
+        Date validity = new Date(now + validityInMilliseconds); // 현재 시간 + 설정된 유효 시간
 
         return Jwts.builder()
-                .subject(authentication.getName())
-                .claim("auth", authorities)
-                .signWith(key)
-                .expiration(validity)
-                .compact();
+                .subject(authentication.getName()) // 토큰 제목: 사용자 이메일 설정
+                .claim("userId", userId)           // 커스텀 클레임: 사용자 ID 추가
+                .claim("auth", authorities)        // 커스텀 클레임: 권한 정보 추가
+                .signWith(key)                     // 서명: 설정된 Secret Key와 알고리즘 사용
+                .expiration(validity)              // 만료 일시 설정
+                .compact();                        // 최종적으로 직렬화하여 토큰 생성
     }
 
     // 토큰에서 인증 정보 추출
@@ -71,7 +94,8 @@ public class JwtTokenProvider {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), "", authorities);
+        Long userId = claims.get("userId", Long.class);
+        SecurityUser principal = new SecurityUser(userId, claims.getSubject(), "", authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }

@@ -1,13 +1,11 @@
 package io.github.crowdfund.feature.auth.dto.login;
 
-import io.github.crowdfund.feature.user.dto.fetch.UserDataInfo;
-
 public record LoginResponse(
-    String accessToken,
-    String tokenType,
-    UserDataInfo userInfo
+        String accessToken,
+        String tokenType,
+        UserProfileInfo userInfo
 ) {
-    public LoginResponse(String accessToken, UserDataInfo userInfo) {
+    public LoginResponse(String accessToken, UserProfileInfo userInfo) {
         this(accessToken, "Bearer", userInfo);
     }
 }
