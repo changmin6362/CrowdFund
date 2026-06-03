@@ -7,21 +7,21 @@ import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
 import io.github.crowdfund.domain.pledge.PledgeStatus;
+import io.github.crowdfund.domain.pledge.mapper.PledgeMapper;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddress;
 import io.github.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.reward.Reward;
 import io.github.crowdfund.domain.reward.RewardRepository;
-import io.github.crowdfund.domain.pledge.mapper.PledgeMapper;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateRequest;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateResponse;
 import io.github.crowdfund.feature.pledge.my.dto.delete.MyPledgesDeleteResponse;
 import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetail;
-import io.github.crowdfund.feature.pledge.my.dto.detail.ShippingAddress;
 import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetailResponse;
-import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgesFetchResponse;
+import io.github.crowdfund.feature.pledge.my.dto.detail.ShippingAddress;
 import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgeInfo;
+import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgesFetchResponse;
 import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.github.crowdfund.global.common.dto.pagination.CursorResponse;
 import io.github.crowdfund.global.common.pagination.CursorPaginationProcessor;
@@ -101,7 +101,7 @@ public class MyPledgeService {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
-        if (!securityUser.isOwner(pledge.userId())) {
+        if (securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 후원 내역만 조회할 수 있습니다.");
         }
 
@@ -146,7 +146,7 @@ public class MyPledgeService {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
-        if (!securityUser.isOwner(pledge.userId())) {
+        if (securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 후원 내역만 취소할 수 있습니다.");
         }
 

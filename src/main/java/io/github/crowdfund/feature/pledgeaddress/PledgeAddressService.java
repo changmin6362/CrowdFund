@@ -35,7 +35,7 @@ public class PledgeAddressService {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 후원 정보를 찾을 수 없습니다."));
 
-        if (!securityUser.isOwner(pledge.userId())) {
+        if (securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 후원 주소 정보만 조회할 수 있습니다.");
         }
 
@@ -53,7 +53,7 @@ public class PledgeAddressService {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 후원 정보를 찾을 수 없습니다."));
 
-        if (!securityUser.isOwner(pledge.userId())) {
+        if (securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 후원 주소 정보만 교체할 수 있습니다.");
         }
 

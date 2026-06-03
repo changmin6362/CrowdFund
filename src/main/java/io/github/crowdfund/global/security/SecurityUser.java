@@ -32,6 +32,6 @@ public class SecurityUser extends User {
      * 현재 사용자가 소유자가 맞는지 확인 하는 메서드
      */
     public boolean isOwner(Long targetUserId) {
-        return this.userId != null && this.userId.equals(targetUserId);
+        return this.userId == null || !this.userId.equals(targetUserId);
     }
 }

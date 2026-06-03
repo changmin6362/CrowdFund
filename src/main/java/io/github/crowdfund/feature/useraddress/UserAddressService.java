@@ -72,7 +72,7 @@ public class UserAddressService {
         UserAddress existing = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
 
-        if (!securityUser.isOwner(existing.userId())) {
+        if (securityUser.isOwner(existing.userId())) {
             throw new IllegalArgumentException("본인의 배송지만 수정할 수 있습니다.");
         }
 
@@ -101,7 +101,7 @@ public class UserAddressService {
         UserAddress target = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
 
-        if (!securityUser.isOwner(target.userId())) {
+        if (securityUser.isOwner(target.userId())) {
             throw new IllegalArgumentException("본인의 배송지만 기본 배송지로 설정할 수 있습니다.");
         }
 
@@ -149,7 +149,7 @@ public class UserAddressService {
         UserAddress target = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
 
-        if (!securityUser.isOwner(target.userId())) {
+        if (securityUser.isOwner(target.userId())) {
             throw new IllegalArgumentException("본인의 배송지만 삭제할 수 있습니다.");
         }
 

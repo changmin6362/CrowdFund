@@ -4,11 +4,11 @@ import io.github.crowdfund.domain.comment.Comment;
 import io.github.crowdfund.domain.comment.CommentRepository;
 import io.github.crowdfund.domain.comment.mapper.CommentMapper;
 import io.github.crowdfund.feature.comment.my.dto.delete.ProjectCommentDeleteResponse;
+import io.github.crowdfund.feature.comment.my.dto.fetch.MyCommentInfo;
+import io.github.crowdfund.feature.comment.my.dto.fetch.MyCommentsResponse;
 import io.github.crowdfund.feature.comment.my.dto.update.ProjectCommentUpdateRequest;
 import io.github.crowdfund.feature.comment.my.dto.update.ProjectCommentUpdateResponse;
 import io.github.crowdfund.feature.comment.project.dto.CommentInfo;
-import io.github.crowdfund.feature.comment.my.dto.fetch.MyCommentInfo;
-import io.github.crowdfund.feature.comment.my.dto.fetch.MyCommentsResponse;
 import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.github.crowdfund.global.common.dto.pagination.CursorResponse;
 import io.github.crowdfund.global.common.pagination.CursorPaginationProcessor;
@@ -61,7 +61,7 @@ public class MyCommentService {
         Comment comment = repository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
 
-        if (!securityUser.isOwner(comment.userId())) {
+        if (securityUser.isOwner(comment.userId())) {
             throw new IllegalArgumentException("본인의 댓글만 수정할 수 있습니다.");
         }
 
@@ -82,7 +82,7 @@ public class MyCommentService {
         Comment comment = repository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
 
-        if (!securityUser.isOwner(comment.userId())) {
+        if (securityUser.isOwner(comment.userId())) {
             throw new IllegalArgumentException("본인의 댓글만 삭제할 수 있습니다.");
         }
 

@@ -9,8 +9,8 @@ import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
 import io.github.crowdfund.feature.payment.dto.create.PaymentCreateRequest;
 import io.github.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
-import io.github.crowdfund.feature.payment.dto.detail.PaymentDetailResponse;
 import io.github.crowdfund.feature.payment.dto.detail.PaymentDetail;
+import io.github.crowdfund.feature.payment.dto.detail.PaymentDetailResponse;
 import io.github.crowdfund.feature.payment.dto.history.PaymentHistoryInfo;
 import io.github.crowdfund.feature.payment.dto.history.PaymentHistoryResponse;
 import io.github.crowdfund.global.security.SecurityUser;
@@ -41,7 +41,7 @@ public class PaymentService {
         Pledge pledge = pledgeRepository.findById(request.pledgeId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
 
-        if (!securityUser.isOwner(pledge.userId())) {
+        if (securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 후원 내역만 결제할 수 있습니다.");
         }
 
@@ -86,7 +86,7 @@ public class PaymentService {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
 
-        if (!securityUser.isOwner(pledge.userId())) {
+        if (securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 결제 내역만 조회할 수 있습니다.");
         }
 
@@ -117,7 +117,7 @@ public class PaymentService {
         Pledge pledge = pledgeRepository.findById(payment.pledgeId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
 
-        if (!securityUser.isOwner(pledge.userId())) {
+        if (securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 결제만 취소할 수 있습니다.");
         }
 
@@ -161,7 +161,7 @@ public class PaymentService {
         Pledge pledge = pledgeRepository.findById(payment.pledgeId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
 
-        if (!securityUser.isOwner(pledge.userId())) {
+        if (securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 결제 이력만 조회할 수 있습니다.");
         }
 
