@@ -19,8 +19,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/projects")
-@Validated
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Project - User", description = "사용자용 프로젝트 관련 API")
 public class UserProjectController {
 

@@ -12,12 +12,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Auth", description = "인증 관련 API")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Validated
+@Tag(name = "Auth", description = "인증 관련 API")
 public class AuthController {
 
     private final AuthService service;

@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/creator/projects")
-@Validated
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Project - Creator", description = "창작자용 프로젝트 API")
 public class CreatorProjectController {
 

@@ -12,11 +12,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/creator")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Reward - Creator", description = "창작자용 리워드 API")
 public class CreatorRewardController {
 
@@ -25,7 +27,7 @@ public class CreatorRewardController {
     /**
      * 프로젝트에 리워드 등록
      *
-     * @param projectId 프로젝트아이디
+     * @param projectId 프로젝트 ID
      * @param request   리워드 추가 요청 데이터
      * @return message, createdReward
      */
@@ -33,14 +35,14 @@ public class CreatorRewardController {
     @ApiResponse(responseCode = "201", description = "리워드 등록 성공 응답 예시")
     @PostMapping("/projects/{projectId}/rewards")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<CreatorRewardCreateResponse> create(@Valid @PathVariable Long projectId, @RequestBody CreatorRewardCreateRequest request) {
+    public ApiResult<CreatorRewardCreateResponse> create(@PathVariable Long projectId, @Valid @RequestBody CreatorRewardCreateRequest request) {
         return ApiResult.success("리워드 등록에 성공했습니다.", service.create(projectId, request));
     }
 
     /**
      * 리워드 수정
      *
-     * @param rewardId 프로젝트아이디
+     * @param rewardId 리워드 ID
      * @param request  리워드 수정 요청 데이터
      * @return message, updatedReward
      */
@@ -48,14 +50,14 @@ public class CreatorRewardController {
     @ApiResponse(responseCode = "200", description = "리워드 수정 성공 응답 예시")
     @PatchMapping("/rewards/{rewardId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<CreatorRewardUpdateResponse> update(@PathVariable @Valid Long rewardId, @RequestBody CreatorRewardUpdateReqeust request) {
+    public ApiResult<CreatorRewardUpdateResponse> update(@PathVariable @Valid Long rewardId, @Valid @RequestBody CreatorRewardUpdateReqeust request) {
         return ApiResult.success("리워드 수정에 성공했습니다.", service.update(rewardId, request));
     }
 
     /**
      * 리워드 삭제
      *
-     * @param rewardId 프로젝트아이디
+     * @param rewardId 리워드 ID
      * @return message, deletedRewardId
      */
     @Operation(summary = "리워드 삭제")

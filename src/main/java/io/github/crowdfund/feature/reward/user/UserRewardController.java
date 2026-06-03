@@ -7,11 +7,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Reward - User", description = "사용자용 리워드 API")
 public class UserRewardController {
 
@@ -20,7 +22,7 @@ public class UserRewardController {
     /**
      * 프로젝트의 리워드 목록 조회
      *
-     * @param projectId 프로젝트아이디
+     * @param projectId 프로젝트 ID
      * @return message, rewards
      */
     @Operation(summary = "프로젝트의 리워드 목록 조회")

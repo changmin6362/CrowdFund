@@ -14,11 +14,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/categories")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Category - Admin", description = "관리자용 카테고리 API")
 public class AdminCategoryController {
 
@@ -65,7 +67,7 @@ public class AdminCategoryController {
     @ApiResponse(responseCode = "200", description = "카테고리 부모 변경 성공 응답 예시")
     @PatchMapping("/{categoryId}/parent")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<UserFetchCategoryResponse> move(@PathVariable Integer categoryId, @RequestBody AdminCategoryMoveRequest request) {
+    public ApiResult<UserFetchCategoryResponse> move(@PathVariable Integer categoryId, @Valid @RequestBody AdminCategoryMoveRequest request) {
 
         return ApiResult.success("카테고리 부모 변경에 성공했습니다.", service.move(categoryId, request));
     }
