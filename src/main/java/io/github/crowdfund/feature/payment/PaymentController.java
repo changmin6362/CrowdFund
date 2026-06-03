@@ -5,12 +5,14 @@ import io.github.crowdfund.feature.payment.dto.create.PaymentCreateResponse;
 import io.github.crowdfund.feature.payment.dto.detail.PaymentDetailResponse;
 import io.github.crowdfund.feature.payment.dto.history.PaymentHistoryResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.security.SecurityUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +35,10 @@ public class PaymentController {
     @ApiResponse(responseCode = "201", description = "결제 요청 성공 응답 예시")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<PaymentCreateResponse> create(@Valid @RequestBody PaymentCreateRequest request) {
-        return ApiResult.success("결제 요청에 성공했습니다.", service.create(request));
+    public ApiResult<PaymentCreateResponse> create(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody PaymentCreateRequest request) {
+        return ApiResult.success("결제 요청에 성공했습니다.", service.create(securityUser, request));
     }
 
     /**
@@ -47,8 +51,10 @@ public class PaymentController {
     @ApiResponse(responseCode = "200", description = "결제 상세 조회 성공 응답 예시")
     @GetMapping("/pledge/{pledgeId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<PaymentDetailResponse> detail(@PathVariable Long pledgeId) {
-        return ApiResult.success("결제 상세 조회에 성공했습니다.", service.detail(pledgeId));
+    public ApiResult<PaymentDetailResponse> detail(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long pledgeId) {
+        return ApiResult.success("결제 상세 조회에 성공했습니다.", service.detail(securityUser, pledgeId));
     }
 
     /**
@@ -61,8 +67,10 @@ public class PaymentController {
     @ApiResponse(responseCode = "200", description = "결제 취소 성공 응답 예시")
     @DeleteMapping("/{paymentId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> cancel(@PathVariable Long paymentId) {
-        service.cancel(paymentId);
+    public ApiResult<Void> cancel(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long paymentId) {
+        service.cancel(securityUser, paymentId);
 
         return ApiResult.success("결제 취소에 성공했습니다.");
     }
@@ -77,7 +85,9 @@ public class PaymentController {
     @ApiResponse(responseCode = "200", description = "결제 이력 조회 성공 응답 예시")
     @GetMapping("/{paymentId}/history")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<PaymentHistoryResponse> history(@PathVariable Long paymentId) {
-        return ApiResult.success("결제 이력 조회에 성공했습니다.", service.history(paymentId));
+    public ApiResult<PaymentHistoryResponse> history(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long paymentId) {
+        return ApiResult.success("결제 이력 조회에 성공했습니다.", service.history(securityUser, paymentId));
     }
 }

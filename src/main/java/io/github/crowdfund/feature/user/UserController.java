@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,61 +27,63 @@ public class UserController {
     /**
      * 내 닉네임 조회
      *
-     * @param userId 사용자 ID
+     * @param userDetails 인증된 사용자 정보
      * @return message, nickname
      */
     @Operation(summary = "내 닉네임 조회")
     @ApiResponse(responseCode = "200", description = "내 닉네임 조회 성공 응답 예시")
-    @GetMapping("/nickname/{userId}")
+    @GetMapping("/nickname")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<UserViewResponse> view(@PathVariable Long userId) {
-        return ApiResult.success("내 닉네임 조회에 성공했습니다.", service.view(userId));
+    public ApiResult<UserViewResponse> view(@AuthenticationPrincipal UserDetails userDetails) {
+        // userDetails.getUsername() 은 email임
+        return ApiResult.success("내 닉네임 조회에 성공했습니다.", service.viewByEmail(userDetails.getUsername()));
     }
 
     /**
      * 내 정보 조회
      *
-     * @param userId 사용자 ID
+     * @param userDetails 인증된 사용자 정보
      * @return message, user
      */
     @Operation(summary = "내 정보 조회")
     @ApiResponse(responseCode = "200", description = "내 정보 조회 성공 응답 예시")
-    @GetMapping("/data/{userId}")
+    @GetMapping("/data")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<UserFetchResponse> fetch(@PathVariable Long userId) {
-        return ApiResult.success("내 정보 조회에 성공했습니다.", service.fetch(userId));
+    public ApiResult<UserFetchResponse> fetch(@AuthenticationPrincipal UserDetails userDetails) {
+        return ApiResult.success("내 정보 조회에 성공했습니다.", service.fetchByEmail(userDetails.getUsername()));
     }
 
     /**
      * 내 정보 수정
      *
-     * @param userId  사용자 ID
-     * @param request 수정할 데이터
+     * @param userDetails 인증된 사용자 정보
+     * @param request     수정할 데이터
      * @return message
      */
     @Operation(summary = "내 정보 수정")
     @ApiResponse(responseCode = "200", description = "내 정보 수정 성공 응답 예시")
-    @PutMapping("/{userId}")
+    @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> update(@PathVariable Long userId, @Valid @RequestBody UserUpdateRequest request) {
-        service.update(userId, request);
-
+    public ApiResult<Void> update(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody UserUpdateRequest request
+    ) {
+        service.updateByEmail(userDetails.getUsername(), request);
         return ApiResult.success("내 정보 수정에 성공했습니다.");
     }
 
     /**
      * 회원 탈퇴
      *
-     * @param userId 사용자 ID
+     * @param userDetails 인증된 사용자 정보
      * @return message
      */
     @Operation(summary = "회원 탈퇴")
     @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공 응답 예시")
-    @DeleteMapping("/{userId}")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> delete(@PathVariable Long userId) {
-        service.delete(userId);
-
+    public ApiResult<Void> delete(@AuthenticationPrincipal UserDetails userDetails) {
+        service.deleteByEmail(userDetails.getUsername());
         return ApiResult.success("회원 탈퇴에 성공했습니다.");
     }
 }

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -17,7 +18,7 @@ public record CreatorProjectCreateRequest(
         String title,
 
         @Schema(
-                description = "프로젝트 본문 콘텐츠 블록 데이터 (JSON String)",
+                description = "프로젝트 본문 콘텐츠 블록 데이터 (JSON)",
                 example = """
                 {
                   "time": 1717200000000,
@@ -42,8 +43,8 @@ public record CreatorProjectCreateRequest(
                 }
                 """
         )
-        @NotBlank(message = "콘텐트 블록 데이터는 필수입니다.")
-        String contentBlocks,
+        @NotNull(message = "콘텐트 블록 데이터는 필수입니다.")
+        Object contentBlocks,
 
         @Schema(description = "목표 금액", example = "1000000")
         @NotNull(message = "목표 금액은 필수입니다.")

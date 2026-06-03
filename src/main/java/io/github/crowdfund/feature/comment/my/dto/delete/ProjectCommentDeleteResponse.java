@@ -1,4 +1,4 @@
-package io.github.crowdfund.feature.comment.project.dto.delete;
+package io.github.crowdfund.feature.comment.my.dto.delete;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

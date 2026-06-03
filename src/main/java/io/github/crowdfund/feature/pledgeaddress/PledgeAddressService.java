@@ -11,6 +11,7 @@ import io.github.crowdfund.feature.pledgeaddress.dto.PledgeAddressInfo;
 import io.github.crowdfund.feature.pledgeaddress.dto.fetch.PledgeAddressFetchResponse;
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceRequest;
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceResponse;
+import io.github.crowdfund.global.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,14 @@ public class PledgeAddressService {
     /**
      * 참여한 후원의 배송 정보 조회 도메인 로직
      */
-    public PledgeAddressFetchResponse fetch(Long pledgeId) {
+    public PledgeAddressFetchResponse fetch(SecurityUser securityUser, Long pledgeId) {
+        Pledge pledge = pledgeRepository.findById(pledgeId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 후원 정보를 찾을 수 없습니다."));
+
+        if (securityUser.isOwner(pledge.userId())) {
+            throw new IllegalArgumentException("본인의 후원 주소 정보만 조회할 수 있습니다.");
+        }
+
         PledgeAddress address = repository.findByPledgeId(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 후원의 주소 정보를 찾을 수 없습니다."));
 
@@ -41,9 +49,13 @@ public class PledgeAddressService {
      * 참여한 후원의 배송 정보 교체 도메인 로직
      */
     @Transactional
-    public PledgeAddressReplaceResponse replace(Long pledgeId, PledgeAddressReplaceRequest request) {
+    public PledgeAddressReplaceResponse replace(SecurityUser securityUser, Long pledgeId, PledgeAddressReplaceRequest request) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 후원 정보를 찾을 수 없습니다."));
+
+        if (securityUser.isOwner(pledge.userId())) {
+            throw new IllegalArgumentException("본인의 후원 주소 정보만 교체할 수 있습니다.");
+        }
 
         // 배송 정보 수정 가능 여부 확인 (이행 상태가 READY 인 경우만 가능)
         if (pledge.fulfillmentStatus() != FulfillmentStatus.READY) {

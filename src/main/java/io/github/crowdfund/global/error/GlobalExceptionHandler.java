@@ -1,4 +1,4 @@
-package io.github.crowdfund.global.exception;
+package io.github.crowdfund.global.error;
 
 
 import io.github.crowdfund.global.common.ApiResult;
@@ -6,7 +6,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -4,11 +4,13 @@ import io.github.crowdfund.feature.pledgeaddress.dto.fetch.PledgeAddressFetchRes
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceRequest;
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.security.SecurityUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,9 +34,10 @@ public class PledgeAddressController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<PledgeAddressFetchResponse> fetch(
+            @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long pledgeId
     ) {
-        return ApiResult.success("참여한 후원의 배송 정보 조회에 성공했습니다.", service.fetch(pledgeId));
+        return ApiResult.success("참여한 후원의 배송 정보 조회에 성공했습니다.", service.fetch(securityUser, pledgeId));
     }
 
     /**
@@ -49,9 +52,10 @@ public class PledgeAddressController {
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<PledgeAddressReplaceResponse> replace(
+            @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long pledgeId,
             @RequestBody PledgeAddressReplaceRequest request
     ) {
-        return ApiResult.success("참여한 후원의 배송 정보 교체에 성공했습니다.", service.replace(pledgeId, request));
+        return ApiResult.success("참여한 후원의 배송 정보 교체에 성공했습니다.", service.replace(securityUser, pledgeId, request));
     }
 }

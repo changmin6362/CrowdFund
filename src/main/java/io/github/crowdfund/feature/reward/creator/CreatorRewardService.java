@@ -8,6 +8,7 @@ import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdate
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateReqeust;
 import io.github.crowdfund.feature.reward.creator.dto.RewardInfo;
 import io.github.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDeleteResponse;
+import io.github.crowdfund.global.security.SecurityUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,14 @@ import java.time.LocalDateTime;
 public class CreatorRewardService {
 
     private final RewardRepository repository;
+    private final io.github.crowdfund.domain.project.ProjectRepository projectRepository;
 
     /**
      * 프로젝트에 리워드 등록 도메인 로직
      */
     @Transactional
-    public CreatorRewardCreateResponse create(@Valid Long projectId, CreatorRewardCreateRequest request) {
+    public CreatorRewardCreateResponse create(SecurityUser securityUser, @Valid Long projectId, CreatorRewardCreateRequest request) {
+        projectRepository.validateProjectOwner(projectId, securityUser.getUserId());
 
         Reward reward = new Reward(
                 null,
@@ -57,9 +60,11 @@ public class CreatorRewardService {
      * 리워드 수정 도메인 로직
      */
     @Transactional
-    public CreatorRewardUpdateResponse update(Long rewardId, CreatorRewardUpdateReqeust request) {
+    public CreatorRewardUpdateResponse update(SecurityUser securityUser, Long rewardId, CreatorRewardUpdateReqeust request) {
         Reward reward = repository.findById(rewardId)
                 .orElseThrow(() -> new IllegalArgumentException("리워드를 찾을 수 없습니다."));
+
+        projectRepository.validateProjectOwner(reward.projectId(), securityUser.getUserId());
 
         Reward updatedReward = new Reward(
                 reward.id(),
@@ -90,7 +95,11 @@ public class CreatorRewardService {
      * 리워드 삭제 도메인 로직
      */
     @Transactional
-    public CreatorRewardDeleteResponse delete(@Valid Long rewardId) {
+    public CreatorRewardDeleteResponse delete(SecurityUser securityUser, @Valid Long rewardId) {
+        Reward reward = repository.findById(rewardId)
+                .orElseThrow(() -> new IllegalArgumentException("리워드를 찾을 수 없습니다."));
+
+        projectRepository.validateProjectOwner(reward.projectId(), securityUser.getUserId());
 
         repository.deleteById(rewardId);
 

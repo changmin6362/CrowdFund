@@ -3,12 +3,14 @@ package io.github.crowdfund.feature.pledge.creator;
 import io.github.crowdfund.feature.pledge.creator.dto.fulfill.CreatorPledgeFulfillRequest;
 import io.github.crowdfund.feature.pledge.creator.dto.fulfill.CreatorPledgeFulfillResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.security.SecurityUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +35,9 @@ public class CreatorPledgeController {
     @PatchMapping("/{pledgeId}/fulfill")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorPledgeFulfillResponse> fulfill(
+            @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long pledgeId,
             @Valid @RequestBody CreatorPledgeFulfillRequest request) {
-        return ApiResult.success("보상 이행 상태 변경에 성공했습니다.", service.fulfill(pledgeId, request));
+        return ApiResult.success("보상 이행 상태 변경에 성공했습니다.", service.fulfill(securityUser, pledgeId, request));
     }
 }
