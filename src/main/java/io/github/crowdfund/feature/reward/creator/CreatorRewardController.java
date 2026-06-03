@@ -15,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/creator")
 @RequiredArgsConstructor
 @Tag(name = "Reward - Creator", description = "창작자용 리워드 API")
 public class CreatorRewardController {
