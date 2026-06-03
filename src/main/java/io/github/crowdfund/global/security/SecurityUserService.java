@@ -1,4 +1,4 @@
-package io.github.crowdfund.global.config.security;
+package io.github.crowdfund.global.security;
 
 import io.github.crowdfund.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;

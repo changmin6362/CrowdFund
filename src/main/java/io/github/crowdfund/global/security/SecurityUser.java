@@ -1,4 +1,4 @@
-package io.github.crowdfund.global.config.security;
+package io.github.crowdfund.global.security;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.User;
 import java.util.Collection;
 
 /**
- * Spring Security의 User 클래스를 확장하여 userId를 포함하는 상세 정보 클래스
+ * Spring Security가 관리하는 User 클래스를 확장하여 userId를 포함하도록 확장한 클래스
  */
 @Getter
 public class SecurityUser extends User {

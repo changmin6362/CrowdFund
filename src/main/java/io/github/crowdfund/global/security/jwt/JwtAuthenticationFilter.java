@@ -1,4 +1,4 @@
-package io.github.crowdfund.global.config.security.jwt;
+package io.github.crowdfund.global.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

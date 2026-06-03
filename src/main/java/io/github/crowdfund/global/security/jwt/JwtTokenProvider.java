@@ -1,6 +1,6 @@
-package io.github.crowdfund.global.config.security.jwt;
+package io.github.crowdfund.global.security.jwt;
 
-import io.github.crowdfund.global.config.security.SecurityUser;
+import io.github.crowdfund.global.security.SecurityUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

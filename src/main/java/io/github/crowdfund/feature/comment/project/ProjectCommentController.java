@@ -8,6 +8,7 @@ import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpda
 import io.github.crowdfund.feature.comment.project.dto.update.ProjectCommentUpdateResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
+import io.github.crowdfund.global.security.SecurityUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +17,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,14 +39,14 @@ public class ProjectCommentController {
      */
     @Operation(summary = "프로젝트에 댓글 작성")
     @ApiResponse(responseCode = "201", description = "댓글 작성 성공 응답 예시")
-    @PostMapping("/projects/{projectId}/comments/{userId}")
+    @PostMapping("/projects/{projectId}/comments")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResult<ProjectCommentCreateResponse> create(
             @PathVariable Long projectId,
-            @PathVariable Long userId,
+            @AuthenticationPrincipal SecurityUser securityUser,
             @Valid @RequestBody ProjectCommentCreateRequest request) {
 
-        return ApiResult.success("댓글 작성에 성공했습니다.", service.create(projectId, userId, request));
+        return ApiResult.success("댓글 작성에 성공했습니다.", service.create(projectId, securityUser.getUserId(), request));
     }
 
     /**
@@ -75,14 +77,14 @@ public class ProjectCommentController {
      */
     @Operation(summary = "프로젝트 작성한 댓글 수정")
     @ApiResponse(responseCode = "200", description = "댓글 수정 성공 응답 예시")
-    @PatchMapping("/comments/{commentId}/{userId}")
+    @PatchMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentUpdateResponse> update(
             @PathVariable Long commentId,
-            @PathVariable Long userId,
+            @AuthenticationPrincipal SecurityUser securityUser,
             @Valid @RequestBody ProjectCommentUpdateRequest request) {
 
-        return ApiResult.success("댓글 수정에 성공했습니다.", service.update(commentId, userId, request));
+        return ApiResult.success("댓글 수정에 성공했습니다.", service.update(commentId, securityUser.getUserId(), request));
     }
 
     /**
@@ -93,12 +95,12 @@ public class ProjectCommentController {
      */
     @Operation(summary = "프로젝트에 작성한 댓글 삭제")
     @ApiResponse(responseCode = "200", description = "댓글 삭제 성공 응답 예시")
-    @DeleteMapping("/comments/{commentId}/{userId}")
+    @DeleteMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<ProjectCommentDeleteResponse> delete(
             @PathVariable Long commentId,
-            @PathVariable Long userId) {
+            @AuthenticationPrincipal SecurityUser securityUser) {
 
-        return ApiResult.success("내 댓글 삭제에 성공했습니다.", service.delete(commentId, userId));
+        return ApiResult.success("내 댓글 삭제에 성공했습니다.", service.delete(commentId, securityUser.getUserId()));
     }
 }

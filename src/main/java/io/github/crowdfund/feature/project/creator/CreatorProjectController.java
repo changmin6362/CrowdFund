@@ -6,12 +6,14 @@ import io.github.crowdfund.feature.project.creator.dto.extract.CreatorShippingIn
 import io.github.crowdfund.feature.project.creator.dto.fetch.CreatorProjectsFetchResponse;
 import io.github.crowdfund.feature.project.creator.dto.update.CreatorProjectUpdateRequest;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.security.SecurityUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,10 +34,13 @@ public class CreatorProjectController {
      */
     @Operation(summary = "프로젝트 생성")
     @ApiResponse(responseCode = "201", description = "프로젝트 생성 성공 응답 예시")
-    @PostMapping("/{creatorId}")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<CreatorProjectCreateResponse> create(@PathVariable Long creatorId, @Valid @RequestBody CreatorProjectCreateRequest request) {
-        return ApiResult.success("프로젝트 생성에 성공했습니다.", service.create(creatorId, request));
+    public ApiResult<CreatorProjectCreateResponse> create(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @RequestBody CreatorProjectCreateRequest request) {
+
+        return ApiResult.success("프로젝트 생성에 성공했습니다.", service.create(securityUser.getUserId(), request));
     }
 
     /**
@@ -74,15 +79,14 @@ public class CreatorProjectController {
     /**
      * 내 프로젝트 조회
      *
-     * @param userId 사용자 ID
      * @return message, projects
      */
     @Operation(summary = "내 프로젝트 조회")
     @ApiResponse(responseCode = "200", description = "내 프로젝트 조회 성공 응답 예시")
-    @GetMapping("/me/{userId}")
+    @GetMapping("/me")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<CreatorProjectsFetchResponse> fetch(@PathVariable Long userId) {
-        return ApiResult.success("내 프로젝트 조회에 성공했습니다.", service.fetch(userId));
+    public ApiResult<CreatorProjectsFetchResponse> fetch(@AuthenticationPrincipal SecurityUser securityUser) {
+        return ApiResult.success("내 프로젝트 조회에 성공했습니다.", service.fetch(securityUser.getUserId()));
     }
 
     /**

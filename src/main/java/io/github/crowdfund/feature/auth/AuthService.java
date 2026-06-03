@@ -6,7 +6,7 @@ import io.github.crowdfund.feature.auth.dto.login.LoginRequest;
 import io.github.crowdfund.feature.auth.dto.login.LoginResponse;
 import io.github.crowdfund.feature.auth.dto.login.UserProfileInfo;
 import io.github.crowdfund.feature.auth.dto.signup.SignUpRequest;
-import io.github.crowdfund.global.config.security.jwt.JwtTokenProvider;
+import io.github.crowdfund.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
