@@ -61,7 +61,7 @@ public class MyCommentController {
             @AuthenticationPrincipal SecurityUser securityUser,
             @Valid @RequestBody ProjectCommentUpdateRequest request) {
 
-        return ApiResult.success("댓글 수정에 성공했습니다.", service.update(commentId, securityUser.getUserId(), request));
+        return ApiResult.success("댓글 수정에 성공했습니다.", service.update(commentId, securityUser, request));
     }
 
     /**
@@ -78,6 +78,6 @@ public class MyCommentController {
             @PathVariable Long commentId,
             @AuthenticationPrincipal SecurityUser securityUser) {
 
-        return ApiResult.success("내 댓글 삭제에 성공했습니다.", service.delete(commentId, securityUser.getUserId()));
+        return ApiResult.success("내 댓글 삭제에 성공했습니다.", service.delete(commentId, securityUser));
     }
 }

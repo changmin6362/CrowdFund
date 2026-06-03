@@ -11,6 +11,7 @@ import io.github.crowdfund.feature.project.creator.dto.extract.ShippingInfo;
 import io.github.crowdfund.feature.project.creator.dto.fetch.CreatorProjectsFetchResponse;
 import io.github.crowdfund.feature.project.creator.dto.fetch.ProjectInfo;
 import io.github.crowdfund.feature.project.creator.dto.update.CreatorProjectUpdateRequest;
+import io.github.crowdfund.global.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,8 +53,8 @@ public class CreatorProjectService {
      * 프로젝트 제목과 본문 수정 도메인 로직
      */
     @Transactional
-    public void update(Long creatorId, Long projectId, CreatorProjectUpdateRequest request) {
-        validateProjectOwner(creatorId, projectId);
+    public void update(SecurityUser securityUser, Long projectId, CreatorProjectUpdateRequest request) {
+        validateProjectOwner(securityUser, projectId);
         projectMapper.update(projectId, request.title(), request.contentBlocks());
     }
 
@@ -61,8 +62,8 @@ public class CreatorProjectService {
      * 프로젝트 삭제 도메인 로직
      */
     @Transactional
-    public void delete(Long creatorId, Long projectId) {
-        validateProjectOwner(creatorId, projectId);
+    public void delete(SecurityUser securityUser, Long projectId) {
+        validateProjectOwner(securityUser, projectId);
         projectMapper.deleteById(projectId);
     }
 
@@ -79,16 +80,16 @@ public class CreatorProjectService {
      * 후원자들의 배송 정보 목록 조회 도메인 로직
      */
     @Transactional
-    public CreatorShippingInfosExtractResponse extract(Long creatorId, Long projectId) {
-        validateProjectOwner(creatorId, projectId);
+    public CreatorShippingInfosExtractResponse extract(SecurityUser securityUser, Long projectId) {
+        validateProjectOwner(securityUser, projectId);
         List<ShippingInfo> shippingInfos = projectMapper.findShippingInfosByProjectId(projectId);
         return new CreatorShippingInfosExtractResponse(shippingInfos);
     }
 
-    private void validateProjectOwner(Long creatorId, Long projectId) {
+    private void validateProjectOwner(SecurityUser securityUser, Long projectId) {
         projectRepository.findById(projectId)
                 .ifPresentOrElse(project -> {
-                    if (!project.creatorId().equals(creatorId)) {
+                    if (!securityUser.isOwner(project.creatorId())) {
                         throw new IllegalArgumentException("본인의 프로젝트만 관리할 수 있습니다.");
                     }
                 }, () -> {

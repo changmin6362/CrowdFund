@@ -41,7 +41,7 @@ public class CreatorRewardController {
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long projectId,
             @Valid @RequestBody CreatorRewardCreateRequest request) {
-        return ApiResult.success("리워드 등록에 성공했습니다.", service.create(securityUser.getUserId(), projectId, request));
+        return ApiResult.success("리워드 등록에 성공했습니다.", service.create(securityUser, projectId, request));
     }
 
     /**
@@ -59,7 +59,7 @@ public class CreatorRewardController {
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable @Valid Long rewardId,
             @Valid @RequestBody CreatorRewardUpdateReqeust request) {
-        return ApiResult.success("리워드 수정에 성공했습니다.", service.update(securityUser.getUserId(), rewardId, request));
+        return ApiResult.success("리워드 수정에 성공했습니다.", service.update(securityUser, rewardId, request));
     }
 
     /**
@@ -75,7 +75,7 @@ public class CreatorRewardController {
     public ApiResult<CreatorRewardDeleteResponse> delete(
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long rewardId) {
-        return ApiResult.success("리워드 삭제에 성공했습니다.", service.delete(securityUser.getUserId(), rewardId));
+        return ApiResult.success("리워드 삭제에 성공했습니다.", service.delete(securityUser, rewardId));
     }
 }
 

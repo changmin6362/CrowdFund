@@ -58,7 +58,7 @@ public class CreatorProjectController {
             @PathVariable Long projectId,
             @AuthenticationPrincipal SecurityUser securityUser,
             @Valid @RequestBody CreatorProjectUpdateRequest request) {
-        service.update(securityUser.getUserId(), projectId, request);
+        service.update(securityUser, projectId, request);
 
         return ApiResult.success("프로젝트 제목과 본문 수정에 성공했습니다.");
     }
@@ -76,7 +76,7 @@ public class CreatorProjectController {
     public ApiResult<Void> delete(
             @PathVariable Long projectId,
             @AuthenticationPrincipal SecurityUser securityUser) {
-        service.delete(securityUser.getUserId(), projectId);
+        service.delete(securityUser, projectId);
 
         return ApiResult.success("프로젝트 삭제에 성공했습니다.");
     }
@@ -107,6 +107,6 @@ public class CreatorProjectController {
     public ApiResult<CreatorShippingInfosExtractResponse> extract(
             @PathVariable Long projectId,
             @AuthenticationPrincipal SecurityUser securityUser) {
-        return ApiResult.success("배송 정보 조회에 성공했습니다.", service.extract(securityUser.getUserId(), projectId));
+        return ApiResult.success("배송 정보 조회에 성공했습니다.", service.extract(securityUser, projectId));
     }
 }

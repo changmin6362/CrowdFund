@@ -38,7 +38,7 @@ public class PaymentController {
     public ApiResult<PaymentCreateResponse> create(
             @AuthenticationPrincipal SecurityUser securityUser,
             @Valid @RequestBody PaymentCreateRequest request) {
-        return ApiResult.success("결제 요청에 성공했습니다.", service.create(securityUser.getUserId(), request));
+        return ApiResult.success("결제 요청에 성공했습니다.", service.create(securityUser, request));
     }
 
     /**
@@ -54,7 +54,7 @@ public class PaymentController {
     public ApiResult<PaymentDetailResponse> detail(
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long pledgeId) {
-        return ApiResult.success("결제 상세 조회에 성공했습니다.", service.detail(securityUser.getUserId(), pledgeId));
+        return ApiResult.success("결제 상세 조회에 성공했습니다.", service.detail(securityUser, pledgeId));
     }
 
     /**
@@ -70,7 +70,7 @@ public class PaymentController {
     public ApiResult<Void> cancel(
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long paymentId) {
-        service.cancel(securityUser.getUserId(), paymentId);
+        service.cancel(securityUser, paymentId);
 
         return ApiResult.success("결제 취소에 성공했습니다.");
     }
@@ -88,6 +88,6 @@ public class PaymentController {
     public ApiResult<PaymentHistoryResponse> history(
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long paymentId) {
-        return ApiResult.success("결제 이력 조회에 성공했습니다.", service.history(securityUser.getUserId(), paymentId));
+        return ApiResult.success("결제 이력 조회에 성공했습니다.", service.history(securityUser, paymentId));
     }
 }

@@ -37,7 +37,7 @@ public class PledgeAddressController {
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long pledgeId
     ) {
-        return ApiResult.success("참여한 후원의 배송 정보 조회에 성공했습니다.", service.fetch(securityUser.getUserId(), pledgeId));
+        return ApiResult.success("참여한 후원의 배송 정보 조회에 성공했습니다.", service.fetch(securityUser, pledgeId));
     }
 
     /**
@@ -56,6 +56,6 @@ public class PledgeAddressController {
             @PathVariable Long pledgeId,
             @RequestBody PledgeAddressReplaceRequest request
     ) {
-        return ApiResult.success("참여한 후원의 배송 정보 교체에 성공했습니다.", service.replace(securityUser.getUserId(), pledgeId, request));
+        return ApiResult.success("참여한 후원의 배송 정보 교체에 성공했습니다.", service.replace(securityUser, pledgeId, request));
     }
 }

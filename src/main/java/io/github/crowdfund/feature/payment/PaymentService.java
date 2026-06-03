@@ -13,6 +13,7 @@ import io.github.crowdfund.feature.payment.dto.detail.PaymentDetailResponse;
 import io.github.crowdfund.feature.payment.dto.detail.PaymentDetail;
 import io.github.crowdfund.feature.payment.dto.history.PaymentHistoryInfo;
 import io.github.crowdfund.feature.payment.dto.history.PaymentHistoryResponse;
+import io.github.crowdfund.global.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +33,7 @@ public class PaymentService {
      * 결제 요청 도메인 로직
      */
     @Transactional
-    public PaymentCreateResponse create(Long userId, PaymentCreateRequest request) {
+    public PaymentCreateResponse create(SecurityUser securityUser, PaymentCreateRequest request) {
         if (paymentRepository.findByPledgeId(request.pledgeId()).isPresent()) {
             throw new IllegalStateException("이미 결제가 완료되었습니다.");
         }
@@ -40,7 +41,7 @@ public class PaymentService {
         Pledge pledge = pledgeRepository.findById(request.pledgeId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
 
-        if (!pledge.userId().equals(userId)) {
+        if (!securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 후원 내역만 결제할 수 있습니다.");
         }
 
@@ -81,11 +82,11 @@ public class PaymentService {
      * 후원별 결제 내역 조회 도메인 로직
      */
     @Transactional(readOnly = true)
-    public PaymentDetailResponse detail(Long userId, Long pledgeId) {
+    public PaymentDetailResponse detail(SecurityUser securityUser, Long pledgeId) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
 
-        if (!pledge.userId().equals(userId)) {
+        if (!securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 결제 내역만 조회할 수 있습니다.");
         }
 
@@ -109,14 +110,14 @@ public class PaymentService {
      * 결제 취소 도메인 로직
      */
     @Transactional
-    public void cancel(Long userId, Long paymentId) {
+    public void cancel(SecurityUser securityUser, Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 정보입니다."));
 
         Pledge pledge = pledgeRepository.findById(payment.pledgeId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
 
-        if (!pledge.userId().equals(userId)) {
+        if (!securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 결제만 취소할 수 있습니다.");
         }
 
@@ -153,14 +154,14 @@ public class PaymentService {
      * 결제 이력 조회 도메인 로직
      */
     @Transactional(readOnly = true)
-    public PaymentHistoryResponse history(Long userId, Long paymentId) {
+    public PaymentHistoryResponse history(SecurityUser securityUser, Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 정보입니다."));
 
         Pledge pledge = pledgeRepository.findById(payment.pledgeId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
 
-        if (!pledge.userId().equals(userId)) {
+        if (!securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 결제 이력만 조회할 수 있습니다.");
         }
 

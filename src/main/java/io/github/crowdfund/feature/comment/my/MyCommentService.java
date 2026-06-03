@@ -12,6 +12,7 @@ import io.github.crowdfund.feature.comment.my.dto.fetch.MyCommentsResponse;
 import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.github.crowdfund.global.common.dto.pagination.CursorResponse;
 import io.github.crowdfund.global.common.pagination.CursorPaginationProcessor;
+import io.github.crowdfund.global.security.SecurityUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -55,12 +56,12 @@ public class MyCommentService {
      * 내 댓글 수정 도메인 로직
      */
     @Transactional
-    public ProjectCommentUpdateResponse update(Long commentId, Long userId, @Valid ProjectCommentUpdateRequest request) {
+    public ProjectCommentUpdateResponse update(Long commentId, SecurityUser securityUser, @Valid ProjectCommentUpdateRequest request) {
 
         Comment comment = repository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
 
-        if (!comment.userId().equals(userId)) {
+        if (!securityUser.isOwner(comment.userId())) {
             throw new IllegalArgumentException("본인의 댓글만 수정할 수 있습니다.");
         }
 
@@ -76,12 +77,12 @@ public class MyCommentService {
      * 내 댓글 삭제 도메인 로직
      */
     @Transactional
-    public ProjectCommentDeleteResponse delete(Long commentId, Long userId) {
+    public ProjectCommentDeleteResponse delete(Long commentId, SecurityUser securityUser) {
 
         Comment comment = repository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
 
-        if (!comment.userId().equals(userId)) {
+        if (!securityUser.isOwner(comment.userId())) {
             throw new IllegalArgumentException("본인의 댓글만 삭제할 수 있습니다.");
         }
 

@@ -25,6 +25,7 @@ import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgeInfo;
 import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.github.crowdfund.global.common.dto.pagination.CursorResponse;
 import io.github.crowdfund.global.common.pagination.CursorPaginationProcessor;
+import io.github.crowdfund.global.security.SecurityUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -96,11 +97,11 @@ public class MyPledgeService {
      * 후원 상세 조회 도메인 로직
      */
     @Transactional
-    public MyPledgeDetailResponse detail(Long userId, Long pledgeId) {
+    public MyPledgeDetailResponse detail(SecurityUser securityUser, Long pledgeId) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
-        if (!pledge.userId().equals(userId)) {
+        if (!securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 후원 내역만 조회할 수 있습니다.");
         }
 
@@ -141,11 +142,11 @@ public class MyPledgeService {
      * 후원 취소 도메인 로직
      */
     @Transactional
-    public MyPledgesDeleteResponse cancel(Long userId, Long pledgeId) {
+    public MyPledgesDeleteResponse cancel(SecurityUser securityUser, Long pledgeId) {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
-        if (!pledge.userId().equals(userId)) {
+        if (!securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 후원 내역만 취소할 수 있습니다.");
         }
 

@@ -10,6 +10,7 @@ import io.github.crowdfund.feature.useraddress.dto.set.DefaultAddressResult;
 import io.github.crowdfund.feature.useraddress.dto.set.UserAddressSetResponse;
 import io.github.crowdfund.feature.useraddress.dto.update.UserAddressUpdateRequest;
 import io.github.crowdfund.feature.useraddress.dto.update.UserAddressUpdateResponse;
+import io.github.crowdfund.global.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,11 +68,11 @@ public class UserAddressService {
      * 내 배송지 수정 도메인 로직
      */
     @Transactional
-    public UserAddressUpdateResponse update(Long userId, Long addressId, UserAddressUpdateRequest request) {
+    public UserAddressUpdateResponse update(SecurityUser securityUser, Long addressId, UserAddressUpdateRequest request) {
         UserAddress existing = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
 
-        if (!existing.userId().equals(userId)) {
+        if (!securityUser.isOwner(existing.userId())) {
             throw new IllegalArgumentException("본인의 배송지만 수정할 수 있습니다.");
         }
 
@@ -96,11 +97,11 @@ public class UserAddressService {
      * 기본 배송지 수정 도메인 로직
      */
     @Transactional
-    public UserAddressSetResponse set(Long userId, Long addressId) {
+    public UserAddressSetResponse set(SecurityUser securityUser, Long addressId) {
         UserAddress target = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
 
-        if (!target.userId().equals(userId)) {
+        if (!securityUser.isOwner(target.userId())) {
             throw new IllegalArgumentException("본인의 배송지만 기본 배송지로 설정할 수 있습니다.");
         }
 
@@ -144,11 +145,11 @@ public class UserAddressService {
      * 내 배송지 삭제 도메인 로직
      */
     @Transactional
-    public void delete(Long userId, Long addressId) {
+    public void delete(SecurityUser securityUser, Long addressId) {
         UserAddress target = repository.findById(addressId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 배송지입니다."));
 
-        if (!target.userId().equals(userId)) {
+        if (!securityUser.isOwner(target.userId())) {
             throw new IllegalArgumentException("본인의 배송지만 삭제할 수 있습니다.");
         }
 

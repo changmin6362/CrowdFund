@@ -72,7 +72,7 @@ public class UserAddressController {
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long addressId,
             @Valid @RequestBody UserAddressUpdateRequest request) {
-        return ApiResult.success("배송지 수정에 성공했습니다.", service.update(securityUser.getUserId(), addressId, request));
+        return ApiResult.success("배송지 수정에 성공했습니다.", service.update(securityUser, addressId, request));
     }
 
     /**
@@ -88,7 +88,7 @@ public class UserAddressController {
     public ApiResult<UserAddressSetResponse> set(
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long addressId) {
-        return ApiResult.success("기본 배송지 변경에 성공했습니다.", service.set(securityUser.getUserId(), addressId));
+        return ApiResult.success("기본 배송지 변경에 성공했습니다.", service.set(securityUser, addressId));
     }
 
     /**
@@ -104,7 +104,7 @@ public class UserAddressController {
     public ApiResult<Void> delete(
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long addressId) {
-        service.delete(securityUser.getUserId(), addressId);
+        service.delete(securityUser, addressId);
 
         return ApiResult.success("배송지 삭제에 성공했습니다.");
     }

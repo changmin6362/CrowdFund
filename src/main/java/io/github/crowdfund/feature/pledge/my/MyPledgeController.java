@@ -60,7 +60,7 @@ public class MyPledgeController {
     public ApiResult<MyPledgeDetailResponse> detail(
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long pledgeId) {
-        return ApiResult.success("내 후원 상세 조회에 성공했습니다.", service.detail(securityUser.getUserId(), pledgeId));
+        return ApiResult.success("내 후원 상세 조회에 성공했습니다.", service.detail(securityUser, pledgeId));
     }
 
     /**
@@ -77,7 +77,7 @@ public class MyPledgeController {
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long pledgeId) {
 
-        return ApiResult.success("후원 취소에 성공했습니다.", service.cancel(securityUser.getUserId(), pledgeId));
+        return ApiResult.success("후원 취소에 성공했습니다.", service.cancel(securityUser, pledgeId));
     }
 
     /**
