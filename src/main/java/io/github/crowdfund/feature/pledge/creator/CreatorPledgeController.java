@@ -9,11 +9,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/creator/pledges")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Pledge - Creator", description = "창작자용 후원 API")
 public class CreatorPledgeController {
 

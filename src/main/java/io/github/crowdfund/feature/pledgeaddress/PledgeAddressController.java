@@ -9,11 +9,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/pledges/{pledgeId}/address")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "PledgeAddress", description = "후원별 배송 정보 API")
 public class PledgeAddressController {
 

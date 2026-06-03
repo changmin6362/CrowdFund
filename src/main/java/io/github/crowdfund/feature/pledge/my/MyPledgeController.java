@@ -17,11 +17,13 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/pledges/me")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Pledge - MY", description = "내 후원 API")
 public class MyPledgeController {
 

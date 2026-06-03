@@ -13,11 +13,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users/me")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "UserAddress", description = "사용자 배송지 관련 API")
 public class UserAddressController {
 

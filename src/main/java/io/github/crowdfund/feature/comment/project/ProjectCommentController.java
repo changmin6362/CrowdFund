@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-@Validated
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Comment - Project", description = "프로젝트의 댓글 API")
 public class ProjectCommentController {
 
@@ -31,7 +31,7 @@ public class ProjectCommentController {
     /**
      * 프로젝트에 댓글 작성
      *
-     * @param projectId 프로젝트 아이디
+     * @param projectId 프로젝트 ID
      * @param request   댓글 작성 요청 데이터
      * @return message, createdComment
      */
@@ -42,7 +42,7 @@ public class ProjectCommentController {
     public ApiResult<ProjectCommentCreateResponse> create(
             @PathVariable Long projectId,
             @PathVariable Long userId,
-            @RequestBody @Valid ProjectCommentCreateRequest request) {
+            @Valid @RequestBody ProjectCommentCreateRequest request) {
 
         return ApiResult.success("댓글 작성에 성공했습니다.", service.create(projectId, userId, request));
     }
@@ -50,7 +50,7 @@ public class ProjectCommentController {
     /**
      * 프로젝트의 댓글 목록 조회 (복합 커서 기반 최신순 페이지네이션)
      *
-     * @param projectId 프로젝트 아이디
+     * @param projectId 프로젝트 ID
      * @return message, comments, hasNext, nextCursor
      */
     @Operation(summary = "프로젝트의 댓글 목록 조회")
@@ -69,7 +69,7 @@ public class ProjectCommentController {
     /**
      * 프로젝트 작성한 댓글 수정
      *
-     * @param commentId 댓글 아이디
+     * @param commentId 댓글 ID
      * @param request   댓글 수정 요청 데이터
      * @return message, patchedComment
      */
@@ -80,7 +80,7 @@ public class ProjectCommentController {
     public ApiResult<ProjectCommentUpdateResponse> update(
             @PathVariable Long commentId,
             @PathVariable Long userId,
-            @RequestBody @Valid ProjectCommentUpdateRequest request) {
+            @Valid @RequestBody ProjectCommentUpdateRequest request) {
 
         return ApiResult.success("댓글 수정에 성공했습니다.", service.update(commentId, userId, request));
     }
@@ -88,7 +88,7 @@ public class ProjectCommentController {
     /**
      * 프로젝트에 작성한 댓글 삭제
      *
-     * @param commentId 댓글 아이디
+     * @param commentId 댓글 ID
      * @return message, deletedCommentId
      */
     @Operation(summary = "프로젝트에 작성한 댓글 삭제")
