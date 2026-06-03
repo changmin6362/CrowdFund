@@ -38,4 +38,10 @@ public record Project(
     public boolean isOngoing() {
         return status == ProjectStatus.ONGOING;
     }
+
+    public void validateOwner(Long userId) {
+        if (!this.creatorId.equals(userId)) {
+            throw new IllegalArgumentException("본인의 프로젝트만 관리할 수 있습니다.");
+        }
+    }
 }

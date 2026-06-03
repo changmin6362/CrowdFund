@@ -38,6 +38,6 @@ public class CreatorPledgeController {
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long pledgeId,
             @Valid @RequestBody CreatorPledgeFulfillRequest request) {
-        return ApiResult.success("보상 이행 상태 변경에 성공했습니다.", service.fulfill(securityUser.getUserId(), pledgeId, request));
+        return ApiResult.success("보상 이행 상태 변경에 성공했습니다.", service.fulfill(securityUser, pledgeId, request));
     }
 }

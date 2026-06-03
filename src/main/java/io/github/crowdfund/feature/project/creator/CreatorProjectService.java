@@ -54,7 +54,7 @@ public class CreatorProjectService {
      */
     @Transactional
     public void update(SecurityUser securityUser, Long projectId, CreatorProjectUpdateRequest request) {
-        validateProjectOwner(securityUser, projectId);
+        projectRepository.validateProjectOwner(projectId, securityUser.getUserId());
         projectMapper.update(projectId, request.title(), request.contentBlocks());
     }
 
@@ -63,7 +63,7 @@ public class CreatorProjectService {
      */
     @Transactional
     public void delete(SecurityUser securityUser, Long projectId) {
-        validateProjectOwner(securityUser, projectId);
+        projectRepository.validateProjectOwner(projectId, securityUser.getUserId());
         projectMapper.deleteById(projectId);
     }
 
@@ -81,19 +81,8 @@ public class CreatorProjectService {
      */
     @Transactional
     public CreatorShippingInfosExtractResponse extract(SecurityUser securityUser, Long projectId) {
-        validateProjectOwner(securityUser, projectId);
+        projectRepository.validateProjectOwner(projectId, securityUser.getUserId());
         List<ShippingInfo> shippingInfos = projectMapper.findShippingInfosByProjectId(projectId);
         return new CreatorShippingInfosExtractResponse(shippingInfos);
-    }
-
-    private void validateProjectOwner(SecurityUser securityUser, Long projectId) {
-        projectRepository.findById(projectId)
-                .ifPresentOrElse(project -> {
-                    if (!securityUser.isOwner(project.creatorId())) {
-                        throw new IllegalArgumentException("본인의 프로젝트만 관리할 수 있습니다.");
-                    }
-                }, () -> {
-                    throw new IllegalArgumentException("존재하지 않는 프로젝트입니다.");
-                });
     }
 }

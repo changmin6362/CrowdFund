@@ -29,7 +29,7 @@ public class CreatorRewardService {
      */
     @Transactional
     public CreatorRewardCreateResponse create(SecurityUser securityUser, @Valid Long projectId, CreatorRewardCreateRequest request) {
-        validateProjectOwner(securityUser, projectId);
+        projectRepository.validateProjectOwner(projectId, securityUser.getUserId());
 
         Reward reward = new Reward(
                 null,
@@ -64,7 +64,7 @@ public class CreatorRewardService {
         Reward reward = repository.findById(rewardId)
                 .orElseThrow(() -> new IllegalArgumentException("리워드를 찾을 수 없습니다."));
 
-        validateProjectOwner(securityUser, reward.projectId());
+        projectRepository.validateProjectOwner(reward.projectId(), securityUser.getUserId());
 
         Reward updatedReward = new Reward(
                 reward.id(),
@@ -99,21 +99,10 @@ public class CreatorRewardService {
         Reward reward = repository.findById(rewardId)
                 .orElseThrow(() -> new IllegalArgumentException("리워드를 찾을 수 없습니다."));
 
-        validateProjectOwner(securityUser, reward.projectId());
+        projectRepository.validateProjectOwner(reward.projectId(), securityUser.getUserId());
 
         repository.deleteById(rewardId);
 
         return new CreatorRewardDeleteResponse(rewardId);
-    }
-
-    private void validateProjectOwner(SecurityUser securityUser, Long projectId) {
-        projectRepository.findById(projectId)
-                .ifPresentOrElse(project -> {
-                    if (!securityUser.isOwner(project.creatorId())) {
-                        throw new IllegalArgumentException("본인의 프로젝트만 관리할 수 있습니다.");
-                    }
-                }, () -> {
-                    throw new IllegalArgumentException("존재하지 않는 프로젝트입니다.");
-                });
     }
 }
