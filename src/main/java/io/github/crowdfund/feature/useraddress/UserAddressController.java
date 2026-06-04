@@ -1,11 +1,11 @@
 package io.github.crowdfund.feature.useraddress;
 
 import io.github.crowdfund.feature.useraddress.dto.create.UserAddressCreateRequest;
-import io.github.crowdfund.feature.useraddress.dto.update.UserAddressUpdateRequest;
 import io.github.crowdfund.feature.useraddress.dto.create.UserAddressCreateResponse;
 import io.github.crowdfund.feature.useraddress.dto.fetch.UserAddressesFetchResponse;
-import io.github.crowdfund.feature.useraddress.dto.update.UserAddressUpdateResponse;
 import io.github.crowdfund.feature.useraddress.dto.set.UserAddressSetResponse;
+import io.github.crowdfund.feature.useraddress.dto.update.UserAddressUpdateRequest;
+import io.github.crowdfund.feature.useraddress.dto.update.UserAddressUpdateResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.github.crowdfund.global.security.SecurityUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users/me")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "UserAddress", description = "사용자 배송지 관련 API")
+@Tag(name = "03. UserAddress", description = "사용자 배송지 관련 API")
 public class UserAddressController {
 
     private final UserAddressService service;

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Payment", description = "결제 API")
+@Tag(name = "09. Payment", description = "결제 API")
 public class PaymentController {
 
     private final PaymentService service;

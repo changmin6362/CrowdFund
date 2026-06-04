@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Category - User", description = "사용자용 카테고리 API")
+@Tag(name = "04. Category - User", description = "사용자용 카테고리 API")
 public class UserCategoryController {
 
     private final UserCategoryService service;

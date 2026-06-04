@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/admin/projects")
 @Validated
 @RequiredArgsConstructor
-@Tag(name = "Project - Admin", description = "관리자용 프로젝트 API")
+@Tag(name = "05. Project - Admin", description = "관리자용 프로젝트 API")
 public class AdminProjectController {
 
     private final AdminProjectService service;

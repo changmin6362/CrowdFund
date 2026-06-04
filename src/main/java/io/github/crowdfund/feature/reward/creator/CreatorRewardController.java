@@ -1,9 +1,9 @@
 package io.github.crowdfund.feature.reward.creator;
 
 import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateRequest;
-import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateReqeust;
 import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateResponse;
 import io.github.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDeleteResponse;
+import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateReqeust;
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.github.crowdfund.global.security.SecurityUser;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/creator")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Reward - Creator", description = "창작자용 리워드 API")
+@Tag(name = "06. Reward - Creator", description = "창작자용 리워드 API")
 public class CreatorRewardController {
 
     private final CreatorRewardService service;
