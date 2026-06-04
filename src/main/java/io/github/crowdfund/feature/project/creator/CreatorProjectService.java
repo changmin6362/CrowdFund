@@ -2,6 +2,7 @@ package io.github.crowdfund.feature.project.creator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.crowdfund.domain.pledge.PledgeRepository;
 import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.project.ProjectStatus;
@@ -29,6 +30,7 @@ public class CreatorProjectService {
 
     private final ProjectMapper projectMapper;
     private final ProjectRepository projectRepository;
+    private final PledgeRepository pledgeRepository;
     private final ObjectMapper objectMapper;
 
     /**
@@ -113,5 +115,25 @@ public class CreatorProjectService {
         }
 
         return new CreatorShippingInfosExtractResponse(shippingInfos);
+    }
+
+    /**
+     * 프로젝트 취소 도메인 로직
+     */
+    @Transactional
+    public void cancel(SecurityUser securityUser, Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
+        project.validateOwner(securityUser.getUserId());
+
+        if (!project.isOngoing()) {
+            throw new IllegalArgumentException("진행 중인 프로젝트만 취소할 수 있습니다.");
+        }
+
+        if (pledgeRepository.existsByProjectId(projectId)) {
+            throw new IllegalArgumentException("후원자가 있는 프로젝트는 취소할 수 없습니다.");
+        }
+
+        projectMapper.patchStatus(projectId, ProjectStatus.CANCELED);
     }
 }

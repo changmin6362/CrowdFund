@@ -109,4 +109,22 @@ public class CreatorProjectController {
             @AuthenticationPrincipal SecurityUser securityUser) {
         return ApiResult.success("후원자들의 배송지 목록 조회에 성공했습니다.", service.extract(securityUser, projectId));
     }
+
+    /**
+     * 프로젝트 취소
+     *
+     * @param projectId 프로젝트 ID
+     * @return message
+     */
+    @Operation(summary = "프로젝트 취소")
+    @ApiResponse(responseCode = "200", description = "프로젝트 취소 성공 응답 예시")
+    @PatchMapping("/{projectId}/cancel")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<Void> cancel(
+            @PathVariable Long projectId,
+            @AuthenticationPrincipal SecurityUser securityUser) {
+        service.cancel(securityUser, projectId);
+
+        return ApiResult.success("프로젝트 취소에 성공했습니다.");
+    }
 }
