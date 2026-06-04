@@ -33,4 +33,11 @@ public record User(
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
     LocalDateTime deletedAt
-) {}
+) {
+    /**
+     * 탈퇴한 사용자 검증 메서드
+     */
+    public boolean isDeletedUser() {
+        return deletedAt != null;
+    }
+}

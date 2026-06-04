@@ -95,7 +95,7 @@ public class JwtTokenProvider {
                         .collect(Collectors.toList());
 
         Long userId = claims.get("userId", Long.class);
-        SecurityUser principal = new SecurityUser(userId, claims.getSubject(), "", authorities);
+        SecurityUser principal = new SecurityUser(userId, claims.getSubject(), "", null, null, authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }

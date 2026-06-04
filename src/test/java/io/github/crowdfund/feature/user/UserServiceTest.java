@@ -7,6 +7,7 @@ import io.github.crowdfund.domain.user.UserRepository;
 import io.github.crowdfund.feature.user.dto.fetch.UserFetchResponse;
 import io.github.crowdfund.feature.user.dto.view.UserViewResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.security.SecurityUser;
 import io.github.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,11 +16,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -45,15 +50,22 @@ class UserServiceTest {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
     }
 
+    private void authenticate(User user) {
+        SecurityUser securityUser = SecurityUser.from(user, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.role())));
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
     @Test
     void 내_닉네임_조회_테스트() throws Exception {
         // 1. 테스트 데이터 삽입
         User savedUser = userRepository.save(new User(
                 null, "test@test.com", "pass", "tester", "홍길동", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
+        authenticate(savedUser);
 
         // 2. MockMvc를 이용한 요청 및 결과 출력
-        MvcResult result = mockMvc.perform(get("/api/users/me/nickname/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(get("/api/users/me/nickname"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -69,8 +81,9 @@ class UserServiceTest {
         User savedUser = userRepository.save(new User(
                 null, "data@test.com", "pass", "nick", "홍길동", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
+        authenticate(savedUser);
 
-        MvcResult result = mockMvc.perform(get("/api/users/me/data/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(get("/api/users/me/data"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -87,6 +100,7 @@ class UserServiceTest {
         User savedUser = userRepository.save(new User(
                 null, "update@test.com", "pass", "old", "old", "010-0000-0000", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
+        authenticate(savedUser);
 
         String updateRequest = """
                 {
@@ -96,7 +110,7 @@ class UserServiceTest {
                 }
                 """;
 
-        MvcResult result = mockMvc.perform(put("/api/users/me/{userId}", savedUser.id())
+        MvcResult result = mockMvc.perform(put("/api/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateRequest))
                 .andExpect(status().isOk())
@@ -113,8 +127,9 @@ class UserServiceTest {
         User savedUser = userRepository.save(new User(
                 null, "del@test.com", "pass", "del", "del", "010-4444-5555", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
+        authenticate(savedUser);
 
-        MvcResult result = mockMvc.perform(delete("/api/users/me/{userId}", savedUser.id()))
+        MvcResult result = mockMvc.perform(delete("/api/users/me"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -126,8 +141,8 @@ class UserServiceTest {
 
     @Test
     void 사용자_조회_실패_테스트() throws Exception {
-        mockMvc.perform(get("/api/users/me/nickname/9999"))
-                .andExpect(status().isBadRequest())
+        mockMvc.perform(get("/api/users/me/nickname"))
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 }

@@ -90,7 +90,7 @@ class CreatorProjectControllerTest {
                 null, null, "테스트 카테고리", 1, 10, true
         ));
 
-        SecurityUser securityUser = new SecurityUser(savedUser.id(), savedUser.email(), savedUser.password(), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+        SecurityUser securityUser = SecurityUser.from(savedUser, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
