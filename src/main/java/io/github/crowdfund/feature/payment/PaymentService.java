@@ -34,7 +34,9 @@ public class PaymentService {
      */
     @Transactional
     public PaymentCreateResponse create(SecurityUser securityUser, PaymentCreateRequest request) {
-        if (paymentRepository.findByPledgeId(request.pledgeId()).isPresent()) {
+        Payment existingPayment = paymentRepository.findByPledgeId(request.pledgeId()).orElse(null);
+
+        if (existingPayment != null && existingPayment.status() != PaymentStatus.REFUNDED) {
             throw new IllegalStateException("이미 결제가 완료되었습니다.");
         }
 
@@ -50,16 +52,34 @@ public class PaymentService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        Payment payment = new Payment(
-                null,
-                request.pledgeId(),
-                request.paymentMethod(),
-                request.amount(),
-                PaymentStatus.PAID,
-                now,
-                now,
-                now
-        );
+        Payment payment;
+        String historyReason;
+
+        if (existingPayment != null) {
+            payment = new Payment(
+                    existingPayment.id(),
+                    existingPayment.pledgeId(),
+                    request.paymentMethod(),
+                    request.amount(),
+                    PaymentStatus.PAID,
+                    now,
+                    existingPayment.createdAt(),
+                    now
+            );
+            historyReason = "환불 후 재결제 완료";
+        } else {
+            payment = new Payment(
+                    null,
+                    request.pledgeId(),
+                    request.paymentMethod(),
+                    request.amount(),
+                    PaymentStatus.PAID,
+                    now,
+                    now,
+                    now
+            );
+            historyReason = "최초 결제 완료";
+        }
 
         Payment saved = paymentRepository.save(payment);
 
@@ -70,7 +90,7 @@ public class PaymentService {
                 saved.id(),
                 PaymentStatus.PAID,
                 now,
-                "최초 결제 완료",
+                historyReason,
                 null
         );
         paymentHistoryRepository.save(history);
