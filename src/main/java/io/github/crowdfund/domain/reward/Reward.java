@@ -27,10 +27,16 @@ public record Reward(
     Integer stock,
     LocalDateTime createdAt
 ) {
+    /**
+     * 리워드의 재고 여부 확인 메서드
+     */
     public boolean hasStock() {
         return stock == null || stock > 0;
     }
 
+    /**
+     * 리워드 재고 감소 메서드
+     */
     public Reward decreaseStock() {
         if (stock == null) {
             return this;
@@ -39,5 +45,15 @@ public record Reward(
             throw new IllegalStateException("재고가 부족합니다.");
         }
         return new Reward(id, projectId, title, description, price, stock - 1, createdAt);
+    }
+
+    /**
+     * 리워드 재고 증가 메서드
+     */
+    public Reward increaseStock() {
+        if (stock == null) {
+            return this;
+        }
+        return new Reward(id, projectId, title, description, price, stock + 1, createdAt);
     }
 }

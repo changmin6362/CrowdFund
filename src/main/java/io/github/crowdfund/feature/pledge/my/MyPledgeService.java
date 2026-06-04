@@ -150,14 +150,23 @@ public class MyPledgeService {
             throw new IllegalArgumentException("본인의 후원 내역만 취소할 수 있습니다.");
         }
 
-        if (!pledge.canCancel()) {
+        if (paymentRepository.findByPledgeId(pledgeId).isPresent()) {
+            throw new IllegalStateException("결제가 완료된 후원은 환불 절차를 이용해주세요.");
+        }
+
+        if (pledge.fulfillmentStatus() != FulfillmentStatus.READY) {
             throw new IllegalStateException("이미 보상 이행이 시작되어 취소할 수 없습니다.");
         }
 
-        Pledge canceledPledge = pledge.cancelPledge();
-        pledgeRepository.save(canceledPledge);
+        // 리워드 재고 복구
+        Reward reward = rewardRepository.findById(pledge.rewardId())
+                .orElseThrow(() -> new IllegalStateException("해당 리워드를 찾을 수 없습니다."));
+        rewardRepository.save(reward.increaseStock());
 
-        return new MyPledgesDeleteResponse(canceledPledge.id());
+        // 후원 정보 삭제 (Hard Delete)
+        pledgeRepository.delete(pledge);
+
+        return new MyPledgesDeleteResponse(pledgeId);
     }
 
     /**

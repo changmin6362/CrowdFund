@@ -107,44 +107,47 @@ public class PaymentService {
     }
 
     /**
-     * 결제 취소 도메인 로직
+     * 결제 환불 도메인 로직
      */
     @Transactional
-    public void cancel(SecurityUser securityUser, Long paymentId) {
+    public void refund(SecurityUser securityUser, Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 정보입니다."));
 
         Pledge pledge = pledgeRepository.findById(payment.pledgeId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
+                .orElseThrow(() -> new IllegalStateException("결제와 연결된 후원 정보가 존재하지 않습니다."));
 
         if (securityUser.isOwner(pledge.userId())) {
-            throw new IllegalArgumentException("본인의 결제만 취소할 수 있습니다.");
+            throw new IllegalArgumentException("본인의 결제만 환불할 수 있습니다.");
         }
 
-        if (payment.status() == PaymentStatus.CANCELED) {
-            throw new IllegalStateException("이미 취소된 결제입니다.");
+        if (payment.status() == PaymentStatus.REFUNDED) {
+            throw new IllegalStateException("이미 환불된 결제입니다.");
         }
 
         LocalDateTime now = LocalDateTime.now();
-        Payment canceledPayment = new Payment(
+        Payment refundedPayment = new Payment(
                 payment.id(),
                 payment.pledgeId(),
                 payment.paymentMethod(),
                 payment.amount(),
-                PaymentStatus.CANCELED,
+                PaymentStatus.REFUNDED,
                 payment.paidAt(),
                 payment.createdAt(),
                 now
         );
 
-        paymentRepository.save(canceledPayment);
+        paymentRepository.save(refundedPayment);
+
+        // 후원 상태를 REFUNDED로 변경
+        pledgeRepository.save(pledge.refundPledge());
 
         PaymentHistory history = new PaymentHistory(
                 null,
                 payment.id(),
-                PaymentStatus.CANCELED,
+                PaymentStatus.REFUNDED,
                 now,
-                "사용자 요청에 의한 결제 취소",
+                "사용자 요청에 의한 결제 환불",
                 null
         );
         paymentHistoryRepository.save(history);
