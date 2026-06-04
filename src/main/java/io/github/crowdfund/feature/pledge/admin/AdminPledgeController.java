@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/admin/pledges")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Pledge - Admin", description = "관리자용 후원 API")
+@Tag(name = "07. Pledge - Admin", description = "관리자용 후원 API")
 public class AdminPledgeController {
 
     private final AdminPledgeService service;

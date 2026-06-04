@@ -101,20 +101,20 @@ class AdminPledgeControllerTest {
         pledgeRepository.save(new Pledge(
                 null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
-        // 2. CANCELED 상태 후원
+        // 2. REFUNDED 상태 후원
         pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.CANCELED, FulfillmentStatus.FULFILLED, null, LocalDateTime.now().plusSeconds(1)
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.REFUNDED, FulfillmentStatus.FULFILLED, null, LocalDateTime.now().plusSeconds(1)
         ));
 
-        // PledgeStatus 필터링 테스트 (CANCELED만 조회)
-        MvcResult canceledResult = mockMvc.perform(get("/api/admin/pledges")
-                        .param("pledgeStatus", "CANCELED")
+        // PledgeStatus 필터링 테스트 (REFUNDED만 조회)
+        MvcResult refundedResult = mockMvc.perform(get("/api/admin/pledges")
+                        .param("pledgeStatus", "REFUNDED")
                         .param("limit", "10"))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        ApiResult<AdminPledgesFetchResponse> canceledApiResult = TestUtils.convertToApiResult(canceledResult, objectMapper, new TypeReference<>() {});
-        assertThat(canceledApiResult.data().pledges().stream().allMatch(p -> p.status() == PledgeStatus.CANCELED)).isTrue();
+        ApiResult<AdminPledgesFetchResponse> refundedApiResult = TestUtils.convertToApiResult(refundedResult, objectMapper, new TypeReference<>() {});
+        assertThat(refundedApiResult.data().pledges().stream().allMatch(p -> p.status() == PledgeStatus.REFUNDED)).isTrue();
 
         // FulfillmentStatus 필터링 테스트 (FULFILLED만 조회)
         MvcResult fulfilledResult = mockMvc.perform(get("/api/admin/pledges")

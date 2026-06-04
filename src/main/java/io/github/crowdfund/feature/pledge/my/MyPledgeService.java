@@ -14,6 +14,8 @@ import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.reward.Reward;
 import io.github.crowdfund.domain.reward.RewardRepository;
+import io.github.crowdfund.domain.useraddress.UserAddress;
+import io.github.crowdfund.domain.useraddress.UserAddressRepository;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateRequest;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateResponse;
 import io.github.crowdfund.feature.pledge.my.dto.delete.MyPledgesDeleteResponse;
@@ -45,6 +47,7 @@ public class MyPledgeService {
     private final ProjectRepository projectRepository;
     private final PaymentRepository paymentRepository;
     private final PledgeAddressRepository pledgeAddressRepository;
+    private final UserAddressRepository userAddressRepository;
     private final PledgeMapper pledgeMapper;
 
     /**
@@ -52,6 +55,9 @@ public class MyPledgeService {
      */
     @Transactional
     public MyPledgeCreateResponse create(Long userId, @Valid MyPledgeCreateRequest request) {
+        UserAddress defaultAddress = userAddressRepository.findByUserIdAndIsDefaultTrue(userId)
+                .orElseThrow(() -> new IllegalArgumentException("배송지를 등록해주세요."));
+
         Project project = projectRepository.findById(request.projectId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
 
@@ -90,6 +96,20 @@ public class MyPledgeService {
 
         Pledge savedPledge = pledgeRepository.save(pledge);
 
+        PledgeAddress pledgeAddress = new PledgeAddress(
+                null,
+                savedPledge.id(),
+                userId,
+                defaultAddress.recipientName(),
+                defaultAddress.phone(),
+                defaultAddress.postalCode(),
+                defaultAddress.addressMain(),
+                defaultAddress.addressDetail(),
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+        pledgeAddressRepository.save(pledgeAddress);
+
         return new MyPledgeCreateResponse(savedPledge.id());
     }
 
@@ -120,7 +140,10 @@ public class MyPledgeService {
                 addr.phone(),
                 addr.addressMain(),
                 addr.addressDetail(),
-                addr.postalCode()
+                addr.postalCode(),
+                addr.id(),
+                addr.createdAt().toString(),
+                addr.updatedAt().toString()
         )).orElse(null);
 
         MyPledgeDetail myPledgeDetail = new MyPledgeDetail(
@@ -132,7 +155,8 @@ public class MyPledgeService {
                 pledge.amount(),
                 paymentMethod,
                 reward.title(),
-                shippingAddress
+                shippingAddress,
+                reward.price()
         );
 
         return new MyPledgeDetailResponse(myPledgeDetail);
@@ -150,14 +174,23 @@ public class MyPledgeService {
             throw new IllegalArgumentException("본인의 후원 내역만 취소할 수 있습니다.");
         }
 
-        if (!pledge.canCancel()) {
+        if (paymentRepository.findByPledgeId(pledgeId).isPresent()) {
+            throw new IllegalStateException("결제가 완료된 후원은 환불 절차를 이용해주세요.");
+        }
+
+        if (pledge.fulfillmentStatus() != FulfillmentStatus.READY) {
             throw new IllegalStateException("이미 보상 이행이 시작되어 취소할 수 없습니다.");
         }
 
-        Pledge canceledPledge = pledge.cancelPledge();
-        pledgeRepository.save(canceledPledge);
+        // 리워드 재고 복구
+        Reward reward = rewardRepository.findById(pledge.rewardId())
+                .orElseThrow(() -> new IllegalStateException("해당 리워드를 찾을 수 없습니다."));
+        rewardRepository.save(reward.increaseStock());
 
-        return new MyPledgesDeleteResponse(canceledPledge.id());
+        // 후원 정보 삭제 (Hard Delete)
+        pledgeRepository.delete(pledge);
+
+        return new MyPledgesDeleteResponse(pledgeId);
     }
 
     /**

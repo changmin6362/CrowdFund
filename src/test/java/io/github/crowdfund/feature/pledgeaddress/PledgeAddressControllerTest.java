@@ -17,9 +17,9 @@ import io.github.crowdfund.domain.user.User;
 import io.github.crowdfund.domain.user.UserRepository;
 import io.github.crowdfund.domain.useraddress.UserAddress;
 import io.github.crowdfund.domain.useraddress.UserAddressRepository;
-import io.github.crowdfund.feature.pledgeaddress.dto.fetch.PledgeAddressFetchResponse;
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.security.SecurityUser;
 import io.github.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,15 +28,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -73,7 +77,6 @@ class PledgeAddressControllerTest {
     private Project savedProject;
     private Reward savedReward;
     private Pledge savedPledge;
-    private PledgeAddress savedPledgeAddress;
 
     @BeforeEach
     void setup(TestInfo testInfo) {
@@ -82,6 +85,12 @@ class PledgeAddressControllerTest {
         savedUser = userRepository.save(new User(
                 null, "test@example.com", "password", "nickname", "name", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
+
+        // SecurityContext 설정
+        SecurityUser securityUser = new SecurityUser(savedUser.id(), savedUser.email(), savedUser.password(), savedUser.nickname(), savedUser.deletedAt(), Collections.emptyList());
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities()));
+        SecurityContextHolder.setContext(context);
 
         savedProject = projectRepository.save(new Project(
                 null, 1, savedUser.id(), "프로젝트 제목", "{}", new BigDecimal("1000000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(30), ProjectStatus.ONGOING, LocalDateTime.now()
@@ -94,24 +103,6 @@ class PledgeAddressControllerTest {
         savedPledge = pledgeRepository.save(new Pledge(
                 null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
-
-        savedPledgeAddress = pledgeAddressRepository.save(new PledgeAddress(
-                null, savedPledge.id(), savedUser.id(), "수령인", "010-1111-2222", "12345", "기본주소", "상세주소", LocalDateTime.now(), LocalDateTime.now()
-        ));
-    }
-
-    @Test
-    void 후원_주소_조회_테스트() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/pledges/{pledgeId}/address", savedPledge.id()))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
-
-        ApiResult<PledgeAddressFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
-
-        assertThat(apiResult.message()).isEqualTo("참여한 후원의 배송 정보 조회에 성공했습니다.");
-        assertThat(apiResult.data().pledgeAddress().recipientName()).isEqualTo("수령인");
-        assertThat(apiResult.data().pledgeAddress().addressMain()).isEqualTo("기본주소");
     }
 
     @Test
@@ -139,13 +130,6 @@ class PledgeAddressControllerTest {
         assertThat(apiResult.message()).isEqualTo("참여한 후원의 배송 정보 교체에 성공했습니다.");
         assertThat(apiResult.data().replacedPledgeAddress().recipientName()).isEqualTo("새수령인");
         assertThat(apiResult.data().replacedPledgeAddress().addressMain()).isEqualTo("새로운주소");
-    }
-
-    @Test
-    void 존재하지_않는_후원_주소_조회_실패_테스트() throws Exception {
-        mockMvc.perform(get("/api/pledges/{pledgeId}/address", 99999L))
-                .andExpect(status().isBadRequest())
-                .andDo(print());
     }
 
     @Test
@@ -193,6 +177,26 @@ class PledgeAddressControllerTest {
                     "addressId": %d
                 }
                 """.formatted(anotherAddress.id());
+
+        mockMvc.perform(put("/api/pledges/{pledgeId}/address", savedPledge.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    void 주소_교체_변경사항_없음_실패_테스트() throws Exception {
+        // 기존 주소와 동일한 정보를 가진 주소 등록
+        UserAddress sameAddress = userAddressRepository.save(new UserAddress(
+                null, savedUser.id(), "수령인", "010-1111-2222", "12345", "기본주소", "상세주소", false, LocalDateTime.now(), LocalDateTime.now()
+        ));
+
+        String request = """
+                {
+                    "addressId": %d
+                }
+                """.formatted(sameAddress.id());
 
         mockMvc.perform(put("/api/pledges/{pledgeId}/address", savedPledge.id())
                         .contentType(MediaType.APPLICATION_JSON)

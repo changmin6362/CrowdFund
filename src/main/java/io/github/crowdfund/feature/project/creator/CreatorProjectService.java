@@ -2,6 +2,7 @@ package io.github.crowdfund.feature.project.creator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.crowdfund.domain.pledge.PledgeRepository;
 import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.project.ProjectStatus;
@@ -29,6 +30,7 @@ public class CreatorProjectService {
 
     private final ProjectMapper projectMapper;
     private final ProjectRepository projectRepository;
+    private final PledgeRepository pledgeRepository;
     private final ObjectMapper objectMapper;
 
     /**
@@ -57,8 +59,16 @@ public class CreatorProjectService {
      */
     @Transactional
     public void update(SecurityUser securityUser, Long projectId, CreatorProjectUpdateRequest request) {
-        projectRepository.validateProjectOwner(projectId, securityUser.getUserId());
-        projectMapper.update(projectId, request.title(), toJsonString(request.contentBlocks()));
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
+        project.validateOwner(securityUser.getUserId());
+
+        String newContentBlocks = toJsonString(request.contentBlocks());
+        if (project.title().equals(request.title()) && project.contentBlocks().equals(newContentBlocks)) {
+            throw new IllegalArgumentException("수정할 내용이 없습니다.");
+        }
+
+        projectMapper.update(projectId, request.title(), newContentBlocks);
     }
 
     private String toJsonString(Object obj) {
@@ -84,16 +94,46 @@ public class CreatorProjectService {
     @Transactional
     public CreatorProjectsFetchResponse fetch(Long userId) {
         List<ProjectInfo> projectList = projectMapper.findByCreatorId(userId);
+
+        if (projectList.isEmpty()) {
+            throw new IllegalArgumentException("등록된 프로젝트가 없습니다.");
+        }
+
         return new CreatorProjectsFetchResponse(projectList);
     }
 
     /**
-     * 후원자들의 배송 정보 목록 조회 도메인 로직
+     * 후원자들의 배송지 목록 조회 도메인 로직
      */
     @Transactional
     public CreatorShippingInfosExtractResponse extract(SecurityUser securityUser, Long projectId) {
         projectRepository.validateProjectOwner(projectId, securityUser.getUserId());
         List<ShippingInfo> shippingInfos = projectMapper.findShippingInfosByProjectId(projectId);
+
+        if (shippingInfos.isEmpty()) {
+            throw new IllegalArgumentException("아직 후원자가 존재하지 않습니다.");
+        }
+
         return new CreatorShippingInfosExtractResponse(shippingInfos);
+    }
+
+    /**
+     * 프로젝트 취소 도메인 로직
+     */
+    @Transactional
+    public void cancel(SecurityUser securityUser, Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
+        project.validateOwner(securityUser.getUserId());
+
+        if (!project.isOngoing()) {
+            throw new IllegalArgumentException("진행 중인 프로젝트만 취소할 수 있습니다.");
+        }
+
+        if (pledgeRepository.existsByProjectId(projectId)) {
+            throw new IllegalArgumentException("후원자가 있는 프로젝트는 취소할 수 없습니다.");
+        }
+
+        projectMapper.patchStatus(projectId, ProjectStatus.CANCELED);
     }
 }

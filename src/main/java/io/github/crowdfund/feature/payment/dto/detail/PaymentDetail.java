@@ -14,7 +14,7 @@ public record PaymentDetail(
         @Schema(description = "후원 ID", example = "1")
         Long pledgeId,
 
-        @Schema(description = "결제 방법", example = "CREDIT_CARD")
+        @Schema(description = "결제 방법", example = "CARD")
         PaymentMethod paymentMethod,
 
         @Schema(description = "결제 금액", example = "35000")

@@ -1,10 +1,11 @@
 package io.github.crowdfund.feature.reward.creator;
 
 import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateRequest;
-import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateReqeust;
 import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateResponse;
 import io.github.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDeleteResponse;
+import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateReqeust;
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateResponse;
+import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateStockRequest;
 import io.github.crowdfund.global.common.ApiResult;
 import io.github.crowdfund.global.security.SecurityUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/creator")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Reward - Creator", description = "창작자용 리워드 API")
+@Tag(name = "06. Reward - Creator", description = "창작자용 리워드 API")
 public class CreatorRewardController {
 
     private final CreatorRewardService service;
@@ -45,21 +46,39 @@ public class CreatorRewardController {
     }
 
     /**
-     * 리워드 수정
+     * 리워드 정보 수정
      *
      * @param rewardId 리워드 ID
      * @param request  리워드 수정 요청 데이터
      * @return message, updatedReward
      */
-    @Operation(summary = "리워드 수정")
-    @ApiResponse(responseCode = "200", description = "리워드 수정 성공 응답 예시")
+    @Operation(summary = "리워드 정보 수정")
+    @ApiResponse(responseCode = "200", description = "리워드 정보 수정 성공 응답 예시")
     @PatchMapping("/rewards/{rewardId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorRewardUpdateResponse> update(
             @AuthenticationPrincipal SecurityUser securityUser,
-            @PathVariable @Valid Long rewardId,
+            @PathVariable Long rewardId,
             @Valid @RequestBody CreatorRewardUpdateReqeust request) {
         return ApiResult.success("리워드 수정에 성공했습니다.", service.update(securityUser, rewardId, request));
+    }
+
+    /**
+     * 리워드 재고 수정
+     *
+     * @param rewardId 리워드 ID
+     * @param request  리워드 재고 수정 요청 데이터
+     * @return message, updatedReward
+     */
+    @Operation(summary = "리워드 재고 수정")
+    @ApiResponse(responseCode = "200", description = "리워드 재고 수정 성공 응답 예시")
+    @PatchMapping("/rewards/{rewardId}/stock")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<CreatorRewardUpdateResponse> updateStock(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long rewardId,
+            @Valid @RequestBody CreatorRewardUpdateStockRequest request) {
+        return ApiResult.success("리워드 재고 수정에 성공했습니다.", service.updateStock(securityUser, rewardId, request));
     }
 
     /**

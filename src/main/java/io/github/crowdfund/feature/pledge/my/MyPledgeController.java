@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/pledges/me")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Pledge - MY", description = "내 후원 API")
+@Tag(name = "07. Pledge - MY", description = "내 후원 API")
 public class MyPledgeController {
 
     private final MyPledgeService service;

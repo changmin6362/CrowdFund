@@ -52,15 +52,23 @@ public class UserService {
      * 내 정보 수정 도메인 로직 (이메일 기반)
      */
     @Transactional
-    public void updateByEmail(String email, UserUpdateRequest request) {
+    public UserFetchResponse updateByEmail(String email, UserUpdateRequest request) {
         User user = repository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if (user.nickname().equals(request.nickname()) &&
+                user.name().equals(request.name()) &&
+                user.phone().equals(request.phone())) {
+            throw new IllegalArgumentException("수정할 내용이 없습니다.");
+        }
 
         int affectedRows = userMapper.updateUserData(user.id(), request);
 
         if (affectedRows == 0) {
             throw new IllegalArgumentException("수정에 실패했습니다.");
         }
+
+        return fetchByEmail(email);
     }
 
     /**
@@ -101,12 +109,23 @@ public class UserService {
      * 내 정보 수정 도메인 로직
      */
     @Transactional
-    public void update(Long userId, UserUpdateRequest request) {
+    public UserFetchResponse update(Long userId, UserUpdateRequest request) {
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if (user.nickname().equals(request.nickname()) &&
+                user.name().equals(request.name()) &&
+                user.phone().equals(request.phone())) {
+            throw new IllegalArgumentException("수정할 내용이 없습니다.");
+        }
+
         int affectedRows = userMapper.updateUserData(userId, request);
 
         if (affectedRows == 0) {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
+
+        return fetch(userId);
     }
 
     /**

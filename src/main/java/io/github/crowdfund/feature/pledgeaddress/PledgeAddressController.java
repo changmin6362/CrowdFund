@@ -1,6 +1,5 @@
 package io.github.crowdfund.feature.pledgeaddress;
 
-import io.github.crowdfund.feature.pledgeaddress.dto.fetch.PledgeAddressFetchResponse;
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceRequest;
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceResponse;
 import io.github.crowdfund.global.common.ApiResult;
@@ -18,27 +17,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/pledges/{pledgeId}/address")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "PledgeAddress", description = "후원별 배송 정보 API")
+@Tag(name = "08. PledgeAddress", description = "후원별 배송 정보 API")
 public class PledgeAddressController {
 
     private final PledgeAddressService service;
-
-    /**
-     * 참여한 후원의 배송 정보 조회
-     *
-     * @param pledgeId 후원 ID
-     * @return message, pledgeAddress
-     */
-    @Operation(summary = "참여한 후원의 배송 정보 조회")
-    @ApiResponse(responseCode = "200", description = "참여한 후원의 배송 정보 조회 성공 응답 예시")
-    @GetMapping()
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<PledgeAddressFetchResponse> fetch(
-            @AuthenticationPrincipal SecurityUser securityUser,
-            @PathVariable Long pledgeId
-    ) {
-        return ApiResult.success("참여한 후원의 배송 정보 조회에 성공했습니다.", service.fetch(securityUser, pledgeId));
-    }
 
     /**
      * 참여한 후원의 배송 정보 교체

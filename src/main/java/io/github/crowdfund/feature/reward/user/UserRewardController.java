@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Reward - User", description = "사용자용 리워드 API")
+@Tag(name = "06. Reward - User", description = "사용자용 리워드 API")
 public class UserRewardController {
 
     private final UserRewardService service;

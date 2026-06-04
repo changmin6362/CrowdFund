@@ -34,7 +34,9 @@ public class PaymentService {
      */
     @Transactional
     public PaymentCreateResponse create(SecurityUser securityUser, PaymentCreateRequest request) {
-        if (paymentRepository.findByPledgeId(request.pledgeId()).isPresent()) {
+        Payment existingPayment = paymentRepository.findByPledgeId(request.pledgeId()).orElse(null);
+
+        if (existingPayment != null && existingPayment.status() != PaymentStatus.REFUNDED) {
             throw new IllegalStateException("이미 결제가 완료되었습니다.");
         }
 
@@ -50,16 +52,34 @@ public class PaymentService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        Payment payment = new Payment(
-                null,
-                request.pledgeId(),
-                request.paymentMethod(),
-                request.amount(),
-                PaymentStatus.PAID,
-                now,
-                now,
-                now
-        );
+        Payment payment;
+        String historyReason;
+
+        if (existingPayment != null) {
+            payment = new Payment(
+                    existingPayment.id(),
+                    existingPayment.pledgeId(),
+                    request.paymentMethod(),
+                    request.amount(),
+                    PaymentStatus.PAID,
+                    now,
+                    existingPayment.createdAt(),
+                    now
+            );
+            historyReason = "환불 후 재결제 완료";
+        } else {
+            payment = new Payment(
+                    null,
+                    request.pledgeId(),
+                    request.paymentMethod(),
+                    request.amount(),
+                    PaymentStatus.PAID,
+                    now,
+                    now,
+                    now
+            );
+            historyReason = "최초 결제 완료";
+        }
 
         Payment saved = paymentRepository.save(payment);
 
@@ -70,7 +90,7 @@ public class PaymentService {
                 saved.id(),
                 PaymentStatus.PAID,
                 now,
-                "최초 결제 완료",
+                historyReason,
                 null
         );
         paymentHistoryRepository.save(history);
@@ -107,44 +127,47 @@ public class PaymentService {
     }
 
     /**
-     * 결제 취소 도메인 로직
+     * 결제 환불 도메인 로직
      */
     @Transactional
-    public void cancel(SecurityUser securityUser, Long paymentId) {
+    public void refund(SecurityUser securityUser, Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 결제 정보입니다."));
 
         Pledge pledge = pledgeRepository.findById(payment.pledgeId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 정보입니다."));
+                .orElseThrow(() -> new IllegalStateException("결제와 연결된 후원 정보가 존재하지 않습니다."));
 
         if (securityUser.isOwner(pledge.userId())) {
-            throw new IllegalArgumentException("본인의 결제만 취소할 수 있습니다.");
+            throw new IllegalArgumentException("본인의 결제만 환불할 수 있습니다.");
         }
 
-        if (payment.status() == PaymentStatus.CANCELED) {
-            throw new IllegalStateException("이미 취소된 결제입니다.");
+        if (payment.status() == PaymentStatus.REFUNDED) {
+            throw new IllegalStateException("이미 환불된 결제입니다.");
         }
 
         LocalDateTime now = LocalDateTime.now();
-        Payment canceledPayment = new Payment(
+        Payment refundedPayment = new Payment(
                 payment.id(),
                 payment.pledgeId(),
                 payment.paymentMethod(),
                 payment.amount(),
-                PaymentStatus.CANCELED,
+                PaymentStatus.REFUNDED,
                 payment.paidAt(),
                 payment.createdAt(),
                 now
         );
 
-        paymentRepository.save(canceledPayment);
+        paymentRepository.save(refundedPayment);
+
+        // 후원 상태를 REFUNDED로 변경
+        pledgeRepository.save(pledge.refundPledge());
 
         PaymentHistory history = new PaymentHistory(
                 null,
                 payment.id(),
-                PaymentStatus.CANCELED,
+                PaymentStatus.REFUNDED,
                 now,
-                "사용자 요청에 의한 결제 취소",
+                "사용자 요청에 의한 결제 환불",
                 null
         );
         paymentHistoryRepository.save(history);

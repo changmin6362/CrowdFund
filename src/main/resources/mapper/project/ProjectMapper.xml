@@ -150,4 +150,13 @@ VALUES (
         WHERE id = #{projectId}
     </update>
 
+    <update id="updateStatusForExpiredProjects">
+        UPDATE project
+        SET status = CASE
+            WHEN current_amount >= goal_amount THEN 'COMPLETED'
+            ELSE 'CANCELED'
+        END
+        WHERE status = 'ONGOING' AND end_at &lt; #{now}
+    </update>
+
 </mapper>

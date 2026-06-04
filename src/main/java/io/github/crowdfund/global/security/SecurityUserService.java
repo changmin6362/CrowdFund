@@ -2,12 +2,13 @@ package io.github.crowdfund.global.security;
 
 import io.github.crowdfund.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,13 +27,16 @@ public class SecurityUserService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
-                .map(user -> {
-                    List<SimpleGrantedAuthority> authorities = Collections.singletonList(
-                            new SimpleGrantedAuthority("ROLE_" + user.role())
-                    );
-                    return SecurityUser.from(user, authorities);
-                })
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + email));
+        io.github.crowdfund.domain.user.User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(null));
+
+        if (user.isDeletedUser()) {
+            throw new DisabledException(null);
+        }
+
+        List<SimpleGrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_" + user.role())
+        );
+        return SecurityUser.from(user, authorities);
     }
 }

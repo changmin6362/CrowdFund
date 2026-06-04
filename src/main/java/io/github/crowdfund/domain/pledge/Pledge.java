@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * @param projectId         프로젝트 ID
  * @param rewardId          선택 보상 ID
  * @param amount            후원 금액
- * @param status            후원 상태 [PENDING: 대기중, PAID: 결제 완료, CANCELED: 취소, REFUNDED: 환불]
+ * @param status            후원 상태 [PENDING: 대기중, PAID: 결제 완료, REFUNDED: 환불]
  * @param fulfillmentStatus 보상 이행 상태 [READY: 준비중, FULFILLED: 이행 완료]
  * @param fulfilledAt       보상 이행 완료 일시
  * @param createdAt         후원 일시
@@ -40,10 +40,10 @@ public record Pledge(@Id Long id, Long userId, Long projectId, Long rewardId, Bi
     }
 
     /**
-     * 후원 취소 처리 메서드
+     * 후원 환불 처리 메서드
      */
-    public Pledge cancelPledge() {
-        return new Pledge(id, userId, projectId, rewardId, amount, PledgeStatus.CANCELED, fulfillmentStatus, fulfilledAt, createdAt);
+    public Pledge refundPledge() {
+        return new Pledge(id, userId, projectId, rewardId, amount, PledgeStatus.REFUNDED, fulfillmentStatus, fulfilledAt, createdAt);
     }
 
     /**
@@ -57,6 +57,6 @@ public record Pledge(@Id Long id, Long userId, Long projectId, Long rewardId, Bi
      * 후원 취소 가능 여부 확인 메서드
      */
     public boolean canCancel() {
-        return this.status == PledgeStatus.PAID && this.fulfillmentStatus == FulfillmentStatus.READY;
+        return this.status == PledgeStatus.PENDING && this.fulfillmentStatus == FulfillmentStatus.READY;
     }
 }

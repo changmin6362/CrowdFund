@@ -19,12 +19,6 @@ public record CreatorRewardUpdateReqeust(
         @Schema(description = "리워드 가격", example = "10000")
         @NotNull
         @Min(value = 0, message = "가격은 0원일 수 없습니다.")
-        BigDecimal price,
-
-        @Schema(description = "리워드 재고", example = "10")
-        @NotNull
-        @Min(value = 1, message = "재고는 1개 이상이어야 합니다.")
-        Integer stock
-
+        BigDecimal price
 ) {
 }

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Comment - Project", description = "프로젝트의 댓글 API")
+@Tag(name = "10. Comment - Project", description = "프로젝트의 댓글 API")
 public class ProjectCommentController {
 
     private final ProjectCommentService service;

@@ -1,7 +1,7 @@
 package io.github.crowdfund.feature.user;
 
-import io.github.crowdfund.feature.user.dto.update.UserUpdateRequest;
 import io.github.crowdfund.feature.user.dto.fetch.UserFetchResponse;
+import io.github.crowdfund.feature.user.dto.update.UserUpdateRequest;
 import io.github.crowdfund.feature.user.dto.view.UserViewResponse;
 import io.github.crowdfund.global.common.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users/me")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "User", description = "사용자 관련 API")
+@Tag(name = "02. User", description = "사용자 관련 API")
 public class UserController {
 
     private final UserService service;
@@ -64,12 +64,11 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "내 정보 수정 성공 응답 예시")
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> update(
+    public ApiResult<UserFetchResponse> update(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UserUpdateRequest request
     ) {
-        service.updateByEmail(userDetails.getUsername(), request);
-        return ApiResult.success("내 정보 수정에 성공했습니다.");
+        return ApiResult.success("내 정보 수정에 성공했습니다.", service.updateByEmail(userDetails.getUsername(), request));
     }
 
     /**

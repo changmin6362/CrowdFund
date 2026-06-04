@@ -24,7 +24,10 @@ import io.github.crowdfund.domain.user.UserRepository;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateResponse;
 import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetailResponse;
 import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgesFetchResponse;
+import io.github.crowdfund.feature.useraddress.UserAddressService;
+import io.github.crowdfund.feature.useraddress.dto.create.UserAddressCreateRequest;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.security.SecurityUser;
 import io.github.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,12 +36,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -77,6 +84,9 @@ class MyPledgeControllerTest {
     @Autowired
     private PledgeAddressRepository pledgeAddressRepository;
 
+    @Autowired
+    private UserAddressService userAddressService;
+
     private User savedUser;
     private Project savedProject;
     private Reward savedReward;
@@ -88,6 +98,15 @@ class MyPledgeControllerTest {
         savedUser = userRepository.save(new User(
                 null, "pledger@test.com", "pass", "pledge", "후원자", "010-1111-2222", "USER", LocalDateTime.now(), LocalDateTime.now(), null
         ));
+
+        // SecurityContext 설정
+        SecurityUser securityUser = new SecurityUser(savedUser.id(), savedUser.email(), savedUser.password(), savedUser.nickname(), savedUser.deletedAt(), Collections.emptyList());
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities()));
+        SecurityContextHolder.setContext(context);
+
+        // 기본 배송지 등록 (후원하기 시 필수)
+        userAddressService.create(savedUser.id(), new UserAddressCreateRequest("홍길동", "010-1234-5678", "12345", "기본주소", "상세주소"));
 
         Category savedCategory = categoryRepository.save(new Category(
                 null, null, "테스트 카테고리", 1, 10, true
@@ -111,7 +130,7 @@ class MyPledgeControllerTest {
                 }
                 """.formatted(savedProject.id(), savedReward.id());
 
-        MvcResult result = mockMvc.perform(post("/api/pledges/me/{userId}", savedUser.id())
+        MvcResult result = mockMvc.perform(post("/api/pledges/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isCreated())
@@ -149,6 +168,11 @@ class MyPledgeControllerTest {
         assertThat(apiResult.message()).isEqualTo("내 후원 상세 조회에 성공했습니다.");
         assertThat(apiResult.data().myPledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
         assertThat(apiResult.data().myPledgeDetail().projectTitle()).isEqualTo(savedProject.title());
+        assertThat(apiResult.data().myPledgeDetail().rewardPrice()).isEqualByComparingTo(savedReward.price());
+        assertThat(apiResult.data().myPledgeDetail().shippingAddress().recipientName()).isEqualTo("홍길동");
+        assertThat(apiResult.data().myPledgeDetail().shippingAddress().pledgeAddressId()).isNotNull();
+        assertThat(apiResult.data().myPledgeDetail().shippingAddress().addressCreatedAt()).isNotNull();
+        assertThat(apiResult.data().myPledgeDetail().shippingAddress().addressUpdatedAt()).isNotNull();
     }
 
     @Test
@@ -173,24 +197,24 @@ class MyPledgeControllerTest {
         pledgeRepository.save(new Pledge(
                 null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
-        // 2. CANCELED 상태 후원
+        // 2. REFUNDED 상태 후원
         pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.CANCELED, FulfillmentStatus.READY, null, LocalDateTime.now().plusSeconds(1)
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.REFUNDED, FulfillmentStatus.READY, null, LocalDateTime.now().plusSeconds(1)
         ));
 
-        // PledgeStatus 필터링 테스트 (CANCELED만 조회)
-        MvcResult canceledResult = mockMvc.perform(get("/api/pledges/me/user/{userId}", savedUser.id())
-                        .param("pledgeStatus", "CANCELED")
+        // PledgeStatus 필터링 테스트 (REFUNDED만 조회)
+        MvcResult refundedResult = mockMvc.perform(get("/api/pledges/me")
+                        .param("pledgeStatus", "REFUNDED")
                         .param("limit", "10"))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        ApiResult<MyPledgesFetchResponse> canceledApiResult = TestUtils.convertToApiResult(canceledResult, objectMapper, new TypeReference<>() {});
-        assertThat(canceledApiResult.data().pledges()).hasSize(1);
-        assertThat(canceledApiResult.data().pledges().get(0).status()).isEqualTo(PledgeStatus.CANCELED);
+        ApiResult<MyPledgesFetchResponse> refundedApiResult = TestUtils.convertToApiResult(refundedResult, objectMapper, new TypeReference<>() {});
+        assertThat(refundedApiResult.data().pledges()).hasSize(1);
+        assertThat(refundedApiResult.data().pledges().get(0).status()).isEqualTo(PledgeStatus.REFUNDED);
 
         // FulfillmentStatus 필터링 테스트 (READY만 조회)
-        MvcResult readyResult = mockMvc.perform(get("/api/pledges/me/user/{userId}", savedUser.id())
+        MvcResult readyResult = mockMvc.perform(get("/api/pledges/me")
                         .param("fulfillmentStatus", "READY")
                         .param("limit", "10"))
                 .andExpect(status().isOk())
@@ -217,7 +241,7 @@ class MyPledgeControllerTest {
                 }
                 """.formatted(completedProject.id(), completedReward.id());
 
-        mockMvc.perform(post("/api/pledges/me/{userId}", savedUser.id())
+        mockMvc.perform(post("/api/pledges/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isBadRequest())
@@ -237,7 +261,7 @@ class MyPledgeControllerTest {
                 }
                 """.formatted(savedProject.id(), noStockReward.id());
 
-        mockMvc.perform(post("/api/pledges/me/{userId}", savedUser.id())
+        mockMvc.perform(post("/api/pledges/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isBadRequest())
@@ -258,7 +282,7 @@ class MyPledgeControllerTest {
                 }
                 """.formatted(savedProject.id(), savedReward.id());
 
-        mockMvc.perform(post("/api/pledges/me/{userId}", savedUser.id())
+        mockMvc.perform(post("/api/pledges/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andExpect(status().isBadRequest())

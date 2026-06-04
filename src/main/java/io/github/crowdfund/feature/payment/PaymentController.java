@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Payment", description = "결제 API")
+@Tag(name = "09. Payment", description = "결제 API")
 public class PaymentController {
 
     private final PaymentService service;
@@ -58,21 +58,21 @@ public class PaymentController {
     }
 
     /**
-     * 결제 취소
+     * 결제 환불
      *
      * @param paymentId 결제 ID
      * @return message
      */
-    @Operation(summary = "결제 취소")
-    @ApiResponse(responseCode = "200", description = "결제 취소 성공 응답 예시")
+    @Operation(summary = "결제 환불")
+    @ApiResponse(responseCode = "200", description = "결제 환불 성공 응답 예시")
     @DeleteMapping("/{paymentId}")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> cancel(
+    public ApiResult<Void> refund(
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long paymentId) {
-        service.cancel(securityUser, paymentId);
+        service.refund(securityUser, paymentId);
 
-        return ApiResult.success("결제 취소에 성공했습니다.");
+        return ApiResult.success("결제 환불에 성공했습니다.");
     }
 
     /**
