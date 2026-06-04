@@ -9,6 +9,7 @@ import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreate
 import io.github.crowdfund.feature.category.admin.dto.move.AdminCategoryMoveRequest;
 import io.github.crowdfund.feature.category.admin.dto.rename.AdminCategoryRenameRequest;
 import io.github.crowdfund.feature.category.admin.dto.reorder.AdminCategoryReorderRequest;
+import io.github.crowdfund.feature.category.admin.dto.reorder.CategorySortItem;
 import io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -145,7 +146,26 @@ public class AdminCategoryService {
      */
     @Transactional
     public UserFetchCategoryResponse reorder(AdminCategoryReorderRequest request) {
-        for (var item : request.categories()) {
+        if (request.categories() == null || request.categories().isEmpty()) {
+            return userCategoryService.fetch();
+        }
+
+        for (CategorySortItem item : request.categories()) {
+            // 1. 해당 카테고리의 현재 부모 ID 조회
+            Category category = categoryRepository.findById(item.categoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다."));
+
+            // 2. 동일한 부모 내에 해당 sortOrder가 이미 존재하는지 확인
+            // (단, 자기 자신은 제외해야 하므로 repository exists 기능 대신 직접 조회 후 체크)
+            boolean isDuplicate = categoryRepository.findByParentIdAndIsActiveTrueOrderBySortOrderAsc(category.parentId())
+                    .stream()
+                    .anyMatch(c -> !c.id().equals(item.categoryId()) && c.sortOrder().equals(item.sortOrder()));
+
+            if (isDuplicate) {
+                throw new IllegalArgumentException("동일한 부모 내에 중복된 정렬 순서가 존재합니다.");
+            }
+
+            // 3. 변경 사항 적용
             categoryMapper.updateSortOrder(item.categoryId().longValue(), item.sortOrder());
         }
 
