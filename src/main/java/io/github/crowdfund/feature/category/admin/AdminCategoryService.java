@@ -31,6 +31,10 @@ public class AdminCategoryService {
     @Transactional
     public AdminCategoryCreateResponse create(@Valid AdminCategoryCreateRequest request) {
 
+        if (categoryRepository.existsByNameAndIsActiveTrue(request.name())) {
+            throw new IllegalArgumentException("이미 존재하는 카테고리 이름입니다.");
+        }
+
         // 카테고리의 깊이 계산 (0부터 시작)
         int depth = 0;
         if (request.parentId() != null) {
@@ -65,8 +69,12 @@ public class AdminCategoryService {
      */
     @Transactional
     public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse rename(Integer id, AdminCategoryRenameRequest request) {
-        categoryRepository.findById(id)
+        Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("변경하려는 카테고리를 찾을 수 없습니다."));
+
+        if (!category.name().equals(request.name()) && categoryRepository.existsByNameAndIsActiveTrue(request.name())) {
+            throw new IllegalArgumentException("이미 존재하는 카테고리 이름입니다.");
+        }
 
         categoryMapper.updateName(id.longValue(), request.name());
 
@@ -169,7 +177,7 @@ public class AdminCategoryService {
                 .orElseThrow(() -> new IllegalArgumentException("삭제하려는 카테고리를 찾을 수 없습니다."));
 
         if (!category.isActive()) {
-            throw new IllegalArgumentException("카테고리가 이미 삭제되었습니다.");
+            throw new IllegalArgumentException("이미 삭제되었습니다.");
         }
 
         categoryMapper.delete(id.longValue());

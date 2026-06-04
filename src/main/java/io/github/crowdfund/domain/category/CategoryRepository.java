@@ -25,4 +25,12 @@ public interface CategoryRepository extends ListCrudRepository<Category, Integer
      * @return 카테고리 목록
      */
     List<Category> findByParentIdAndIsActiveTrueOrderBySortOrderAsc(Integer parentId);
+
+    /**
+     * 동일한 이름을 가진 활성화된 카테고리가 존재하는지 확인합니다.
+     *
+     * @param name 카테고리 이름
+     * @return 존재 여부
+     */
+    boolean existsByNameAndIsActiveTrue(String name);
 }

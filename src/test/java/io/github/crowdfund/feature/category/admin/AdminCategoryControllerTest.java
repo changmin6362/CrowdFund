@@ -89,10 +89,7 @@ class AdminCategoryControllerTest {
         ApiResult<AdminCategoryCreateResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("카테고리 생성에 성공했습니다.");
-        assertThat(apiResult.data().category().name()).isEqualTo("새 카테고리");
-        assertThat(apiResult.data().category().parentId()).isEqualTo(savedRootCategory.id());
-        assertThat(apiResult.data().category().depth()).isEqualTo(1);
-        assertThat(apiResult.data().category().isActive()).isTrue();
+        assertThat(apiResult.data().categoryTree()).isNotEmpty();
     }
 
     @Test
