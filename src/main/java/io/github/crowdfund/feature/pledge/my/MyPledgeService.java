@@ -14,6 +14,8 @@ import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.reward.Reward;
 import io.github.crowdfund.domain.reward.RewardRepository;
+import io.github.crowdfund.domain.useraddress.UserAddress;
+import io.github.crowdfund.domain.useraddress.UserAddressRepository;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateRequest;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateResponse;
 import io.github.crowdfund.feature.pledge.my.dto.delete.MyPledgesDeleteResponse;
@@ -45,6 +47,7 @@ public class MyPledgeService {
     private final ProjectRepository projectRepository;
     private final PaymentRepository paymentRepository;
     private final PledgeAddressRepository pledgeAddressRepository;
+    private final UserAddressRepository userAddressRepository;
     private final PledgeMapper pledgeMapper;
 
     /**
@@ -52,6 +55,9 @@ public class MyPledgeService {
      */
     @Transactional
     public MyPledgeCreateResponse create(Long userId, @Valid MyPledgeCreateRequest request) {
+        UserAddress defaultAddress = userAddressRepository.findByUserIdAndIsDefaultTrue(userId)
+                .orElseThrow(() -> new IllegalArgumentException("배송지를 등록해주세요."));
+
         Project project = projectRepository.findById(request.projectId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
 
@@ -89,6 +95,20 @@ public class MyPledgeService {
         );
 
         Pledge savedPledge = pledgeRepository.save(pledge);
+
+        PledgeAddress pledgeAddress = new PledgeAddress(
+                null,
+                savedPledge.id(),
+                userId,
+                defaultAddress.recipientName(),
+                defaultAddress.phone(),
+                defaultAddress.postalCode(),
+                defaultAddress.addressMain(),
+                defaultAddress.addressDetail(),
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+        pledgeAddressRepository.save(pledgeAddress);
 
         return new MyPledgeCreateResponse(savedPledge.id());
     }
