@@ -8,6 +8,7 @@ import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreate
 import io.github.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDeleteResponse;
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateReqeust;
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateResponse;
+import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateStockRequest;
 import io.github.crowdfund.global.security.SecurityUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -23,16 +25,14 @@ public class CreatorRewardService {
 
     private final RewardRepository repository;
     private final io.github.crowdfund.domain.project.ProjectRepository projectRepository;
+    private final io.github.crowdfund.domain.pledge.PledgeRepository pledgeRepository;
 
     /**
      * 프로젝트에 리워드 등록 도메인 로직
      */
     @Transactional
     public CreatorRewardCreateResponse create(SecurityUser securityUser, @Valid Long projectId, CreatorRewardCreateRequest request) {
-        io.github.crowdfund.domain.project.Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
-
-        project.validateOwner(securityUser.getUserId());
+        io.github.crowdfund.domain.project.Project project = getValidatedProject(projectId, securityUser.getUserId());
 
         if (!project.isOngoing()) {
             throw new IllegalArgumentException("진행 중인 프로젝트에만 리워드를 등록할 수 있습니다.");
@@ -50,28 +50,33 @@ public class CreatorRewardService {
 
         Reward savedReward = repository.save(reward);
 
-        RewardInfo rewardInfo = new RewardInfo(
-                savedReward.id(),
-                savedReward.projectId(),
-                savedReward.title(),
-                savedReward.description(),
-                savedReward.price(),
-                savedReward.stock(),
-                savedReward.createdAt()
-        );
-
-        return new CreatorRewardCreateResponse(rewardInfo);
+        return new CreatorRewardCreateResponse(toRewardInfo(savedReward));
     }
 
     /**
-     * 리워드 수정 도메인 로직
+     * 리워드 정보 수정 도메인 로직
      */
     @Transactional
     public CreatorRewardUpdateResponse update(SecurityUser securityUser, Long rewardId, CreatorRewardUpdateReqeust request) {
-        Reward reward = repository.findById(rewardId)
-                .orElseThrow(() -> new IllegalArgumentException("리워드를 찾을 수 없습니다."));
+        Reward reward = getReward(rewardId);
+        io.github.crowdfund.domain.project.Project project = getValidatedProject(reward.projectId(), securityUser.getUserId());
 
-        projectRepository.validateProjectOwner(reward.projectId(), securityUser.getUserId());
+        if (!project.isOngoing()) {
+            throw new IllegalArgumentException("진행 중인 프로젝트에만 리워드를 수정할 수 있습니다.");
+        }
+
+        if (pledgeRepository.existsByRewardId(rewardId)) {
+            throw new IllegalArgumentException("후원자가 있는 리워드는 수정할 수 없습니다.");
+        }
+
+        boolean isChanged =
+                !Objects.equals(reward.title(), request.title()) ||
+                        !Objects.equals(reward.description(), request.description()) ||
+                        reward.price().compareTo(request.price()) != 0;
+
+        if (!isChanged) {
+            throw new IllegalArgumentException("수정할 내용이 없습니다.");
+        }
 
         Reward updatedReward = new Reward(
                 reward.id(),
@@ -79,23 +84,49 @@ public class CreatorRewardService {
                 request.title(),
                 request.description(),
                 request.price(),
+                reward.stock(),
+                reward.createdAt()
+        );
+
+        Reward savedReward = repository.save(updatedReward);
+
+        return new CreatorRewardUpdateResponse(toRewardInfo(savedReward));
+    }
+
+    /**
+     * 리워드 재고 수정 도메인 로직
+     */
+    @Transactional
+    public CreatorRewardUpdateResponse updateStock(SecurityUser securityUser, Long rewardId, CreatorRewardUpdateStockRequest request) {
+        Reward reward = getReward(rewardId);
+        io.github.crowdfund.domain.project.Project project = getValidatedProject(reward.projectId(), securityUser.getUserId());
+
+        if (!project.isOngoing()) {
+            throw new IllegalArgumentException("진행 중인 프로젝트에만 리워드 재고를 수정할 수 있습니다.");
+        }
+
+        if (Objects.equals(reward.stock(), request.stock())) {
+            throw new IllegalArgumentException("수정할 내용이 없습니다.");
+        }
+
+        long pledgeCount = pledgeRepository.countByRewardId(rewardId);
+        if (request.stock() != null && request.stock() < pledgeCount) {
+            throw new IllegalArgumentException("재고는 후원자 수(" + pledgeCount + ")보다 적을 수 없습니다.");
+        }
+
+        Reward updatedReward = new Reward(
+                reward.id(),
+                reward.projectId(),
+                reward.title(),
+                reward.description(),
+                reward.price(),
                 request.stock(),
                 reward.createdAt()
         );
 
         Reward savedReward = repository.save(updatedReward);
 
-        RewardInfo rewardInfo = new RewardInfo(
-                savedReward.id(),
-                savedReward.projectId(),
-                savedReward.title(),
-                savedReward.description(),
-                savedReward.price(),
-                savedReward.stock(),
-                savedReward.createdAt()
-        );
-
-        return new CreatorRewardUpdateResponse(rewardInfo);
+        return new CreatorRewardUpdateResponse(toRewardInfo(savedReward));
     }
 
     /**
@@ -103,13 +134,35 @@ public class CreatorRewardService {
      */
     @Transactional
     public CreatorRewardDeleteResponse delete(SecurityUser securityUser, @Valid Long rewardId) {
-        Reward reward = repository.findById(rewardId)
-                .orElseThrow(() -> new IllegalArgumentException("리워드를 찾을 수 없습니다."));
-
-        projectRepository.validateProjectOwner(reward.projectId(), securityUser.getUserId());
+        Reward reward = getReward(rewardId);
+        getValidatedProject(reward.projectId(), securityUser.getUserId());
 
         repository.deleteById(rewardId);
 
         return new CreatorRewardDeleteResponse(rewardId);
+    }
+
+    private Reward getReward(Long rewardId) {
+        return repository.findById(rewardId)
+                .orElseThrow(() -> new IllegalArgumentException("리워드를 찾을 수 없습니다."));
+    }
+
+    private io.github.crowdfund.domain.project.Project getValidatedProject(Long projectId, Long userId) {
+        io.github.crowdfund.domain.project.Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
+        project.validateOwner(userId);
+        return project;
+    }
+
+    private RewardInfo toRewardInfo(Reward reward) {
+        return new RewardInfo(
+                reward.id(),
+                reward.projectId(),
+                reward.title(),
+                reward.description(),
+                reward.price(),
+                reward.stock(),
+                reward.createdAt()
+        );
     }
 }

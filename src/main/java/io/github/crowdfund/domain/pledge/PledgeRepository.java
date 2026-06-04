@@ -17,4 +17,14 @@ public interface PledgeRepository extends ListCrudRepository<Pledge, Long> {
      * 특정 프로젝트에 후원자가 존재하는지 여부를 확인합니다.
      */
     boolean existsByProjectId(Long projectId);
+
+    /**
+     * 특정 리워드에 후원자가 존재하는지 여부를 확인합니다.
+     */
+    boolean existsByRewardId(Long rewardId);
+
+    /**
+     * 특정 리워드의 후원자 수를 조회합니다.
+     */
+    long countByRewardId(Long rewardId);
 }
