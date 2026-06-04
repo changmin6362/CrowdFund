@@ -2,12 +2,12 @@ package io.github.crowdfund.feature.reward.creator;
 
 import io.github.crowdfund.domain.reward.Reward;
 import io.github.crowdfund.domain.reward.RewardRepository;
+import io.github.crowdfund.feature.reward.creator.dto.RewardInfo;
 import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateRequest;
 import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateResponse;
-import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateResponse;
-import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateReqeust;
-import io.github.crowdfund.feature.reward.creator.dto.RewardInfo;
 import io.github.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDeleteResponse;
+import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateReqeust;
+import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateResponse;
 import io.github.crowdfund.global.security.SecurityUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,14 @@ public class CreatorRewardService {
      */
     @Transactional
     public CreatorRewardCreateResponse create(SecurityUser securityUser, @Valid Long projectId, CreatorRewardCreateRequest request) {
-        projectRepository.validateProjectOwner(projectId, securityUser.getUserId());
+        io.github.crowdfund.domain.project.Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
+
+        project.validateOwner(securityUser.getUserId());
+
+        if (!project.isOngoing()) {
+            throw new IllegalArgumentException("진행 중인 프로젝트에만 리워드를 등록할 수 있습니다.");
+        }
 
         Reward reward = new Reward(
                 null,
