@@ -95,18 +95,18 @@ public class CreatorProjectController {
     }
 
     /**
-     * 후원자들의 배송 정보 목록 조회
+     * 후원자들의 배송지 목록 조회
      *
      * @param projectId 프로젝트 ID
      * @return message, shippingInfos
      */
-    @Operation(summary = "후원자들의 배송 정보 목록 조회")
-    @ApiResponse(responseCode = "200", description = "배송 정보 목록 조회 응답 예시")
+    @Operation(summary = "후원자들의 배송지 목록 조회")
+    @ApiResponse(responseCode = "200", description = "배송지 목록 조회 응답 예시")
     @GetMapping("/{projectId}/shipping-infos")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<CreatorShippingInfosExtractResponse> extract(
             @PathVariable Long projectId,
             @AuthenticationPrincipal SecurityUser securityUser) {
-        return ApiResult.success("배송 정보 조회에 성공했습니다.", service.extract(securityUser, projectId));
+        return ApiResult.success("후원자들의 배송지 목록 조회에 성공했습니다.", service.extract(securityUser, projectId));
     }
 }
