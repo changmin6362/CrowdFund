@@ -6,7 +6,6 @@ import io.github.crowdfund.domain.category.mapper.CategoryMapper;
 import io.github.crowdfund.feature.category.admin.dto.active.AdminCategoryActiveRequest;
 import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateRequest;
 import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateResponse;
-import io.github.crowdfund.feature.category.admin.dto.create.CategoryInfo;
 import io.github.crowdfund.feature.category.admin.dto.move.AdminCategoryMoveRequest;
 import io.github.crowdfund.feature.category.admin.dto.rename.AdminCategoryRenameRequest;
 import io.github.crowdfund.feature.category.admin.dto.reorder.AdminCategoryReorderRequest;
@@ -58,10 +57,7 @@ public class AdminCategoryService {
                 result
         );
 
-        Category savedCategory = categoryRepository.findById(result.id.intValue())
-                .orElseThrow(() -> new IllegalStateException("생성한 카테고리 ID를 찾을 수 없습니다. ID: " + result.id));
-
-        return new AdminCategoryCreateResponse(CategoryInfo.from(savedCategory), userCategoryService.fetch().categoryTree());
+        return new AdminCategoryCreateResponse(userCategoryService.fetch().categoryTree());
     }
 
     /**
