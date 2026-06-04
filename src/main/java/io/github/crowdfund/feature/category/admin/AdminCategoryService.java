@@ -9,6 +9,7 @@ import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreate
 import io.github.crowdfund.feature.category.admin.dto.move.AdminCategoryMoveRequest;
 import io.github.crowdfund.feature.category.admin.dto.rename.AdminCategoryRenameRequest;
 import io.github.crowdfund.feature.category.admin.dto.reorder.AdminCategoryReorderRequest;
+import io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -68,7 +69,7 @@ public class AdminCategoryService {
      * 카테고리 이름 변경 도메인 로직
      */
     @Transactional
-    public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse rename(Integer id, AdminCategoryRenameRequest request) {
+    public UserFetchCategoryResponse rename(Integer id, AdminCategoryRenameRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("변경하려는 카테고리를 찾을 수 없습니다."));
 
@@ -85,7 +86,7 @@ public class AdminCategoryService {
      * 카테고리 부모 변경 도메인 로직
      */
     @Transactional
-    public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse move(Integer categoryId, AdminCategoryMoveRequest request) {
+    public UserFetchCategoryResponse move(Integer categoryId, AdminCategoryMoveRequest request) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("변경하려는 카테고리를 찾을 수 없습니다."));
 
@@ -143,7 +144,7 @@ public class AdminCategoryService {
      * 카테고리 정렬 순서 변경 도메인 로직
      */
     @Transactional
-    public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse reorder(AdminCategoryReorderRequest request) {
+    public UserFetchCategoryResponse reorder(AdminCategoryReorderRequest request) {
         for (var item : request.categories()) {
             categoryMapper.updateSortOrder(item.categoryId().longValue(), item.sortOrder());
         }
@@ -155,7 +156,7 @@ public class AdminCategoryService {
      * 카테고리 활성 여부 변경 도메인 로직
      */
     @Transactional
-    public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse toggle(Integer id, AdminCategoryActiveRequest request) {
+    public UserFetchCategoryResponse toggle(Integer id, AdminCategoryActiveRequest request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("변경하려는 카테고리를 찾을 수 없습니다."));
 
@@ -172,7 +173,7 @@ public class AdminCategoryService {
      * 카테고리 삭제 도메인 로직
      */
     @Transactional
-    public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse delete(Integer id) {
+    public UserFetchCategoryResponse delete(Integer id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("삭제하려는 카테고리를 찾을 수 없습니다."));
 
