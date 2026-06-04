@@ -76,6 +76,14 @@ public class UserAddressService {
             throw new IllegalArgumentException("본인의 배송지만 수정할 수 있습니다.");
         }
 
+        if (existing.recipientName().equals(request.recipientName()) &&
+                existing.phone().equals(request.phone()) &&
+                existing.postalCode().equals(request.postalCode()) &&
+                existing.addressMain().equals(request.addressMain()) &&
+                existing.addressDetail().equals(request.addressDetail())) {
+            throw new IllegalArgumentException("수정할 내용이 없습니다.");
+        }
+
         UserAddress updated = new UserAddress(
                 existing.id(),
                 existing.userId(),
@@ -94,7 +102,7 @@ public class UserAddressService {
     }
 
     /**
-     * 기본 배송지 수정 도메인 로직
+     * 기본 배송지 변경 도메인 로직
      */
     @Transactional
     public UserAddressSetResponse set(SecurityUser securityUser, Long addressId) {
@@ -103,6 +111,10 @@ public class UserAddressService {
 
         if (securityUser.isOwner(target.userId())) {
             throw new IllegalArgumentException("본인의 배송지만 기본 배송지로 설정할 수 있습니다.");
+        }
+
+        if (target.isDefault()) {
+            throw new IllegalArgumentException("이미 기본 배송지입니다.");
         }
 
         // 기존 기본 배송지 해제
