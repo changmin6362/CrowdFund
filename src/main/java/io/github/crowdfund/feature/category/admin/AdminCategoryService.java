@@ -35,7 +35,7 @@ public class AdminCategoryService {
         int depth = 0;
         if (request.parentId() != null) {
             Category parent = categoryRepository.findById(request.parentId())
-                    .orElseThrow(() -> new IllegalArgumentException("부모 카테고리를 찾을 수 없습니다. ID: " + request.parentId()));
+                    .orElseThrow(() -> new IllegalArgumentException("부모 카테고리를 찾을 수 없습니다."));
             depth = parent.depth() + 1;
         }
 
@@ -66,7 +66,7 @@ public class AdminCategoryService {
     @Transactional
     public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse rename(Integer id, AdminCategoryRenameRequest request) {
         categoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("변경하려는 카테고리를 찾을 수 없습니다."));
 
         categoryMapper.updateName(id.longValue(), request.name());
 
@@ -79,7 +79,7 @@ public class AdminCategoryService {
     @Transactional
     public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse move(Integer categoryId, AdminCategoryMoveRequest request) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + categoryId));
+                .orElseThrow(() -> new IllegalArgumentException("변경하려는 카테고리를 찾을 수 없습니다."));
 
         // 자기 자신을 부모로 설정하는지 체크
         if (request.parentId() != null && request.parentId().equals(categoryId)) {
@@ -89,7 +89,7 @@ public class AdminCategoryService {
         int newDepth = 0;
         if (request.parentId() != null) {
             Category parent = categoryRepository.findById(request.parentId())
-                    .orElseThrow(() -> new IllegalArgumentException("부모 카테고리를 찾을 수 없습니다. ID: " + request.parentId()));
+                    .orElseThrow(() -> new IllegalArgumentException("부모 카테고리를 찾을 수 없습니다."));
             newDepth = parent.depth() + 1;
         }
 
@@ -102,7 +102,7 @@ public class AdminCategoryService {
             // 이동할 부모가 이동할 카테고리의 자식인지 확인
             if (request.parentId() != null) {
                 if (isDescendant(allCategories, categoryId, request.parentId())) {
-                    throw new IllegalArgumentException("자식 카테고리를 부모로 설정할 수 없습니다. (순환 참조)");
+                    throw new IllegalArgumentException("자식 카테고리를 부모로 설정할 수 없습니다. (순환 참조 방지)");
                 }
             }
 
@@ -149,7 +149,7 @@ public class AdminCategoryService {
     @Transactional
     public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse toggle(Integer id, AdminCategoryActiveRequest request) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("변경하려는 카테고리를 찾을 수 없습니다."));
 
         if (category.isActive() == request.isActive()) {
             throw new IllegalArgumentException("이미 해당 활성 상태입니다.");
@@ -166,7 +166,7 @@ public class AdminCategoryService {
     @Transactional
     public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse delete(Integer id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("삭제하려는 카테고리를 찾을 수 없습니다."));
 
         if (!category.isActive()) {
             throw new IllegalArgumentException("카테고리가 이미 삭제되었습니다.");
