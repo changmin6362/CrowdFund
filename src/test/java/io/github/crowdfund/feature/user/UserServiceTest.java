@@ -117,9 +117,39 @@ class UserServiceTest {
                 .andDo(print())
                 .andReturn();
 
-        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+        ApiResult<UserFetchResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
         assertThat(apiResult.message()).isEqualTo("내 정보 수정에 성공했습니다.");
+        assertThat(apiResult.data().user().nickname()).isEqualTo("new_nick");
+        assertThat(apiResult.data().user().name()).isEqualTo("new");
+        assertThat(apiResult.data().user().phone()).isEqualTo("010-9999-9999");
+    }
+
+    @Test
+    void 내_정보_수정_변경내용_없음_실패_테스트() throws Exception {
+        User savedUser = userRepository.save(new User(
+                null, "same@test.com", "pass", "same", "same", "010-1234-5678", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+        ));
+        authenticate(savedUser);
+
+        String updateRequest = """
+                {
+                    "nickname": "same",
+                    "name": "same",
+                    "phone": "010-1234-5678"
+                }
+                """;
+
+        MvcResult result = mockMvc.perform(put("/api/users/me")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateRequest))
+                .andExpect(status().isBadRequest())
+                .andDo(print())
+                .andReturn();
+
+        ApiResult<Void> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
+
+        assertThat(apiResult.message()).isEqualTo("수정할 내용이 없습니다.");
     }
 
     @Test

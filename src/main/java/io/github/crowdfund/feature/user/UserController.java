@@ -64,12 +64,11 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "내 정보 수정 성공 응답 예시")
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> update(
+    public ApiResult<UserFetchResponse> update(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody UserUpdateRequest request
     ) {
-        service.updateByEmail(userDetails.getUsername(), request);
-        return ApiResult.success("내 정보 수정에 성공했습니다.");
+        return ApiResult.success("내 정보 수정에 성공했습니다.", service.updateByEmail(userDetails.getUsername(), request));
     }
 
     /**
