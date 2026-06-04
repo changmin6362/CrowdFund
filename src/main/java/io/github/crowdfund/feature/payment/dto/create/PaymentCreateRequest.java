@@ -12,7 +12,7 @@ public record PaymentCreateRequest(
         @NotNull(message = "후원 ID는 필수입니다.")
         Long pledgeId,
 
-        @Schema(description = "결제 수단", example = "CREDIT_CARD")
+        @Schema(description = "결제 수단", example = "CARD")
         @NotNull(message = "결제 수단은 필수입니다.")
         PaymentMethod paymentMethod,
 
