@@ -31,7 +31,7 @@ public interface ProjectMapper {
 
     void patchStatus(@Param("projectId") Long projectId, @Param("status") ProjectStatus status);
     
-    int updateStatusForExpiredProjects(@Param("status") ProjectStatus status, @Param("now") LocalDateTime now);
+    void updateStatusForExpiredProjects(@Param("now") LocalDateTime now);
 
     ProjectDetail findByIdWithDetail(Long projectId);
 }
