@@ -32,6 +32,9 @@ public record MyPledgeDetail(
         String rewardName,
 
         @Schema(description = "배송 주소 정보")
-        ShippingAddress shippingAddress
+        ShippingAddress shippingAddress,
+
+        @Schema(description = "리워드 가격", example = "10000.00")
+        BigDecimal rewardPrice
 ) {
 }

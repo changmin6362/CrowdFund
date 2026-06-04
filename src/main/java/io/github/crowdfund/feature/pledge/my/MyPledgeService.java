@@ -140,7 +140,10 @@ public class MyPledgeService {
                 addr.phone(),
                 addr.addressMain(),
                 addr.addressDetail(),
-                addr.postalCode()
+                addr.postalCode(),
+                addr.id(),
+                addr.createdAt().toString(),
+                addr.updatedAt().toString()
         )).orElse(null);
 
         MyPledgeDetail myPledgeDetail = new MyPledgeDetail(
@@ -152,7 +155,8 @@ public class MyPledgeService {
                 pledge.amount(),
                 paymentMethod,
                 reward.title(),
-                shippingAddress
+                shippingAddress,
+                reward.price()
         );
 
         return new MyPledgeDetailResponse(myPledgeDetail);

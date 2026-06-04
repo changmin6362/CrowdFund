@@ -16,6 +16,15 @@ public record ShippingAddress(
         String addressDetail,
 
         @Schema(description = "우편 번호", example = "06060")
-        String postalCode
+        String postalCode,
+
+        @Schema(description = "배송 정보 ID", example = "1")
+        Long pledgeAddressId,
+
+        @Schema(description = "배송 정보 등록 일시", example = "2023-09-15T12:00:00")
+        String addressCreatedAt,
+
+        @Schema(description = "배송 정보 수정 일시", example = "2023-09-15T12:00:00")
+        String addressUpdatedAt
 ) {
 }

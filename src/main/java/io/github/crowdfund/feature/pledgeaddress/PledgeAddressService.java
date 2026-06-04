@@ -8,7 +8,6 @@ import io.github.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.crowdfund.domain.useraddress.UserAddress;
 import io.github.crowdfund.domain.useraddress.UserAddressRepository;
 import io.github.crowdfund.feature.pledgeaddress.dto.PledgeAddressInfo;
-import io.github.crowdfund.feature.pledgeaddress.dto.fetch.PledgeAddressFetchResponse;
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceRequest;
 import io.github.crowdfund.feature.pledgeaddress.dto.replace.PledgeAddressReplaceResponse;
 import io.github.crowdfund.global.security.SecurityUser;
@@ -27,23 +26,6 @@ public class PledgeAddressService {
     private final PledgeAddressRepository repository;
     private final UserAddressRepository userAddressRepository;
     private final PledgeRepository pledgeRepository;
-
-    /**
-     * 참여한 후원의 배송 정보 조회 도메인 로직
-     */
-    public PledgeAddressFetchResponse fetch(SecurityUser securityUser, Long pledgeId) {
-        Pledge pledge = pledgeRepository.findById(pledgeId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 후원 정보를 찾을 수 없습니다."));
-
-        if (securityUser.isOwner(pledge.userId())) {
-            throw new IllegalArgumentException("본인의 후원 주소 정보만 조회할 수 있습니다.");
-        }
-
-        PledgeAddress address = repository.findByPledgeId(pledgeId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 후원의 주소 정보를 찾을 수 없습니다."));
-
-        return new PledgeAddressFetchResponse(mapToInfo(address));
-    }
 
     /**
      * 참여한 후원의 배송 정보 교체 도메인 로직
@@ -72,6 +54,15 @@ public class PledgeAddressService {
 
         PledgeAddress existingAddress = repository.findByPledgeId(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 후원의 주소 정보를 찾을 수 없습니다."));
+
+        // 데이터 변경 여부 확인
+        if (Objects.equals(existingAddress.recipientName(), userAddress.recipientName()) &&
+                Objects.equals(existingAddress.phone(), userAddress.phone()) &&
+                Objects.equals(existingAddress.postalCode(), userAddress.postalCode()) &&
+                Objects.equals(existingAddress.addressMain(), userAddress.addressMain()) &&
+                Objects.equals(existingAddress.addressDetail(), userAddress.addressDetail())) {
+            throw new IllegalArgumentException("수정할 내용이 없습니다.");
+        }
 
         PledgeAddress newPledgeAddress = new PledgeAddress(
                 existingAddress.id(),
