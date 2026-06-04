@@ -30,6 +30,8 @@ public interface ProjectMapper {
     List<ShippingInfo> findShippingInfosByProjectId(Long projectId);
 
     void patchStatus(@Param("projectId") Long projectId, @Param("status") ProjectStatus status);
+    
+    int updateStatusForExpiredProjects(@Param("status") ProjectStatus status, @Param("now") LocalDateTime now);
 
     ProjectDetail findByIdWithDetail(Long projectId);
 }

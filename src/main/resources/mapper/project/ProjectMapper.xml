@@ -150,4 +150,10 @@ VALUES (
         WHERE id = #{projectId}
     </update>
 
+    <update id="updateStatusForExpiredProjects">
+        UPDATE project
+        SET status = #{status}
+        WHERE status = 'ONGOING' AND end_at &lt; #{now}
+    </update>
+
 </mapper>
