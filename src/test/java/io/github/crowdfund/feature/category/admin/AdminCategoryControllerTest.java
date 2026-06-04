@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.crowdfund.domain.category.Category;
 import io.github.crowdfund.domain.category.CategoryRepository;
+import io.github.crowdfund.domain.category.mapper.CategoryMapper;
 import io.github.crowdfund.feature.category.admin.dto.create.AdminCategoryCreateResponse;
 import io.github.crowdfund.global.common.ApiResult;
+import io.github.crowdfund.global.security.SecurityUser;
 import io.github.crowdfund.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,13 +16,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -30,6 +38,9 @@ class AdminCategoryControllerTest {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private CategoryMapper categoryMapper;
 
     @Autowired
     private MockMvc mockMvc;
@@ -43,6 +54,12 @@ class AdminCategoryControllerTest {
     @BeforeEach
     void setup(TestInfo testInfo) {
         System.out.println("\n>>> 실행테스트: " + testInfo.getTestMethod().get().getName());
+
+        // 관리자 인증 설정
+        SecurityUser securityUser = new SecurityUser(1L, "admin@test.com", "pass", "admin", null,
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         savedRootCategory = categoryRepository.save(new Category(
                 null, null, "Root Category", 0, 10, true
@@ -222,6 +239,18 @@ class AdminCategoryControllerTest {
     void 카테고리_삭제_테스트() throws Exception {
         mockMvc.perform(delete("/api/admin/categories/{categoryId}", savedChildCategory.id()))
                 .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    void 카테고리_중복_삭제_실패_테스트() throws Exception {
+        // Given: 이미 삭제 처리
+        categoryMapper.delete(savedChildCategory.id().longValue());
+
+        // When & Then
+        mockMvc.perform(delete("/api/admin/categories/{categoryId}", savedChildCategory.id()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("이미 삭제되었습니다."))
                 .andDo(print());
     }
 

@@ -169,8 +169,12 @@ public class AdminCategoryService {
      */
     @Transactional
     public io.github.crowdfund.feature.category.user.dto.fetch.UserFetchCategoryResponse delete(Integer id) {
-        categoryRepository.findById(id)
+        Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다. ID: " + id));
+
+        if (!category.isActive()) {
+            throw new IllegalArgumentException("카테고리가 이미 삭제되었습니다.");
+        }
 
         categoryMapper.delete(id.longValue());
 
