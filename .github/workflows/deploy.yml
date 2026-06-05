@@ -52,12 +52,19 @@ jobs:
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        DB_URL: ${{ secrets.DB_URL }}
+        DB_USERNAME: ${{ secrets.DB_USERNAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        SERVER_URL: ${{ secrets.SERVER_URL }}
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+        JWT_ACCESS_EXPIRATION: ${{ secrets.JWT_ACCESS_EXPIRATION }}
+        JWT_REFRESH_EXPIRATION: ${{ secrets.JWT_REFRESH_EXPIRATION }}
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         # 필요한 환경 변수를 SSH 세션으로 전달
-        envs: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
+        envs: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, DB_URL, DB_USERNAME, DB_PASSWORD, SERVER_URL, JWT_SECRET_KEY, JWT_ACCESS_EXPIRATION, JWT_REFRESH_EXPIRATION
         script: |
           # EC2 내부에서 도커 허브 로그인 (Private Repo 접근 권한 확보)
           echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
@@ -69,17 +76,16 @@ jobs:
           # 2. 최신 이미지 가져오기
           docker pull $DOCKERHUB_USERNAME/my-spring-app:latest
           
-          # 3. 새 컨테이너 실행 (환경 변수 주입 추가)
-          # DB_URL, DB_USERNAME, DB_PASSWORD는 EC2의 환경 변수를 사용하도록 수정
-          # .bashrc 또는 .bash_profile 등에 설정된 변수를 불러오기 위해 source 실행
-          [ -f ~/.bashrc ] && source ~/.bashrc
-          [ -f ~/.bash_profile ] && source ~/.bash_profile
-          
+          # 3. 새 컨테이너 실행 (GitHub Secrets를 환경 변수로 주입)
           docker run -d -p 80:8080 --name my-spring-app \
             -e SPRING_PROFILES_ACTIVE=prod \
-            -e DB_URL \
-            -e DB_USERNAME \
-            -e DB_PASSWORD \
+            -e DB_URL="$DB_URL" \
+            -e DB_USERNAME="$DB_USERNAME" \
+            -e DB_PASSWORD="$DB_PASSWORD" \
+            -e SERVER_URL="$SERVER_URL" \
+            -e JWT_SECRET_KEY="$JWT_SECRET_KEY" \
+            -e JWT_ACCESS_EXPIRATION="$JWT_ACCESS_EXPIRATION" \
+            -e JWT_REFRESH_EXPIRATION="$JWT_REFRESH_EXPIRATION" \
             $DOCKERHUB_USERNAME/my-spring-app:latest
           
           # 4. 정리
