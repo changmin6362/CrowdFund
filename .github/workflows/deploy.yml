@@ -63,10 +63,10 @@ jobs:
           docker rm my-spring-app || true
           
           # 2. 도커 허브에서 최신 이미지 가져오기
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-spring-app:latest
+          docker pull $DOCKERHUB_USERNAME/my-spring-app:latest
           
           # 3. 사용하지 않는 오래된 도커 이미지 정리 (용량 확보)
           docker image prune -f
           
           # 4. 새 컨테이너 실행 (EC2 80포트와 스프링 8080포트 연결)
-          docker run -d -p 80:8080 --name my-spring-app ${{ secrets.DOCKERHUB_USERNAME }}/my-spring-app:latest
+          docker run -d -p 80:8080 --name my-spring-app $DOCKERHUB_USERNAME/my-spring-app:latest
