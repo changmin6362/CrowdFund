@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.crowdfund.domain.pledge.mapper.PledgeMapper">
+
+    <select id="findPledgesByUserId" resultType="io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgeInfo">
+        SELECT
+            p.id as pledgeId,
+            pj.id as projectId,
+            pj.title as projectTitle,
+            p.reward_id as rewardId,
+            r.title as rewardTitle,
+            p.amount as amount,
+            p.status as status,
+            p.fulfillment_status as fulfillmentStatus,
+            p.created_at as pledgedAt
+        FROM pledge p
+        JOIN project pj ON p.project_id = pj.id
+        LEFT JOIN reward r ON p.reward_id = r.id
+        WHERE p.user_id = #{userId}
+        <if test="fulfillmentStatus != null">
+            AND p.fulfillment_status = #{fulfillmentStatus}
+        </if>
+        <if test="pledgeStatus != null">
+            AND p.status = #{pledgeStatus}
+        </if>
+        <if test="cursorCreatedAt != null and cursorId != null">
+            AND (p.created_at &lt; #{cursorCreatedAt} OR (p.created_at = #{cursorCreatedAt} AND p.id &lt; #{cursorId}))
+        </if>
+        ORDER BY p.created_at DESC, p.id DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.crowdfund.domain.project.mapper.ProjectMapper">
+
+    <insert id="insert">
+        INSERT INTO project (
+                     category_id,
+                     creator_id,
+                     title,
+                     content_blocks,
+                     goal_amount,
+                     current_amount,
+                     end_at,
+                     status
+)
+VALUES (
+        #{command.categoryId},
+        #{creatorId},
+        #{command.title},
+        #{command.contentBlocks},
+        #{command.goalAmount},
+        #{command.currentAmount},
+        #{command.endAt},
+        #{command.status}
+       )
+       <selectKey keyProperty="id" resultType="long" order="AFTER">
+           SELECT LAST_INSERT_ID()
+       </selectKey>
+    </insert>
+
+    <select id="findAll" resultType="io.github.crowdfund.feature.project.user.dto.fetch.ProjectElement">
+        SELECT
+            id as projectId,
+            creator_id as creatorId,
+            category_id as categoryId,
+            title,
+            goal_amount as goalAmount,
+            current_amount as currentAmount,
+            end_at as endAt,
+            status,
+            created_at as createdAt
+        FROM project
+        <where>
+            <if test="statuses != null and !statuses.isEmpty()">
+                AND status IN
+                <foreach collection="statuses" item="status" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+            <if test="cursorCreatedAt != null and cursorId != null">
+                AND (created_at &lt; #{cursorCreatedAt} OR (created_at = #{cursorCreatedAt} AND id &lt; #{cursorId}))
+            </if>
+        </where>
+        ORDER BY created_at DESC, id DESC
+        LIMIT #{limit}
+    </select>
+
+    <resultMap id="ProjectDetailMap" type="io.github.crowdfund.feature.project.user.dto.detail.ProjectDetail">
+        <constructor>
+            <idArg column="projectId" javaType="Long"/>
+            <arg column="categoryName" javaType="String"/>
+            <arg column="creatorNickname" javaType="String"/>
+            <arg column="title" javaType="String"/>
+            <arg column="contentBlocks" javaType="String"/>
+            <arg column="goalAmount" javaType="java.math.BigDecimal"/>
+            <arg column="currentAmount" javaType="java.math.BigDecimal"/>
+            <arg column="endAt" javaType="java.time.LocalDateTime"/>
+            <arg column="status" javaType="String"/>
+            <arg select="findRewardsByProjectId" column="projectId" javaType="List"/>
+        </constructor>
+    </resultMap>
+
+    <select id="findRewardsByProjectId" resultType="io.github.crowdfund.feature.reward.creator.dto.RewardInfo">
+        SELECT
+            id as rewardId,
+            project_id as projectId,
+            title,
+            description,
+            price,
+            stock,
+            created_at as createdAt
+        FROM reward
+        WHERE project_id = #{projectId}
+    </select>
+
+    <select id="findByIdWithDetail" resultMap="ProjectDetailMap">
+        SELECT
+            p.id as projectId,
+            COALESCE(c.name, '미분류') as categoryName,
+            COALESCE(u.nickname, '알 수 없음') as creatorNickname,
+            p.title,
+            p.content_blocks as contentBlocks,
+            p.goal_amount as goalAmount,
+            p.current_amount as currentAmount,
+            p.end_at as endAt,
+            p.status
+        FROM project p
+                 LEFT JOIN category c ON p.category_id = c.id
+                 LEFT JOIN user u ON p.creator_id = u.id
+        WHERE p.id = #{projectId}
+    </select>
+
+    <update id="update">
+        UPDATE project
+        SET title = #{title},
+            content_blocks = #{contentBlocks}
+        WHERE id = #{projectId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM project
+        WHERE id = #{projectId}
+    </delete>
+
+    <select id="findByCreatorId" resultType="io.github.crowdfund.feature.project.creator.dto.fetch.ProjectInfo">
+        SELECT
+            id as projectId,
+            title,
+            goal_amount as goalAmount,
+            current_amount as currentAmount,
+            end_at as endAt,
+            status,
+            created_at as createdAt
+        FROM project
+        WHERE creator_id = #{creatorId}
+    </select>
+
+    <select id="findShippingInfosByProjectId" resultType="io.github.crowdfund.feature.project.creator.dto.extract.ShippingInfo">
+        SELECT
+            pa.id as addressId,
+            pa.user_id as userId,
+            pa.recipient_name as recipientName,
+            pa.phone,
+            pa.postal_code as postalCode,
+            pa.address_main as addressMain,
+            pa.address_detail as addressDetail
+        FROM pledge_address pa
+        JOIN pledge p ON pa.pledge_id = p.id
+        WHERE p.project_id = #{projectId}
+    </select>
+
+    <update id="patchStatus">
+        UPDATE project
+        SET status = #{status}
+        WHERE id = #{projectId}
+    </update>
+
+    <update id="updateStatusForExpiredProjects">
+        UPDATE project
+        SET status = CASE
+            WHEN current_amount >= goal_amount THEN 'COMPLETED'
+            ELSE 'CANCELED'
+        END
+        WHERE status = 'ONGOING' AND end_at &lt; #{now}
+    </update>
+
+</mapper>
