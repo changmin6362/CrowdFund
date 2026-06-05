@@ -35,6 +35,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-### 프로젝트 설정 파일 ###
-application.properties
