@@ -10,10 +10,10 @@ public record PledgeSummary(
         @Schema(description = "후원 ID", example = "1")
         Long pledgeId,
 
-        @Schema(description = "유저 ID", example = "1")
+        @Schema(description = "후원한 사용자 ID", example = "1")
         Long userId,
 
-        @Schema(description = "유저 이름", example = "김공자")
+        @Schema(description = "후원한 사용자 명", example = "김공자")
         String userName,
 
         @Schema(description = "프로젝트 ID", example = "1")
@@ -22,7 +22,7 @@ public record PledgeSummary(
         @Schema(description = "프로젝트 제목", example = "프로젝트 제목 예시")
         String projectTitle,
 
-        @Schema(description = "리워드 ID", example = "1")
+        @Schema(description = "보상 ID", example = "1")
         Long rewardId,
 
         @Schema(description = "후원 금액", example = "35000")

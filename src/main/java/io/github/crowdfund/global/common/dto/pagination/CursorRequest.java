@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
 /**
- * 복합 커서 기반 페이지네이션 공통 요청 레코
+ * 복합 커서 기반 페이지네이션 공통 요청 레코드
  *
  * @param createdAt: 커서의 날짜 키
  * @param id:        커서의 ID 키

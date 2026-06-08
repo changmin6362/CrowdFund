@@ -168,7 +168,7 @@ class MyPledgeControllerTest {
         assertThat(apiResult.message()).isEqualTo("내 후원 상세 조회에 성공했습니다.");
         assertThat(apiResult.data().myPledgeDetail().pledgeId()).isEqualTo(savedPledge.id());
         assertThat(apiResult.data().myPledgeDetail().projectTitle()).isEqualTo(savedProject.title());
-        assertThat(apiResult.data().myPledgeDetail().rewardPrice()).isEqualByComparingTo(savedReward.price());
+        assertThat(apiResult.data().myPledgeDetail().amount()).isEqualByComparingTo(savedReward.price());
         assertThat(apiResult.data().myPledgeDetail().shippingAddress().recipientName()).isEqualTo("홍길동");
         assertThat(apiResult.data().myPledgeDetail().shippingAddress().pledgeAddressId()).isNotNull();
         assertThat(apiResult.data().myPledgeDetail().shippingAddress().addressCreatedAt()).isNotNull();
