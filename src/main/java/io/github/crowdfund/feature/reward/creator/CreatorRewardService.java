@@ -6,7 +6,7 @@ import io.github.crowdfund.feature.reward.creator.dto.RewardInfo;
 import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateRequest;
 import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateResponse;
 import io.github.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDeleteResponse;
-import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateReqeust;
+import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateRequest;
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateResponse;
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateStockRequest;
 import io.github.crowdfund.global.security.SecurityUser;
@@ -57,7 +57,7 @@ public class CreatorRewardService {
      * 리워드 정보 수정 도메인 로직
      */
     @Transactional
-    public CreatorRewardUpdateResponse update(SecurityUser securityUser, Long rewardId, CreatorRewardUpdateReqeust request) {
+    public CreatorRewardUpdateResponse update(SecurityUser securityUser, Long rewardId, CreatorRewardUpdateRequest request) {
         Reward reward = getReward(rewardId);
         io.github.crowdfund.domain.project.Project project = getValidatedProject(reward.projectId(), securityUser.getUserId());
 

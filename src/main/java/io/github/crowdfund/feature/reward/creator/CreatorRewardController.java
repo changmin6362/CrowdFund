@@ -3,7 +3,7 @@ package io.github.crowdfund.feature.reward.creator;
 import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateRequest;
 import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateResponse;
 import io.github.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDeleteResponse;
-import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateReqeust;
+import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateRequest;
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateResponse;
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateStockRequest;
 import io.github.crowdfund.global.common.ApiResult;
@@ -59,7 +59,7 @@ public class CreatorRewardController {
     public ApiResult<CreatorRewardUpdateResponse> update(
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long rewardId,
-            @Valid @RequestBody CreatorRewardUpdateReqeust request) {
+            @Valid @RequestBody CreatorRewardUpdateRequest request) {
         return ApiResult.success("리워드 수정에 성공했습니다.", service.update(securityUser, rewardId, request));
     }
 

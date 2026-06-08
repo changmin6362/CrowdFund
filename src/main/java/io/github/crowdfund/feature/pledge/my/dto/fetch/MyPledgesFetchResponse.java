@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 public record MyPledgesFetchResponse(
-        @Schema(description = "유저가 후원한 프로젝트 목록")
+        @Schema(description = "내가 후원한 프로젝트 목록")
         List<MyPledgeInfo> pledges,
 
         @Schema(description = "다음 페이지 존재 여부", example = "true")
