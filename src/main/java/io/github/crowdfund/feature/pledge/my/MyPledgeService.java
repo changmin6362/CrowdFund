@@ -155,8 +155,7 @@ public class MyPledgeService {
                 pledge.amount(),
                 paymentMethod,
                 reward.title(),
-                shippingAddress,
-                reward.price()
+                shippingAddress
         );
 
         return new MyPledgeDetailResponse(myPledgeDetail);
