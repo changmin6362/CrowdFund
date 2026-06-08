@@ -17,13 +17,13 @@ public record AdminPledgeDetail(
         @Schema(description = "보상 이행 상태")
         FulfillmentStatus fulfillmentStatus,
 
-        @Schema(description = "유저 정보")
+        @Schema(description = "사용자 상세 정보")
         AdminUserDetail user,
 
-        @Schema(description = "결제 정보")
+        @Schema(description = "결제 상세 정보")
         AdminPaymentDetail payment,
 
-        @Schema(description = "프로젝트 정보")
+        @Schema(description = "프로젝트 상세 정보")
         AdminProjectDetail project
 ) {
 }
