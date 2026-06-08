@@ -136,12 +136,12 @@ public class MyPledgeService {
 
         Optional<PledgeAddress> addressOpt = pledgeAddressRepository.findByPledgeId(pledge.id());
         ShippingAddress shippingAddress = addressOpt.map(addr -> new ShippingAddress(
+                addr.id(),
                 addr.recipientName(),
                 addr.phone(),
                 addr.addressMain(),
                 addr.addressDetail(),
                 addr.postalCode(),
-                addr.id(),
                 addr.createdAt().toString(),
                 addr.updatedAt().toString()
         )).orElse(null);
