@@ -1,12 +1,26 @@
-# 1. Base 이미지 설정 (Java 17 버전 사용)
-FROM eclipse-temurin:17-jdk-alpine
-
-# 2. 작업 디렉토리 설정
+# 1. 빌드 스테이지
+FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 
-# 3. 빌드된 JAR 파일을 컨테이너 안으로 복사
-# build.gradle에서 설정한 app.jar 이름을 사용합니다.
-COPY build/libs/app.jar app.jar
+# Gradle Wrapper 및 설정 파일 복사
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
 
-# 4. 컨테이너 실행 시 애플리케이션 실행
+# 소스 코드 복사
+COPY src src
+
+# 프로젝트 빌드 (테스트 제외)
+RUN chmod +x ./gradlew
+RUN ./gradlew clean bootJar -x test
+
+# 2. 실행 스테이지
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+
+# 빌드 스테이지에서 생성된 JAR 파일만 복사
+COPY --from=build /app/build/libs/app.jar app.jar
+
+# 컨테이너 실행 시 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "app.jar"]
