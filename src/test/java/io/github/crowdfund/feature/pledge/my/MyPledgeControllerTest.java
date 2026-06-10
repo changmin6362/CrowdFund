@@ -171,8 +171,8 @@ class MyPledgeControllerTest {
         assertThat(apiResult.data().myPledgeDetail().amount()).isEqualByComparingTo(savedReward.price());
         assertThat(apiResult.data().myPledgeDetail().shippingAddress().recipientName()).isEqualTo("홍길동");
         assertThat(apiResult.data().myPledgeDetail().shippingAddress().pledgeAddressId()).isNotNull();
-        assertThat(apiResult.data().myPledgeDetail().shippingAddress().addressCreatedAt()).isNotNull();
-        assertThat(apiResult.data().myPledgeDetail().shippingAddress().addressUpdatedAt()).isNotNull();
+        assertThat(apiResult.data().myPledgeDetail().shippingAddress().createdAt()).isNotNull();
+        assertThat(apiResult.data().myPledgeDetail().shippingAddress().updatedAt()).isNotNull();
     }
 
     @Test
