@@ -50,7 +50,8 @@ public class CreatorProjectService {
                 ProjectStatus.ONGOING,
                 LocalDateTime.now()
         );
-        Long generatedId = projectMapper.insert(creatorId, project);
+        projectMapper.insert(creatorId, project);
+        Long generatedId = projectMapper.getLastInsertId();
         return new CreatorProjectCreateResponse(generatedId);
     }
 
