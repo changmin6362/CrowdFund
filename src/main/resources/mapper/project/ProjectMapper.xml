@@ -25,10 +25,11 @@ VALUES (
         #{command.endAt},
         #{command.status}
        )
-       <selectKey keyProperty="id" resultType="long" order="AFTER">
-           SELECT LAST_INSERT_ID()
-       </selectKey>
     </insert>
+
+    <select id="getLastInsertId" resultType="long">
+        SELECT LAST_INSERT_ID()
+    </select>
 
     <select id="findAll" resultType="io.github.crowdfund.feature.project.user.dto.fetch.ProjectElement">
         SELECT
@@ -71,11 +72,11 @@ VALUES (
             <arg column="currentAmount" javaType="java.math.BigDecimal"/>
             <arg column="endAt" javaType="java.time.LocalDateTime"/>
             <arg column="status" javaType="String"/>
-            <arg select="findRewardsByProjectId" column="projectId" javaType="List"/>
+            <arg select="findRewardsByProjectId" column="projectId" javaType="java.util.List"/>
         </constructor>
     </resultMap>
 
-    <select id="findRewardsByProjectId" resultType="io.github.crowdfund.feature.reward.creator.dto.RewardInfo">
+    <select id="findRewardsByProjectId" resultType="io.github.crowdfund.feature.project.user.dto.detail.RewardInfo">
         SELECT
             id as rewardId,
             project_id as projectId,

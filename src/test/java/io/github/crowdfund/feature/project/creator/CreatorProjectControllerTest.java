@@ -214,7 +214,7 @@ class CreatorProjectControllerTest {
         // 7. 검증
         ApiResult<CreatorShippingInfosExtractResponse> apiResult = TestUtils.convertToApiResult(result, objectMapper, new TypeReference<>() {});
 
-        assertThat(apiResult.message()).isEqualTo("배송 정보 조회에 성공했습니다.");
+        assertThat(apiResult.message()).isEqualTo("후원자들의 배송지 목록 조회에 성공했습니다.");
         assertThat(apiResult.data().shippingInfos()).isNotEmpty();
         assertThat(apiResult.data().shippingInfos().get(0).recipientName()).isEqualTo("이순신");
     }
