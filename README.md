@@ -32,3 +32,7 @@
 - 프로젝트 생성 및 조회 기능
 - 프로젝트 리워드 관리
 - 관리자(Admin) 전용 API
+
+## ERD
+
+<img width="5222" height="3856" alt="Image" src="https://github.com/user-attachments/assets/ed0ba577-fabb-4b34-8727-9e71e2e6448d" />
