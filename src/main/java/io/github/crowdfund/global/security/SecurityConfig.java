@@ -82,8 +82,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "https://kcm-crowdfud.vercel.app"
+                "http://localhost:3000", // 로컬 개발 환경 포트 허용
+                "https://crowd-fund-front*.vercel.app"  // crowd-fund-front로 시작하는 모든 vercel 주소 허용
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

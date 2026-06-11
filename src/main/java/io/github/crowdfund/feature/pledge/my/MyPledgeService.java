@@ -65,6 +65,10 @@ public class MyPledgeService {
             throw new IllegalStateException("현재 진행 중인 프로젝트가 아닙니다.");
         }
 
+        if (project.creatorId().equals(userId)) {
+            throw new IllegalStateException("본인의 프로젝트에는 후원할 수 없습니다.");
+        }
+
         if (pledgeRepository.existsByUserIdAndProjectId(userId, request.projectId())) {
             throw new IllegalStateException("이미 이 프로젝트에 후원하셨습니다.");
         }
@@ -121,7 +125,7 @@ public class MyPledgeService {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
-        if (securityUser.isOwner(pledge.userId())) {
+        if (!securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 후원 내역만 조회할 수 있습니다.");
         }
 
@@ -169,7 +173,7 @@ public class MyPledgeService {
         Pledge pledge = pledgeRepository.findById(pledgeId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
 
-        if (securityUser.isOwner(pledge.userId())) {
+        if (!securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 후원 내역만 취소할 수 있습니다.");
         }
 

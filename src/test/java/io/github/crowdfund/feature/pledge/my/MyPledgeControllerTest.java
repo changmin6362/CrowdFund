@@ -112,8 +112,12 @@ class MyPledgeControllerTest {
                 null, null, "테스트 카테고리", 1, 10, true
         ));
 
+        User creator = userRepository.save(new User(
+                null, "creator_" + System.currentTimeMillis() + "@test.com", "pass", "creator", "창작자", "010-2222-3333", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+        ));
+
         savedProject = projectRepository.save(new Project(
-                null, savedCategory.id(), savedUser.id(), "테스트 프로젝트", "[{\"type\":\"text\",\"content\":\"내용\"}]", new BigDecimal("1000000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(30), ProjectStatus.ONGOING, LocalDateTime.now()
+                null, savedCategory.id(), creator.id(), "테스트 프로젝트", "[{\"type\":\"text\",\"content\":\"내용\"}]", new BigDecimal("1000000"), BigDecimal.ZERO, LocalDateTime.now().plusDays(30), ProjectStatus.ONGOING, LocalDateTime.now()
         ));
 
         savedReward = rewardRepository.save(new Reward(
@@ -178,7 +182,7 @@ class MyPledgeControllerTest {
     @Test
     void 후원_취소_테스트() throws Exception {
         Pledge savedPledge = pledgeRepository.save(new Pledge(
-                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PAID, FulfillmentStatus.READY, null, LocalDateTime.now()
+                null, savedUser.id(), savedProject.id(), savedReward.id(), new BigDecimal("10000"), PledgeStatus.PENDING, FulfillmentStatus.READY, null, LocalDateTime.now()
         ));
 
         MvcResult result = mockMvc.perform(delete("/api/pledges/me/{pledgeId}", savedPledge.id()))
@@ -226,8 +230,12 @@ class MyPledgeControllerTest {
 
     @Test
     void 종료된_프로젝트_후원_불가_테스트() throws Exception {
+        User anotherCreator = userRepository.save(new User(
+                null, "creator2_" + System.currentTimeMillis() + "@test.com", "pass", "creator2", "창작자2", "010-4444-5555", "USER", LocalDateTime.now(), LocalDateTime.now(), null
+        ));
+
         Project completedProject = projectRepository.save(new Project(
-                null, savedProject.categoryId(), savedUser.id(), "종료된 프로젝트", "[{\"type\":\"text\",\"content\":\"내용\"}]", new BigDecimal("1000000"), BigDecimal.ZERO, LocalDateTime.now().minusDays(1), ProjectStatus.COMPLETED, LocalDateTime.now()
+                null, savedProject.categoryId(), anotherCreator.id(), "종료된 프로젝트", "[{\"type\":\"text\",\"content\":\"내용\"}]", new BigDecimal("1000000"), BigDecimal.ZERO, LocalDateTime.now().minusDays(1), ProjectStatus.COMPLETED, LocalDateTime.now()
         ));
 
         Reward completedReward = rewardRepository.save(new Reward(
