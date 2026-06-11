@@ -11,6 +11,39 @@
 - **Tooling**: Gradle, Docker
 - **API Documentation**: SpringDoc OpenAPI (Swagger)
 
+## 시스템 아키텍처(System Architecture)
+
+```mermaid
+graph TD
+    classDef client fill:#3498db,stroke:#2980b9,stroke-width:2px,color:#fff;
+    classDef server fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff;
+    classDef db fill:#e67e22,stroke:#d35400,stroke-width:2px,color:#fff;
+    classDef infra fill:#9b59b6,stroke:#8e44ad,stroke-width:2px,color:#fff;
+
+    subgraph Client ["📱 Client Layer"]
+        Web["💻 React / Next.js"]:::client
+    end
+
+    subgraph Infra ["🌐 Infrastructure & CI/CD"]
+        GH["🐙 GitHub Actions"]:::infra
+        EC2["🖥️ AWS EC2 (Docker)"]:::infra
+    end
+
+    subgraph App ["⚙️ Application Layer (Backend)"]
+        Server["🚀 Spring Boot 3.5.14"]:::server
+    end
+
+    subgraph Storage ["💾 Data Storage Layer"]
+        RDS[("🗄️ AWS RDS (MariaDB)")]:::db
+    end
+
+    Web -->|HTTPS Requests| EC2
+    EC2 -->|Runs Container| Server
+    Server -->|SQL Queries via SSH Tunnel| RDS
+    GH -->|Deploy/Build| EC2
+```
+
+
 ## 🚀 CI/CD 및 배포 방식
 본 프로젝트는 효율적인 배포를 위해 GitHub Actions를 활용한 자동화된 CI/CD 파이프라인을 구축하였습니다.
 
