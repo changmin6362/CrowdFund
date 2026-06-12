@@ -1,6 +1,14 @@
 # CrowdFund 프로젝트
 2026.05.08 ~ 2026.06.12(개발중)
 
+[![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=flat&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/spring%20boot-%236DB33F.svg?style=flat&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Gradle](https://img.shields.io/badge/gradle-%2302303A.svg?style=flat&logo=gradle&logoColor=white)](https://gradle.org/)
+[![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+[![MariaDB](https://img.shields.io/badge/mariadb-%23003545.svg?style=flat&logo=mariadb&logoColor=white)](https://mariadb.org/)
+
+>  [API SwaggerLink](http://3.34.181.49/swagger-ui/index.html#)
+
 ## 💡 주요 기능 및 유저 플로우 (추후 데모 영상 추가 예정)
 
 용어 설명:
@@ -39,13 +47,6 @@
 - **후원 관리**: 관리자는 **복합 커서 기반 최신순 페이지네이션**과 **상태 필터(후원 이행, 후원 상태)**를 통해 전체 후원 내역을 조회하고 상세 정보를 확인할 수 있습니다.
 
 
-## 🛠 기술 스택
-- **Language**: Java 17
-- **Framework**: Spring Boot 3.5.14
-- **ORM/DB**: Spring Data JDBC, MyBatis, MariaDB
-- **Security**: Spring Security, JWT (jjwt)
-- **Build Tool**: Gradle, Docker
-- **API Documentation**: SpringDoc OpenAPI (Swagger)💡 [API SwaggerLink](http://3.34.181.49/swagger-ui/index.html#)
 
 ## 시스템 아키텍처(System Architecture)
 
@@ -103,127 +104,3 @@ CD 구현 방식: GitHub Actions과 Docker Hub Repository 사용
 ## ERD
 
 <img width="5222" height="3856" alt="Image" src="https://github.com/user-attachments/assets/ed0ba577-fabb-4b34-8727-9e71e2e6448d" />
-
-## 🌐 API Overall Architecture 
-
-> 💡 [API SwaggerLink](http://3.34.181.49/swagger-ui/index.html#)
-
-
-#### 1. 인증 및 사용자
-```mermaid
-graph TD
-    %% 스타일 정의
-    classDef main fill:#3498db,stroke:#2980b9,stroke-width:2px,color:#fff;
-    classDef domain fill:#f1c40f,stroke:#f39c12,stroke-width:2px,color:#000;
-    classDef api fill:#ecf0f1,stroke:#bdc3c7,stroke-width:1px,color:#000;
-
-    %% 메인 루트
-    Root["🚀 Base URL: /api"]:::main
-
-    Auth["🔐 Auth (인증)"]:::domain
-    User["👤 User (사용자)"]:::domain
-    UserAddress["📦 UserAddress (사용자 배송지)"]:::domain
-
-    Root --> Auth
-    Root --> User
-    Root --> UserAddress
-
-    %% 2단계: 엔드포인트 연결
-    Auth --> A1["POST /auth/signup"]:::api
-    Auth --> A2["POST /auth/login"]:::api
-
-    User --> U1["GET /users/me/nickname"]:::api
-    User --> U2["GET /users/me/data"]:::api
-    User --> U3["PUT /users/me"]:::api
-    User --> U4["DELETE /users/me"]:::api
-
-    UserAddress --> UA1["POST /users/me/address"]:::api
-    UserAddress --> UA2["GET /users/me/addresses"]:::api
-    UserAddress --> UA3["PATCH /users/me/address/{addressId}"]:::api
-    UserAddress --> UA4["PATCH /users/me/address/{addressId}/default"]:::api
-    UserAddress --> UA5["DELETE /users/me/address/{addressId}"]:::api
-```
-
-#### 2. 프로젝트, 카테고리 및 댓글
-```mermaid
-graph TD
-    %% 스타일 정의
-    classDef main fill:#3498db,stroke:#2980b9,stroke-width:2px,color:#fff;
-    classDef domain fill:#f1c40f,stroke:#f39c12,stroke-width:2px,color:#000;
-    classDef api fill:#ecf0f1,stroke:#bdc3c7,stroke-width:1px,color:#000;
-
-    %% 메인 루트
-    Root["🚀 Base URL: /api"]:::main
-
-    CreatorProject["🏗️ Creator Project (창작자 프로젝트)"]:::domain
-    Category["📂 Category (카테고리)"]:::domain
-    Comment["💬 Comment (댓글)"]:::domain
-    MyComment["👤 My Comment (내 댓글)"]:::domain
-    UserProject["👤 User Project (사용자 프로젝트)"]:::domain
-
-    Root --> CreatorProject
-    Root --> Category
-    Root --> Comment
-    Root --> MyComment
-    Root --> UserProject
-
-    %% 2단계: 엔드포인트 연결
-    CreatorProject --> P1["POST /creator/projects"]:::api
-    CreatorProject --> P2["GET /creator/projects/me"]:::api
-    CreatorProject --> P3["PATCH /creator/projects/{id}"]:::api
-
-    Category --> C1["POST /admin/categories"]:::api
-    Category --> C2["GET /categories"]:::api
-
-    Comment --> CM1["POST /projects/{id}/comments"]:::api
-    Comment --> CM2["GET /projects/{id}/comments"]:::api
-
-    MyComment --> MC1["GET /users/me/comments"]:::api
-    MyComment --> MC2["PATCH /users/me/comments/{commentId}"]:::api
-    MyComment --> MC3["DELETE /users/me/comments/{commentId}"]:::api
-
-    UserProject --> UP1["GET /projects"]:::api
-    UserProject --> UP2["GET /projects/{projectId}"]:::api
-```
-
-#### 3. 결제, 후원 및 리워드
-```mermaid
-graph TD
-    %% 스타일 정의
-    classDef main fill:#3498db,stroke:#2980b9,stroke-width:2px,color:#fff;
-    classDef domain fill:#f1c40f,stroke:#f39c12,stroke-width:2px,color:#000;
-    classDef api fill:#ecf0f1,stroke:#bdc3c7,stroke-width:1px,color:#000;
-
-    %% 메인 루트
-    Root["🚀 Base URL: /api"]:::main
-
-    Payment["💳 Payment (결제)"]:::domain
-    Reward["🎁 Reward (리워드)"]:::domain
-    Pledge["💰 Pledge (후원)"]:::domain
-    PledgeAddress["📦 PledgeAddress (후원 배송지)"]:::domain
-    CreatorPledge["🏗️ Creator Pledge (창작자 후원)"]:::domain
-
-    Root --> Payment
-    Root --> Reward
-    Root --> Pledge
-    Root --> PledgeAddress
-    Root --> CreatorPledge
-
-    %% 2단계: 엔드포인트 연결
-    Payment --> PY1["POST /payments"]:::api
-    Payment --> PY2["GET /payments/{id}/history"]:::api
-
-    Reward --> RW1["POST /creator/projects/{id}/rewards"]:::api
-    Reward --> RW2["GET /user/projects/{id}/rewards"]:::api
-
-    Pledge --> PL1["POST /pledges/me"]:::api
-    Pledge --> PL2["GET /pledges/me/{pledgeId}"]:::api
-    Pledge --> PL3["DELETE /pledges/me/{pledgeId}"]:::api
-    Pledge --> PL4["GET /pledges/me"]:::api
-    Pledge --> PL5["GET /admin/pledges"]:::api
-    Pledge --> PL6["GET /admin/pledges/{pledgeId}"]:::api
-
-    PledgeAddress --> PLA1["PUT /pledges/{pledgeId}/address"]:::api
-
-    CreatorPledge --> CP1["PATCH /creator/pledges/{pledgeId}/fulfill"]:::api
-```
