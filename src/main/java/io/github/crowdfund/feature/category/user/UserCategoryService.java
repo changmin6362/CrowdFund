@@ -56,4 +56,36 @@ public class UserCategoryService {
 
         return new UserFetchCategoryResponse(rootNodes);
     }
+
+    /**
+     * 특정 카테고리를 포함한 모든 하위 카테고리 ID 목록을 조회합니다.
+     *
+     * @param categoryId 기준 카테고리 ID
+     * @return 기준 카테고리 ID를 포함한 모든 하위 카테고리 ID 목록
+     */
+    public List<Integer> getAllChildCategoryIds(Integer categoryId) {
+        List<Category> allCategories = repository.findByIsActiveTrue();
+        
+        // 부모 ID별 자식 목록 매핑
+        Map<Integer, List<Integer>> parentToChildren = allCategories.stream()
+                .filter(c -> c.parentId() != null)
+                .collect(Collectors.groupingBy(
+                        Category::parentId,
+                        Collectors.mapping(Category::id, Collectors.toList())
+                ));
+
+        List<Integer> resultIds = new ArrayList<>();
+        collectIdsRecursive(categoryId, parentToChildren, resultIds);
+        return resultIds;
+    }
+
+    private void collectIdsRecursive(Integer currentId, Map<Integer, List<Integer>> parentToChildren, List<Integer> resultIds) {
+        resultIds.add(currentId);
+        List<Integer> children = parentToChildren.get(currentId);
+        if (children != null) {
+            for (Integer childId : children) {
+                collectIdsRecursive(childId, parentToChildren, resultIds);
+            }
+        }
+    }
 }

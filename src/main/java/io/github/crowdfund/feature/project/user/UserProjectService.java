@@ -2,6 +2,7 @@ package io.github.crowdfund.feature.project.user;
 
 import io.github.crowdfund.domain.project.ProjectStatus;
 import io.github.crowdfund.domain.project.mapper.ProjectMapper;
+import io.github.crowdfund.feature.category.user.UserCategoryService;
 import io.github.crowdfund.feature.project.user.dto.detail.ProjectDetail;
 import io.github.crowdfund.feature.project.user.dto.detail.UserProjectDetailResponse;
 import io.github.crowdfund.feature.project.user.dto.fetch.ProjectElement;
@@ -21,6 +22,7 @@ import java.util.List;
 public class UserProjectService {
 
     private final ProjectMapper projectMapper;
+    private final UserCategoryService userCategoryService;
 
     /**
      * 프로젝트 목록 조회 도메인 로직
@@ -30,10 +32,16 @@ public class UserProjectService {
         // 1. 객체 내부 로직을 활용해 입력값 검증
         cursorRequest.validate();
 
+        // 카테고리 ID가 제공된 경우 하위 카테고리 ID 목록을 포함하여 조회
+        List<Integer> categoryIds = null;
+        if (categoryId != null) {
+            categoryIds = userCategoryService.getAllChildCategoryIds(categoryId);
+        }
+
         // 2. 데이터 목록 조회 (다음 페이지 존재 여부 확인을 위해 limit보다 1개를 더 조회)
         List<ProjectElement> projectList = projectMapper.findAll(
                 statuses,
-                categoryId,
+                categoryIds,
                 cursorRequest.createdAt(),
                 cursorRequest.id(),
                 limit + 1

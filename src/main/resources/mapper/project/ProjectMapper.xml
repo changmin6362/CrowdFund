@@ -50,8 +50,11 @@ VALUES (
                     #{status}
                 </foreach>
             </if>
-            <if test="categoryId != null">
-                AND category_id = #{categoryId}
+            <if test="categoryIds != null and !categoryIds.isEmpty()">
+                AND category_id IN
+                <foreach collection="categoryIds" item="categoryId" open="(" separator="," close=")">
+                    #{categoryId}
+                </foreach>
             </if>
             <if test="cursorCreatedAt != null and cursorId != null">
                 AND (created_at &lt; #{cursorCreatedAt} OR (created_at = #{cursorCreatedAt} AND id &lt; #{cursorId}))
