@@ -21,7 +21,7 @@ public interface ProjectMapper {
 
     Long getLastInsertId();
 
-    List<ProjectElement> findAll(@Param("statuses") List<ProjectStatus> statuses, @Param("categoryId") Integer categoryId, @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt, @Param("cursorId") Long cursorId, @Param("limit") Integer limit);
+    List<ProjectElement> findAll(@Param("statuses") List<ProjectStatus> statuses, @Param("categoryIds") List<Integer> categoryIds, @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt, @Param("cursorId") Long cursorId, @Param("limit") Integer limit);
 
     void update(@Param("projectId") Long projectId, @Param("title") String title, @Param("contentBlocks") String contentBlocks);
 
