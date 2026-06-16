@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>새 프로젝트 생성</title>
+</head>
+<body>
+    <h1>새 프로젝트 생성</h1>
+
+    <form th:action="@{/creator/projects}" th:object="${projectRequest}" method="post">
+        <div>
+            <label>제목:</label>
+            <input type="text" th:field="*{title}" required/>
+        </div>
+        <div>
+            <label>본문 내용(JSON):</label>
+            <textarea th:field="*{contentBlocks}" required></textarea>
+        </div>
+        <div>
+            <label>목표 금액:</label>
+            <input type="number" th:field="*{goalAmount}" required/>
+        </div>
+        <div>
+            <label>카테고리 ID:</label>
+            <input type="number" th:field="*{categoryId}" required/>
+        </div>
+        <div>
+            <label>종료일:</label>
+            <input type="datetime-local" th:field="*{endAt}" required/>
+        </div>
+        <button type="submit">생성하기</button>
+    </form>
+
+    <p><a th:href="@{/creator/projects/me}">목록으로</a></p>
+</body>
+</html>

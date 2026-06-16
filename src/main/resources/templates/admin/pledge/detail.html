@@ -10,9 +10,9 @@
     <div>
         <h3>기본 정보</h3>
         <p>후원 ID: <span th:text="${pledge.pledgeId}"></span></p>
-        <p>상태: <span th:text="${pledge.pledgeStatus}"></span></p>
+        <p>상태: <span th:text="${pledge.status}"></span></p>
         <p>이행 상태: <span th:text="${pledge.fulfillmentStatus}"></span></p>
-        <p>총 금액: <span th:text="${pledge.totalAmount}"></span></p>
+        <p>생성 일시: <span th:text="${pledge.createdAt}"></span></p>
     </div>
 
     <hr/>

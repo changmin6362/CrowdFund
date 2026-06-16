@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>배송지 목록 조회</title>
+</head>
+<body>
+    <h1>후원자 배송지 목록</h1>
+
+    <div th:if="${#lists.isEmpty(shippingData.shippingInfos)}">
+        <p>후원자가 없습니다.</p>
+    </div>
+
+    <table border="1" th:if="${!#lists.isEmpty(shippingData.shippingInfos)}">
+        <thead>
+            <tr>
+                <th>후원 ID</th>
+                <th>후원자 이름</th>
+                <th>이메일</th>
+                <th>전화번호</th>
+                <th>리워드</th>
+                <th>배송지</th>
+                <th>이행 상태</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="info : ${shippingData.shippingInfos}">
+                <td th:text="${info.pledgeId}"></td>
+                <td th:text="${info.userName}"></td>
+                <td th:text="${info.email}"></td>
+                <td th:text="${info.phoneNumber}"></td>
+                <td th:text="${info.rewardTitle}"></td>
+                <td th:text="${info.shippingAddress}"></td>
+                <td th:text="${info.fulfillmentStatus}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p><a th:href="@{/creator/projects/me}">목록으로</a></p>
+</body>
+</html>

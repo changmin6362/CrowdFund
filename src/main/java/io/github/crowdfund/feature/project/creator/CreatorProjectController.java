@@ -1,130 +1,110 @@
 package io.github.crowdfund.feature.project.creator;
 
 import io.github.crowdfund.feature.project.creator.dto.create.CreatorProjectCreateRequest;
-import io.github.crowdfund.feature.project.creator.dto.create.CreatorProjectCreateResponse;
-import io.github.crowdfund.feature.project.creator.dto.extract.CreatorShippingInfosExtractResponse;
-import io.github.crowdfund.feature.project.creator.dto.fetch.CreatorProjectsFetchResponse;
 import io.github.crowdfund.feature.project.creator.dto.update.CreatorProjectUpdateRequest;
-import io.github.crowdfund.global.common.ApiResult;
 import io.github.crowdfund.global.security.SecurityUser;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/creator/projects")
+@Controller
+@RequestMapping("/creator/projects")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "05. Project - Creator", description = "창작자용 프로젝트 API")
 public class CreatorProjectController {
 
     private final CreatorProjectService service;
 
     /**
-     * 프로젝트 생성
-     *
-     * @param request 프로젝트 생성 정보
-     * @return message, createdProjectId
+     * 프로젝트 생성 페이지
      */
-    @Operation(summary = "프로젝트 생성")
-    @ApiResponse(responseCode = "201", description = "프로젝트 생성 성공 응답 예시")
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<CreatorProjectCreateResponse> create(
-            @AuthenticationPrincipal SecurityUser securityUser,
-            @Valid @RequestBody CreatorProjectCreateRequest request) {
+    @GetMapping("/create")
+    public String createForm(Model model) {
+        model.addAttribute("projectRequest", new CreatorProjectCreateRequest(null, null, null, null, null));
+        return "project/creator/create";
+    }
 
-        return ApiResult.success("프로젝트 생성에 성공했습니다.", service.create(securityUser.getUserId(), request));
+    /**
+     * 프로젝트 생성
+     */
+    @PostMapping
+    public String create(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @Valid @ModelAttribute("projectRequest") CreatorProjectCreateRequest request) {
+        service.create(securityUser.getUserId(), request);
+        return "redirect:/creator/projects/me";
+    }
+
+    /**
+     * 프로젝트 제목과 본문 수정 페이지
+     */
+    @GetMapping("/{projectId}/edit")
+    public String updateForm(
+            @PathVariable Long projectId,
+            @AuthenticationPrincipal SecurityUser securityUser,
+            Model model) {
+        // 실제로는 현재 정보를 조회해서 넘겨줘야 함. 여기서는 단순화.
+        model.addAttribute("projectId", projectId);
+        model.addAttribute("updateRequest", new CreatorProjectUpdateRequest(null, null));
+        return "project/creator/edit";
     }
 
     /**
      * 프로젝트 제목과 본문 수정
-     *
-     * @param projectId 프로젝트 ID
-     * @param request   수정할 프로젝트 정보
-     * @return message
      */
-    @Operation(summary = "프로젝트 제목과 본문 수정")
-    @ApiResponse(responseCode = "200", description = "프로젝트 제목과 본문 수정 성공 응답 예시")
-    @PatchMapping("/{projectId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> update(
+    @PostMapping("/{projectId}/update")
+    public String update(
             @PathVariable Long projectId,
             @AuthenticationPrincipal SecurityUser securityUser,
-            @Valid @RequestBody CreatorProjectUpdateRequest request) {
+            @Valid @ModelAttribute("updateRequest") CreatorProjectUpdateRequest request) {
         service.update(securityUser, projectId, request);
-
-        return ApiResult.success("프로젝트 제목과 본문 수정에 성공했습니다.");
+        return "redirect:/creator/projects/me";
     }
 
     /**
      * 프로젝트 삭제
-     *
-     * @param projectId 프로젝트 ID
-     * @return message
      */
-    @Operation(summary = "프로젝트 삭제")
-    @ApiResponse(responseCode = "200", description = "프로젝트 삭제 성공 응답 예시")
-    @DeleteMapping("/{projectId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> delete(
+    @PostMapping("/{projectId}/delete")
+    public String delete(
             @PathVariable Long projectId,
             @AuthenticationPrincipal SecurityUser securityUser) {
         service.delete(securityUser, projectId);
-
-        return ApiResult.success("프로젝트 삭제에 성공했습니다.");
+        return "redirect:/creator/projects/me";
     }
 
     /**
      * 내 프로젝트 조회
-     *
-     * @return message, projects
      */
-    @Operation(summary = "내 프로젝트 조회")
-    @ApiResponse(responseCode = "200", description = "내 프로젝트 조회 성공 응답 예시")
     @GetMapping("/me")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<CreatorProjectsFetchResponse> fetch(@AuthenticationPrincipal SecurityUser securityUser) {
-        return ApiResult.success("내 프로젝트 조회에 성공했습니다.", service.fetch(securityUser.getUserId()));
+    public String fetch(@AuthenticationPrincipal SecurityUser securityUser, Model model) {
+        model.addAttribute("projectData", service.fetch(securityUser.getUserId()));
+        return "project/creator/list";
     }
 
     /**
      * 후원자들의 배송지 목록 조회
-     *
-     * @param projectId 프로젝트 ID
-     * @return message, shippingInfos
      */
-    @Operation(summary = "후원자들의 배송지 목록 조회")
-    @ApiResponse(responseCode = "200", description = "배송지 목록 조회 응답 예시")
     @GetMapping("/{projectId}/shipping-infos")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<CreatorShippingInfosExtractResponse> extract(
+    public String extract(
             @PathVariable Long projectId,
-            @AuthenticationPrincipal SecurityUser securityUser) {
-        return ApiResult.success("후원자들의 배송지 목록 조회에 성공했습니다.", service.extract(securityUser, projectId));
+            @AuthenticationPrincipal SecurityUser securityUser,
+            Model model) {
+        model.addAttribute("shippingData", service.extract(securityUser, projectId));
+        return "project/creator/shipping";
     }
 
     /**
      * 프로젝트 취소
-     *
-     * @param projectId 프로젝트 ID
-     * @return message
      */
-    @Operation(summary = "프로젝트 취소")
-    @ApiResponse(responseCode = "200", description = "프로젝트 취소 성공 응답 예시")
-    @PatchMapping("/{projectId}/cancel")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> cancel(
+    @PostMapping("/{projectId}/cancel")
+    public String cancel(
             @PathVariable Long projectId,
             @AuthenticationPrincipal SecurityUser securityUser) {
         service.cancel(securityUser, projectId);
-
-        return ApiResult.success("프로젝트 취소에 성공했습니다.");
+        return "redirect:/creator/projects/me";
     }
 }

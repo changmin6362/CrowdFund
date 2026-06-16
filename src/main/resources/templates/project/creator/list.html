@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 프로젝트 관리</title>
+</head>
+<body>
+    <h1>내 프로젝트 관리</h1>
+    <p><a th:href="@{/creator/projects/create}">새 프로젝트 생성</a></p>
+
+    <div th:if="${#lists.isEmpty(projectData.projects)}">
+        <p>등록한 프로젝트가 없습니다.</p>
+    </div>
+
+    <table border="1" th:if="${!#lists.isEmpty(projectData.projects)}">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>제목</th>
+                <th>상태</th>
+                <th>목표 금액</th>
+                <th>현재 금액</th>
+                <th>관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="p : ${projectData.projects}">
+                <td th:text="${p.projectId}"></td>
+                <td><a th:href="@{/projects/{id}(id=${p.projectId})}" th:text="${p.title}"></a></td>
+                <td th:text="${p.status}"></td>
+                <td th:text="${p.goalAmount}"></td>
+                <td th:text="${p.currentAmount}"></td>
+                <td>
+                    <a th:href="@{/creator/projects/{id}/edit(id=${p.projectId})}">수정</a>
+                    <a th:href="@{/creator/projects/{id}/shipping-infos(id=${p.projectId})}">배송지 조회</a>
+                    <form th:action="@{/creator/projects/{id}/cancel(id=${p.projectId})}" method="post" style="display:inline;" onsubmit="return confirm('정말 취소하시겠습니까?');">
+                        <button type="submit">취소</button>
+                    </form>
+                    <form th:action="@{/creator/projects/{id}/delete(id=${p.projectId})}" method="post" style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                        <button type="submit">삭제</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p><a th:href="@{/}">홈으로</a></p>
+</body>
+</html>

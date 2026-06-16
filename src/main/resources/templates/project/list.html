@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>프로젝트 목록</title>
+    <style>
+        .project-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+        .project-title { font-size: 1.2em; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>프로젝트 목록</h1>
+
+    <form th:action="@{/projects}" method="get">
+        <label>카테고리 ID:</label>
+        <input type="number" name="categoryId" th:value="${categoryId}" placeholder="카테고리 ID 입력"/>
+        
+        <label>상태:</label>
+        <div th:each="status : ${T(io.github.crowdfund.domain.project.ProjectStatus).values()}">
+            <input type="checkbox" name="statuses" th:value="${status}" 
+                   th:checked="${statuses != null && statuses.contains(status)}"/>
+            <label th:text="${status}"></label>
+        </div>
+        
+        <button type="submit">검색</button>
+    </form>
+
+    <hr/>
+
+    <div th:if="${#lists.isEmpty(projectData.projects)}">
+        <p>조회된 프로젝트가 없습니다.</p>
+    </div>
+
+    <div th:each="p : ${projectData.projects}" class="project-card">
+        <div class="project-title" th:text="${p.title}">제목</div>
+        <p>창작자: <span th:text="${p.creatorNickname}">닉네임</span></p>
+        <p>목표 금액: <span th:text="${p.goalAmount}">0</span>원</p>
+        <p>현재 금액: <span th:text="${p.currentAmount}">0</span>원 (<span th:text="${p.achievementRate}">0</span>%)</p>
+        <p>상태: <span th:text="${p.status}">상태</span></p>
+        <p>남은 기간: <span th:text="${p.remainingDays}">0</span>일</p>
+        <a th:href="@{/projects/{id}(id=${p.projectId})}">상세보기</a>
+    </div>
+
+    <p><a th:href="@{/}">홈으로</a></p>
+</body>
+</html>

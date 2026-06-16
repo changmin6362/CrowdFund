@@ -40,12 +40,12 @@
     <div th:each="p : ${pledgeData.pledges}" class="pledge-card">
         <h3 th:text="${p.projectTitle}">프로젝트 제목</h3>
         <p>후원 일시: <span th:text="${p.pledgedAt}"></span></p>
-        <p>결제 금액: <span th:text="${p.totalAmount}"></span>원</p>
-        <p>상태: <span th:text="${p.pledgeStatus}" th:class="${p.pledgeStatus.name() == 'CANCELLED' ? 'status-cancel' : 'status-success'}"></span></p>
+        <p>결제 금액: <span th:text="${p.amount}"></span>원</p>
+        <p>상태: <span th:text="${p.status}"></span></p>
         <p>이행: <span th:text="${p.fulfillmentStatus}"></span></p>
         <a th:href="@{/pledges/me/{id}(id=${p.pledgeId})}">상세보기</a>
         
-        <form th:if="${p.pledgeStatus.name() == 'PLEDGED'}" 
+        <form th:if="${p.status.name() == 'PENDING'}" 
               th:action="@{/pledges/me/{id}/cancel(id=${p.pledgeId})}" method="post" 
               style="display: inline;" onsubmit="return confirm('정말 취소하시겠습니까?');">
             <button type="submit" style="color: red;">후원 취소</button>

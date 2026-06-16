@@ -65,7 +65,7 @@ public class SecurityConfig {
                         // 인증 및 회원가입 관련 경로 허용
                         .requestMatchers("/auth/**").permitAll()
                         // 공개 조회 API 허용 (프로젝트, 카테고리, 리워드, 댓글 등)
-                        .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/projects/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/user/projects/*/rewards").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/projects/*/comments").permitAll()
@@ -75,6 +75,8 @@ public class SecurityConfig {
                         .requestMatchers("/pledges/me/**").authenticated()
                         // 창작자 후원 관련 경로 설정
                         .requestMatchers("/creator/pledges/**").authenticated()
+                        // 창작자 프로젝트 관련 경로 설정
+                        .requestMatchers("/creator/projects/**").authenticated()
                         // 그 외 모든 /api/** 경로는 인증이 필요하도록 설정
                         .requestMatchers("/api/**").authenticated()
                         // 그 외 모든 요청은 허용 (정적 리소스 등)

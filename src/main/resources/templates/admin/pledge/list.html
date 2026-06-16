@@ -6,7 +6,7 @@
     <style>
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2 f2 f2; }
+        th { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
@@ -50,8 +50,8 @@
                 <td th:text="${p.pledgeId}"></td>
                 <td th:text="${p.projectTitle}"></td>
                 <td th:text="${p.userName}"></td>
-                <td th:text="${p.totalAmount}"></td>
-                <td th:text="${p.pledgeStatus}"></td>
+                <td th:text="${p.amount}"></td>
+                <td th:text="${p.status}"></td>
                 <td th:text="${p.fulfillmentStatus}"></td>
                 <td><a th:href="@{/admin/pledges/{id}(id=${p.pledgeId})}">조회</a></td>
             </tr>
