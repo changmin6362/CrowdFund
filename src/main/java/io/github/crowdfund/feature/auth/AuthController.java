@@ -3,51 +3,77 @@ package io.github.crowdfund.feature.auth;
 import io.github.crowdfund.feature.auth.dto.login.LoginRequest;
 import io.github.crowdfund.feature.auth.dto.login.LoginResponse;
 import io.github.crowdfund.feature.auth.dto.signup.SignUpRequest;
-import io.github.crowdfund.global.common.ApiResult;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@RestController
-@RequestMapping("/api/auth")
+@Controller
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "01. Auth", description = "인증 관련 API")
 public class AuthController {
 
     private final AuthService service;
 
     /**
-     * 회원가입
-     *
-     * @param request 회원가입 요청 정보
-     * @return message
+     * 회원가입 페이지 이동
      */
-    @Operation(summary = "회원가입")
-    @ApiResponse(responseCode = "201", description = "회원가입 성공 응답 예시")
-    @PostMapping("/signup")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<Void> signUp(@Valid @RequestBody SignUpRequest request) {
-        service.signup(request);
-        return ApiResult.success("회원가입에 성공했습니다.");
+    @GetMapping("/signup")
+    public String signUpPage(@ModelAttribute("signUpRequest") SignUpRequest request) {
+        return "auth/signup";
     }
 
     /**
-     * 로그인
+     * 회원가입 처리
+     *
+     * @param request 회원가입 요청 정보
+     * @return redirect to login page
+     */
+    @PostMapping("/signup")
+    public String signUp(@Valid @ModelAttribute("signUpRequest") SignUpRequest request,
+                         BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "auth/signup";
+        }
+        service.signup(request);
+        return "redirect:/auth/login";
+    }
+
+    /**
+     * 로그인 페이지 이동
+     */
+    @GetMapping("/login")
+    public String loginPage(@ModelAttribute("loginRequest") LoginRequest request) {
+        return "auth/login";
+    }
+
+    /**
+     * 로그인 처리
      *
      * @param request 로그인 요청 정보
-     * @return message, access token, user info
+     * @return redirect to home or back to login with error
      */
-    @Operation(summary = "로그인")
-    @ApiResponse(responseCode = "200", description = "로그인 성공 응답 예시")
     @PostMapping("/login")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ApiResult.success("로그인에 성공했습니다.", service.login(request));
+    public String login(@Valid @ModelAttribute("loginRequest") LoginRequest request,
+                        BindingResult bindingResult,
+                        Model model) {
+        if (bindingResult.hasErrors()) {
+            return "auth/login";
+        }
+        try {
+            LoginResponse response = service.login(request);
+            // TODO: JWT 토큰을 쿠키에 저장하는 로직이 필요
+            return "redirect:/";
+        } catch (Exception e) {
+            model.addAttribute("error", "로그인에 실패했습니다: " + e.getMessage());
+            return "auth/login";
+        }
     }
 }

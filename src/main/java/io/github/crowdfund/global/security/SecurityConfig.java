@@ -58,7 +58,7 @@ public class SecurityConfig {
                         // Swagger UI 및 API 문서 관련 경로는 모두 허용
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // 인증 및 회원가입 관련 경로 허용
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         // 공개 조회 API 허용 (프로젝트, 카테고리, 리워드, 댓글 등)
                         .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
