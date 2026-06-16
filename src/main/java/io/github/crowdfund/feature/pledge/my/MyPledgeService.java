@@ -1,27 +1,19 @@
 package io.github.crowdfund.feature.pledge.my;
 
-import io.github.crowdfund.domain.payment.Payment;
-import io.github.crowdfund.domain.payment.PaymentMethod;
-import io.github.crowdfund.domain.payment.PaymentRepository;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
 import io.github.crowdfund.domain.pledge.PledgeStatus;
 import io.github.crowdfund.domain.pledge.mapper.PledgeMapper;
-import io.github.crowdfund.domain.pledgeaddress.PledgeAddress;
-import io.github.crowdfund.domain.pledgeaddress.PledgeAddressRepository;
 import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.reward.Reward;
 import io.github.crowdfund.domain.reward.RewardRepository;
-import io.github.crowdfund.domain.useraddress.UserAddress;
-import io.github.crowdfund.domain.useraddress.UserAddressRepository;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateRequest;
 import io.github.crowdfund.feature.pledge.my.dto.create.MyPledgeCreateResponse;
 import io.github.crowdfund.feature.pledge.my.dto.delete.MyPledgesDeleteResponse;
 import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetail;
 import io.github.crowdfund.feature.pledge.my.dto.detail.MyPledgeDetailResponse;
-import io.github.crowdfund.feature.pledge.my.dto.detail.ShippingAddress;
 import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgeInfo;
 import io.github.crowdfund.feature.pledge.my.dto.fetch.MyPledgesFetchResponse;
 import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
@@ -35,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +36,6 @@ public class MyPledgeService {
     private final PledgeRepository pledgeRepository;
     private final RewardRepository rewardRepository;
     private final ProjectRepository projectRepository;
-    private final PaymentRepository paymentRepository;
-    private final PledgeAddressRepository pledgeAddressRepository;
-    private final UserAddressRepository userAddressRepository;
     private final PledgeMapper pledgeMapper;
 
     /**
@@ -55,8 +43,6 @@ public class MyPledgeService {
      */
     @Transactional
     public MyPledgeCreateResponse create(Long userId, @Valid MyPledgeCreateRequest request) {
-        UserAddress defaultAddress = userAddressRepository.findByUserIdAndIsDefaultTrue(userId)
-                .orElseThrow(() -> new IllegalArgumentException("배송지를 등록해주세요."));
 
         Project project = projectRepository.findById(request.projectId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
@@ -100,20 +86,6 @@ public class MyPledgeService {
 
         Pledge savedPledge = pledgeRepository.save(pledge);
 
-        PledgeAddress pledgeAddress = new PledgeAddress(
-                null,
-                savedPledge.id(),
-                userId,
-                defaultAddress.recipientName(),
-                defaultAddress.phone(),
-                defaultAddress.postalCode(),
-                defaultAddress.addressMain(),
-                defaultAddress.addressDetail(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-        pledgeAddressRepository.save(pledgeAddress);
-
         return new MyPledgeCreateResponse(savedPledge.id());
     }
 
@@ -135,20 +107,6 @@ public class MyPledgeService {
         Reward reward = rewardRepository.findById(pledge.rewardId())
                 .orElseThrow(() -> new IllegalStateException("해당 리워드를 찾을 수 없습니다. ID: " + pledge.rewardId()));
 
-        Optional<Payment> paymentOpt = paymentRepository.findByPledgeId(pledge.id());
-        String paymentMethod = paymentOpt.map(p -> p.paymentMethod().name()).orElse(PaymentMethod.UNKNOWN.name());
-
-        Optional<PledgeAddress> addressOpt = pledgeAddressRepository.findByPledgeId(pledge.id());
-        ShippingAddress shippingAddress = addressOpt.map(addr -> new ShippingAddress(
-                addr.id(),
-                addr.recipientName(),
-                addr.phone(),
-                addr.addressMain(),
-                addr.addressDetail(),
-                addr.postalCode(),
-                addr.createdAt().toString(),
-                addr.updatedAt().toString()
-        )).orElse(null);
 
         MyPledgeDetail myPledgeDetail = new MyPledgeDetail(
                 pledge.id(),
@@ -157,9 +115,7 @@ public class MyPledgeService {
                 pledge.fulfillmentStatus(),
                 project.title(),
                 pledge.amount(),
-                paymentMethod,
-                reward.title(),
-                shippingAddress
+                reward.title()
         );
 
         return new MyPledgeDetailResponse(myPledgeDetail);
@@ -175,10 +131,6 @@ public class MyPledgeService {
 
         if (!securityUser.isOwner(pledge.userId())) {
             throw new IllegalArgumentException("본인의 후원 내역만 취소할 수 있습니다.");
-        }
-
-        if (paymentRepository.findByPledgeId(pledgeId).isPresent()) {
-            throw new IllegalStateException("결제가 완료된 후원은 환불 절차를 이용해주세요.");
         }
 
         if (pledge.fulfillmentStatus() != FulfillmentStatus.READY) {

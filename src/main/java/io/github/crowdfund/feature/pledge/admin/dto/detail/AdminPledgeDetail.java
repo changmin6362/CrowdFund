@@ -20,9 +20,6 @@ public record AdminPledgeDetail(
         @Schema(description = "사용자 상세 정보")
         AdminUserDetail user,
 
-        @Schema(description = "결제 상세 정보")
-        AdminPaymentDetail payment,
-
         @Schema(description = "프로젝트 상세 정보")
         AdminProjectDetail project
 ) {

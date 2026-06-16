@@ -1,8 +1,5 @@
 package io.github.crowdfund.feature.pledge.admin;
 
-import io.github.crowdfund.domain.payment.Payment;
-import io.github.crowdfund.domain.payment.PaymentMethod;
-import io.github.crowdfund.domain.payment.PaymentRepository;
 import io.github.crowdfund.domain.pledge.FulfillmentStatus;
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
@@ -11,9 +8,12 @@ import io.github.crowdfund.domain.project.Project;
 import io.github.crowdfund.domain.project.ProjectRepository;
 import io.github.crowdfund.domain.user.User;
 import io.github.crowdfund.domain.user.UserRepository;
-import io.github.crowdfund.feature.pledge.admin.dto.detail.*;
-import io.github.crowdfund.feature.pledge.admin.dto.fetch.PledgeSummary;
+import io.github.crowdfund.feature.pledge.admin.dto.detail.AdminPledgeDetail;
+import io.github.crowdfund.feature.pledge.admin.dto.detail.AdminPledgeDetailResponse;
+import io.github.crowdfund.feature.pledge.admin.dto.detail.AdminProjectDetail;
+import io.github.crowdfund.feature.pledge.admin.dto.detail.AdminUserDetail;
 import io.github.crowdfund.feature.pledge.admin.dto.fetch.AdminPledgesFetchResponse;
+import io.github.crowdfund.feature.pledge.admin.dto.fetch.PledgeSummary;
 import io.github.crowdfund.global.common.dto.pagination.CursorRequest;
 import io.github.crowdfund.global.common.dto.pagination.CursorResponse;
 import io.github.crowdfund.global.common.pagination.CursorPaginationProcessor;
@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +34,6 @@ public class AdminPledgeService {
     private final PledgeRepository pledgeRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
-    private final PaymentRepository paymentRepository;
 
     /**
      * 관리자용 전체 후원 목록 조회 도메인 로직
@@ -103,7 +101,6 @@ public class AdminPledgeService {
         Project project = projectRepository.findById(pledge.projectId())
                 .orElseThrow(() -> new IllegalStateException("해당 프로젝트를 찾을 수 없습니다. ID: " + pledge.projectId()));
 
-        Optional<Payment> paymentOpt = paymentRepository.findByPledgeId(pledgeId);
 
         AdminUserDetail userDetail = new AdminUserDetail(
                 user.id(),
@@ -112,10 +109,6 @@ public class AdminPledgeService {
                 user.email(),
                 user.phone()
         );
-
-        AdminPaymentDetail paymentDetail = paymentOpt
-                .map(p -> new AdminPaymentDetail(p.amount(), p.paymentMethod().name()))
-                .orElse(new AdminPaymentDetail(pledge.amount(), PaymentMethod.UNKNOWN.name()));
 
         AdminProjectDetail projectDetail = new AdminProjectDetail(
                 project.id(),
@@ -128,7 +121,6 @@ public class AdminPledgeService {
                 pledge.status(),
                 pledge.fulfillmentStatus(),
                 userDetail,
-                paymentDetail,
                 projectDetail
         );
 

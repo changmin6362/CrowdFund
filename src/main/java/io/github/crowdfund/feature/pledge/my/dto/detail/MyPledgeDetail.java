@@ -25,13 +25,7 @@ public record MyPledgeDetail(
         @Schema(description = "후원 금액", example = "10000.00")
         BigDecimal amount,
 
-        @Schema(description = "결제 수단")
-        String paymentMethod,
-
         @Schema(description = "리워드 이름", example = "1등급 후원자 상품")
-        String rewardName,
-
-        @Schema(description = "후원의 배송 주소 정보")
-        ShippingAddress shippingAddress
+        String rewardName
 ) {
 }
