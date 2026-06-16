@@ -1,32 +1,66 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>CrowdFund Home</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        ul { list-style-type: none; padding: 0; }
-        li { margin: 10px 0; }
-        a { text-decoration: none; color: blue; }
-        a:hover { text-decoration: underline; }
-        .admin-link { color: red; }
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: blue;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .admin-link {
+            color: red;
+        }
     </style>
 </head>
 <body>
-    <h1>CrowdFund 서비스에 오신 것을 환영합니다</h1>
-    
-    <h2>메뉴</h2>
-    <ul>
-        <li><a th:href="@{/auth/login}">로그인</a></li>
-        <li><a th:href="@{/auth/signup}">회원가입</a></li>
-        <li><a th:href="@{/categories}">카테고리 목록 보기</a></li>
-    </ul>
+<h1>CrowdFund 서비스에 오신 것을 환영합니다</h1>
 
-    <hr/>
+<div sec:authorize="isAuthenticated()">
+    <p><span sec:authentication="name">사용자</span>님 환영합니다!
+        <!-- Spring Security는 정상 로그인 성공 시 UserDetail인터페이스의 구현체의 클래스명을 SecurityUser로 설정한다.
+            그러므로 정상 로그인한 사용자인지 확인하기 위해 authentication.principal.getClass().getSimpleName()이 SecurityUser인지 비교하는 것이다. -->
+        <span sec:authorize="${#authentication.principal.getClass().getSimpleName() == 'SecurityUser'}">
+               (닉네임: <span sec:authentication="principal.nickname">닉네임</span>)
+           </span>
+        <span sec:authorize="hasRole('ADMIN')" style="color: red; font-weight: bold;">[관리자 계정]</span>
+    </p>
+    <form th:action="@{/auth/logout}" method="post">
+        <button type="submit">로그아웃</button>
+    </form>
+</div>
 
-    <h2>관리자 메뉴</h2>
-    <ul>
-        <li><a th:href="@{/admin/categories}" class="admin-link">카테고리 관리 (관리자 전용)</a></li>
-    </ul>
+<h2>메뉴</h2>
+<ul>
+    <li sec:authorize="isAnonymous()"><a th:href="@{/auth/login}">로그인</a></li>
+    <li sec:authorize="isAnonymous()"><a th:href="@{/auth/signup}">회원가입</a></li>
+    <li><a th:href="@{/categories}">카테고리 목록 보기</a></li>
+</ul>
+
+<hr/>
+
+<h2>관리자 메뉴</h2>
+<ul>
+    <li><a th:href="@{/admin/categories}" class="admin-link">카테고리 관리 (관리자 전용)</a></li>
+</ul>
 </body>
 </html>

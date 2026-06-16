@@ -3,8 +3,11 @@ package io.github.crowdfund.feature.auth;
 import io.github.crowdfund.feature.auth.dto.login.LoginRequest;
 import io.github.crowdfund.feature.auth.dto.login.LoginResponse;
 import io.github.crowdfund.feature.auth.dto.signup.SignUpRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,6 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 @Validated
 public class AuthController {
+    
+    @Value("${cookie.secure}")
+    private boolean cookieSecure;
 
     private final AuthService service;
 
@@ -63,17 +69,38 @@ public class AuthController {
     @PostMapping("/login")
     public String login(@Valid @ModelAttribute("loginRequest") LoginRequest request,
                         BindingResult bindingResult,
+                        HttpServletResponse response,
                         Model model) {
         if (bindingResult.hasErrors()) {
             return "auth/login";
         }
         try {
-            LoginResponse response = service.login(request);
-            // TODO: JWT 토큰을 쿠키에 저장하는 로직이 필요
+            LoginResponse loginResponse = service.login(request);
+            
+            // JWT 토큰을 쿠키에 저장
+            Cookie cookie = new Cookie("jwt", loginResponse.accessToken());
+            cookie.setHttpOnly(true);
+            cookie.setSecure(cookieSecure);
+            cookie.setPath("/");
+            cookie.setMaxAge(1800); // 30분
+            response.addCookie(cookie);
+
             return "redirect:/";
         } catch (Exception e) {
             model.addAttribute("error", "로그인에 실패했습니다: " + e.getMessage());
             return "auth/login";
         }
+    }
+    /**
+     * 로그아웃 처리
+     */
+    @PostMapping("/logout")
+    public String logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("jwt", null);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return "redirect:/";
     }
 }

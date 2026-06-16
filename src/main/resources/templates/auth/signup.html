@@ -16,14 +16,24 @@
             <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error"></p>
         </div>
         <div>
+            <label>닉네임:</label>
+            <input type="text" th:field="*{nickname}" />
+            <p th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="error"></p>
+        </div>
+        <div>
             <label>이메일:</label>
-            <input type="text" th:field="*{email}" />
+            <input type="email" th:field="*{email}" />
             <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error"></p>
         </div>
         <div>
             <label>비밀번호:</label>
             <input type="password" th:field="*{password}" />
             <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error"></p>
+        </div>
+        <div>
+            <label>전화번호:</label>
+            <input type="text" th:field="*{phone}" placeholder="010-0000-0000" />
+            <p th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="error"></p>
         </div>
         <button type="submit">회원가입</button>
     </form>

@@ -58,10 +58,12 @@ public class JwtTokenProvider {
      * @return 암호화된 JWT 토큰 문자열
      */
     private String createToken(Authentication authentication, long validityInMilliseconds) {
-        // SecurityUser에서 userId 추출
+        // SecurityUser에서 userId, nickname 추출
         Long userId = null;
+        String nickname = null;
         if (authentication.getPrincipal() instanceof SecurityUser userDetails) {
             userId = userDetails.getUserId();
+            nickname = userDetails.getNickname();
         }
 
         // 사용자의 권한 목록을 콤마(,)로 구분된 문자열로 변환 (예: "ROLE_USER,ROLE_ADMIN")
@@ -75,6 +77,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .subject(authentication.getName()) // 토큰 제목: 사용자 이메일 설정
                 .claim("userId", userId)           // 커스텀 클레임: 사용자 ID 추가
+                .claim("nickname", nickname)       // 커스텀 클레임: 닉네임 추가
                 .claim("auth", authorities)        // 커스텀 클레임: 권한 정보 추가
                 .signWith(key)                     // 서명: 설정된 Secret Key와 알고리즘 사용
                 .expiration(validity)              // 만료 일시 설정
@@ -95,7 +98,8 @@ public class JwtTokenProvider {
                         .collect(Collectors.toList());
 
         Long userId = claims.get("userId", Long.class);
-        SecurityUser principal = new SecurityUser(userId, claims.getSubject(), "", null, null, authorities);
+        String nickname = claims.get("nickname", String.class);
+        SecurityUser principal = new SecurityUser(userId, claims.getSubject(), "", nickname, null, authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }

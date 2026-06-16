@@ -41,10 +41,15 @@ public class SecurityConfig {
         http
                 // CORS 설정 적용
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // REST API이므로 CSRF 보안 비활성화
+                // REST API이므로 CSRF 보안 비활성화 (Thymeleaf 도입 후에도 쿠키 방식 JWT를 사용하므로 유지 혹은 설정 조정)
                 .csrf(AbstractHttpConfigurer::disable)
-                // Form Login 및 HTTP Basic 인증 비활성화 (JWT 사용 전제로 기본 설정)
-                .formLogin(AbstractHttpConfigurer::disable)
+                // Form Login 활성화 (SSR에서 로그인 요청을 처리하기 위해 필요함)
+                .formLogin(form -> form
+                        .loginPage("/auth/login")
+                        // 위에 작성된 경로로 보내진 로그인 요청이 UsernamePasswordAuthenticationFilter에 의해 자동으로 가로채지는 것을 막기 위해 아래에서 가로채야하는 가짜 경로를 명시함
+                        .loginProcessingUrl("/auth/login/process") // 기본 login 처리 URL과 겹치지 않게 분리 (실제 처리는 AuthController에서 함)
+                        .permitAll()
+                )
                 .httpBasic(AbstractHttpConfigurer::disable)
                 // 세션을 사용하지 않도록 설정 (Stateless)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -71,7 +76,9 @@ public class SecurityConfig {
                         // 그 외 모든 요청은 허용 (정적 리소스 등)
                         .anyRequest().permitAll()
                 )
-                // JWT 필터 추가
+                // addFilterBefore(A, B)를 사용해서 서버에 요청이 들어왔을 때 B보다 A가 먼저 동작하게 함 (UsernamePasswordAuthenticationFilter: 기본 로그인 처리 필터)
+                // 1. 브라우저가 요청을 보내면 JwtAuthenticationFilter가 동작함. 이 필터는 쿠키에서 JWT 토큰을 추출해서 서버 메모리에 저장함
+                // 2. 브라우저에서 formLogin( form -> form.loginPage()에 정의된 경로로 보내진 로그인 요청이 UsernamePasswordAuthenticationFilter에 의해 자동으로 가로채져서 JwtAuthenticationFilter로 전달됨
                 .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
