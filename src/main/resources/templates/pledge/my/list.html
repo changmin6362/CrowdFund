@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 후원 목록</title>
+    <style>
+        .pledge-card { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+        .status-cancel { color: red; }
+        .status-success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>내가 후원한 프로젝트</h1>
+
+    <form th:action="@{/pledges/me}" method="get">
+        <label>이행 상태:</label>
+        <select name="fulfillmentStatus">
+            <option value="">전체</option>
+            <option th:each="status : ${T(io.github.crowdfund.domain.pledge.FulfillmentStatus).values()}"
+                    th:value="${status}" th:text="${status}"
+                    th:selected="${status == fulfillmentStatus}"></option>
+        </select>
+
+        <label>후원 상태:</label>
+        <select name="pledgeStatus">
+            <option value="">전체</option>
+            <option th:each="status : ${T(io.github.crowdfund.domain.pledge.PledgeStatus).values()}"
+                    th:value="${status}" th:text="${status}"
+                    th:selected="${status == pledgeStatus}"></option>
+        </select>
+        <button type="submit">필터링</button>
+    </form>
+
+    <hr/>
+
+    <div th:if="${#lists.isEmpty(pledgeData.pledges)}">
+        <p>후원 내역이 없습니다.</p>
+    </div>
+
+    <div th:each="p : ${pledgeData.pledges}" class="pledge-card">
+        <h3 th:text="${p.projectTitle}">프로젝트 제목</h3>
+        <p>후원 일시: <span th:text="${p.pledgedAt}"></span></p>
+        <p>결제 금액: <span th:text="${p.totalAmount}"></span>원</p>
+        <p>상태: <span th:text="${p.pledgeStatus}" th:class="${p.pledgeStatus.name() == 'CANCELLED' ? 'status-cancel' : 'status-success'}"></span></p>
+        <p>이행: <span th:text="${p.fulfillmentStatus}"></span></p>
+        <a th:href="@{/pledges/me/{id}(id=${p.pledgeId})}">상세보기</a>
+        
+        <form th:if="${p.pledgeStatus.name() == 'PLEDGED'}" 
+              th:action="@{/pledges/me/{id}/cancel(id=${p.pledgeId})}" method="post" 
+              style="display: inline;" onsubmit="return confirm('정말 취소하시겠습니까?');">
+            <button type="submit" style="color: red;">후원 취소</button>
+        </form>
+    </div>
+
+    <p><a th:href="@{/}">홈으로</a></p>
+</body>
+</html>

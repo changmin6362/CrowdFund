@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 후원 상세</title>
+</head>
+<body>
+    <h1>후원 상세 정보</h1>
+
+    <div>
+        <h3>프로젝트 정보</h3>
+        <p>프로젝트: <span th:text="${pledge.projectTitle}"></span></p>
+        <p>창작자: <span th:text="${pledge.creatorNickname}"></span></p>
+    </div>
+
+    <hr/>
+
+    <div>
+        <h3>후원 정보</h3>
+        <p>후원 ID: <span th:text="${pledge.pledgeId}"></span></p>
+        <p>선택한 리워드: <span th:text="${pledge.rewardTitle}"></span></p>
+        <p>결제 금액: <span th:text="${pledge.totalAmount}"></span>원</p>
+        <p>후원 일시: <span th:text="${pledge.pledgedAt}"></span></p>
+        <p>후원 상태: <span th:text="${pledge.pledgeStatus}"></span></p>
+        <p>이행 상태: <span th:text="${pledge.fulfillmentStatus}"></span></p>
+    </div>
+
+    <hr/>
+
+    <div th:if="${pledge.pledgeStatus.name() == 'PLEDGED'}">
+        <form th:action="@{/pledges/me/{id}/cancel(id=${pledge.pledgeId})}" method="post" onsubmit="return confirm('정말 취소하시겠습니까?');">
+            <button type="submit" style="color: red;">후원 취소하기</button>
+        </form>
+    </div>
+
+    <p><a th:href="@{/pledges/me}">목록으로</a></p>
+</body>
+</html>

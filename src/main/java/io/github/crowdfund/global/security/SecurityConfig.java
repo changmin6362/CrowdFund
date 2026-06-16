@@ -71,6 +71,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/projects/*/comments").permitAll()
                         // 관리자 전용 경로 설정
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // 내 후원 관련 경로 설정
+                        .requestMatchers("/pledges/me/**").authenticated()
+                        // 창작자 후원 관련 경로 설정
+                        .requestMatchers("/creator/pledges/**").authenticated()
                         // 그 외 모든 /api/** 경로는 인증이 필요하도록 설정
                         .requestMatchers("/api/**").authenticated()
                         // 그 외 모든 요청은 허용 (정적 리소스 등)

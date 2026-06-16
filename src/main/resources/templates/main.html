@@ -53,14 +53,19 @@
 <ul>
     <li sec:authorize="isAnonymous()"><a th:href="@{/auth/login}">로그인</a></li>
     <li sec:authorize="isAnonymous()"><a th:href="@{/auth/signup}">회원가입</a></li>
+    <li sec:authorize="isAuthenticated()"><a th:href="@{/pledges/me}">내 후원 목록</a></li>
     <li><a th:href="@{/categories}">카테고리 목록 보기</a></li>
 </ul>
 
 <hr/>
 
-<h2>관리자 메뉴</h2>
-<ul>
-    <li><a th:href="@{/admin/categories}" class="admin-link">카테고리 관리 (관리자 전용)</a></li>
-</ul>
+<div sec:authorize="hasRole('ADMIN')">
+    <h2>관리자 메뉴</h2>
+    <ul>
+        <li><a th:href="@{/admin/categories}" class="admin-link">카테고리 관리</a></li>
+        <li><a th:href="@{/admin/pledges}" class="admin-link">전체 후원 관리</a></li>
+    </ul>
+    <hr/>
+</div>
 </body>
 </html>

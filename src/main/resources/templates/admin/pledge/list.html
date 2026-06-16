@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 - 후원 목록</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2 f2 f2; }
+    </style>
+</head>
+<body>
+    <h1>전체 후원 목록 (관리자)</h1>
+
+    <form th:action="@{/admin/pledges}" method="get">
+        <label>이행 상태:</label>
+        <select name="fulfillmentStatus">
+            <option value="">전체</option>
+            <option th:each="status : ${T(io.github.crowdfund.domain.pledge.FulfillmentStatus).values()}"
+                    th:value="${status}" th:text="${status}"
+                    th:selected="${status == fulfillmentStatus}"></option>
+        </select>
+
+        <label>후원 상태:</label>
+        <select name="pledgeStatus">
+            <option value="">전체</option>
+            <option th:each="status : ${T(io.github.crowdfund.domain.pledge.PledgeStatus).values()}"
+                    th:value="${status}" th:text="${status}"
+                    th:selected="${status == pledgeStatus}"></option>
+        </select>
+        <button type="submit">필터링</button>
+    </form>
+
+    <hr/>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>프로젝트</th>
+                <th>후원자</th>
+                <th>금액</th>
+                <th>상태</th>
+                <th>이행</th>
+                <th>상세</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="p : ${pledgeData.pledges}">
+                <td th:text="${p.pledgeId}"></td>
+                <td th:text="${p.projectTitle}"></td>
+                <td th:text="${p.userName}"></td>
+                <td th:text="${p.totalAmount}"></td>
+                <td th:text="${p.pledgeStatus}"></td>
+                <td th:text="${p.fulfillmentStatus}"></td>
+                <td><a th:href="@{/admin/pledges/{id}(id=${p.pledgeId})}">조회</a></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p><a th:href="@{/}">홈으로</a></p>
+</body>
+</html>
