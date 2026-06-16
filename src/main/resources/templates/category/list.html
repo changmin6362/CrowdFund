@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>카테고리 목록</title>
+</head>
+<body>
+    <h1>카테고리 목록</h1>
+    <ul>
+        <li th:fragment="tree(nodes)" th:each="node : ${nodes}">
+            <span th:text="${node.name}"></span>
+            <ul th:if="${!#lists.isEmpty(node.children)}">
+                <div th:replace="::tree(${node.children})"></div>
+            </ul>
+        </li>
+    </ul>
+    <div th:replace="::tree(${categories})"></div>
+    <p><a th:href="@{/}">홈으로</a></p>
+</body>
+</html>

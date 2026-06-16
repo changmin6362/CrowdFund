@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CrowdFund Home</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 10px 0; }
+        a { text-decoration: none; color: blue; }
+        a:hover { text-decoration: underline; }
+        .admin-link { color: red; }
+    </style>
+</head>
+<body>
+    <h1>CrowdFund 서비스에 오신 것을 환영합니다</h1>
+    
+    <h2>메뉴</h2>
+    <ul>
+        <li><a th:href="@{/auth/login}">로그인</a></li>
+        <li><a th:href="@{/auth/signup}">회원가입</a></li>
+        <li><a th:href="@{/categories}">카테고리 목록 보기</a></li>
+    </ul>
+
+    <hr/>
+
+    <h2>관리자 메뉴</h2>
+    <ul>
+        <li><a th:href="@{/admin/categories}" class="admin-link">카테고리 관리 (관리자 전용)</a></li>
+    </ul>
+</body>
+</html>

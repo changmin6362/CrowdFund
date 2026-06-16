@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>카테고리 관리</title>
+    <style>
+        .error { color: red; }
+        .category-tree ul { list-style-type: none; }
+        .category-item { margin: 5px 0; border: 1px solid #ddd; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>카테고리 관리</h1>
+
+    <h2>새 카테고리 추가</h2>
+    <form th:action="@{/admin/categories}" th:object="${createRequest}" method="post">
+        <div>
+            <label>부모 카테고리 ID (없으면 비움):</label>
+            <input type="number" th:field="*{parentId}" />
+        </div>
+        <div>
+            <label>카테고리 이름:</label>
+            <input type="text" th:field="*{name}" />
+            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error"></p>
+        </div>
+        <button type="submit">생성</button>
+    </form>
+
+    <hr/>
+
+    <h2>카테고리 목록</h2>
+    <div class="category-tree">
+        <ul th:fragment="tree(nodes)">
+            <li th:each="node : ${nodes}" class="category-item">
+                <span th:text="${node.name} + ' (ID: ' + ${node.id} + ', 순서: ' + ${node.sortOrder} + ')'"></span>
+                <span th:if="${!node.isActive}" style="color: gray;">(비활성)</span>
+                
+                <div style="display: inline-block; margin-left: 10px;">
+                    <!-- 이름 변경 -->
+                    <form th:action="@{/admin/categories/{id}/rename(id=${node.id})}" method="post" style="display: inline;">
+                        <input type="text" name="name" placeholder="새 이름" required />
+                        <button type="submit">이름변경</button>
+                    </form>
+
+                    <!-- 활성 토글 -->
+                    <form th:action="@{/admin/categories/{id}/toggle(id=${node.id})}" method="post" style="display: inline;">
+                        <input type="hidden" name="isActive" th:value="${!node.isActive}" />
+                        <button type="submit" th:text="${node.isActive ? '비활성화' : '활성화'}"></button>
+                    </form>
+
+                    <!-- 삭제 -->
+                    <form th:action="@{/admin/categories/{id}/delete(id=${node.id})}" method="post" style="display: inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                        <button type="submit" style="color: red;">삭제</button>
+                    </form>
+                </div>
+
+                <ul th:if="${!#lists.isEmpty(node.children)}">
+                    <div th:replace="::tree(${node.children})"></div>
+                </ul>
+            </li>
+        </ul>
+        <div th:replace="::tree(${categoryTree})"></div>
+    </div>
+
+    <p><a th:href="@{/}">홈으로</a></p>
+</body>
+</html>
