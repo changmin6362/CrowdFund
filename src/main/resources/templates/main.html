@@ -53,6 +53,7 @@
 <ul>
     <li sec:authorize="isAnonymous()"><a th:href="@{/auth/login}">로그인</a></li>
     <li sec:authorize="isAnonymous()"><a th:href="@{/auth/signup}">회원가입</a></li>
+    <li sec:authorize="isAuthenticated()"><a th:href="@{/users/me}">내 정보 관리</a></li>
     <li sec:authorize="isAuthenticated()"><a th:href="@{/pledges/me}">내 후원 목록</a></li>
     <li sec:authorize="isAuthenticated()"><a th:href="@{/creator/projects/me}">내 프로젝트 관리 (리워드 관리 포함)</a></li>
     <li><a th:href="@{/projects}">프로젝트 목록 보기 (리워드 상세 포함)</a></li>

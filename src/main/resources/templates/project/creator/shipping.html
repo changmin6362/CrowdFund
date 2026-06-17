@@ -24,6 +24,7 @@
                 <th>전화번호</th>
                 <th>리워드</th>
                 <th>이행 상태</th>
+                <th>관리</th>
             </tr>
         </thead>
         <tbody>
@@ -34,6 +35,7 @@
                 <td th:text="${info.phoneNumber}"></td>
                 <td th:text="${info.rewardTitle}"></td>
                 <td th:text="${info.fulfillmentStatus}"></td>
+                <td><a th:href="@{/creator/pledges/{id}(id=${info.pledgeId})}">상세/관리</a></td>
             </tr>
         </tbody>
     </table>

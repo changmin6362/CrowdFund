@@ -1,16 +1,15 @@
 package io.github.crowdfund.feature.pledge.creator;
 
 import io.github.crowdfund.feature.pledge.creator.dto.fulfill.CreatorPledgeFulfillRequest;
+import io.github.crowdfund.feature.project.creator.dto.extract.ShippingInfo;
 import io.github.crowdfund.global.security.SecurityUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/creator/pledges")
@@ -21,6 +20,20 @@ public class CreatorPledgeController {
     private final CreatorPledgeService service;
 
     /**
+     * 창작자용 후원 상세 조회
+     */
+    @GetMapping("/{pledgeId}")
+    public String detail(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long pledgeId,
+            Model model) {
+        ShippingInfo pledge = service.getDetailForCreator(securityUser, pledgeId);
+        model.addAttribute("pledge", pledge);
+        model.addAttribute("fulfillRequest", new CreatorPledgeFulfillRequest(null));
+        return "project/creator/pledge-detail";
+    }
+
+    /**
      * 보상 이행 상태 변경
      */
     @PostMapping("/{pledgeId}/fulfill")
@@ -29,6 +42,6 @@ public class CreatorPledgeController {
             @PathVariable Long pledgeId,
             @Valid @ModelAttribute("fulfillRequest") CreatorPledgeFulfillRequest request) {
         service.fulfill(securityUser, pledgeId, request);
-        return "redirect:/creator/pledges/" + pledgeId; // 상세 페이지가 있다면 거기로, 아니면 목록으로
+        return "redirect:/creator/pledges/" + pledgeId;
     }
 }

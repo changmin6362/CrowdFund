@@ -2,9 +2,10 @@ package io.github.crowdfund.feature.pledge.creator;
 
 import io.github.crowdfund.domain.pledge.Pledge;
 import io.github.crowdfund.domain.pledge.PledgeRepository;
-import io.github.crowdfund.feature.pledge.creator.dto.fulfill.FulfillmentInfo;
 import io.github.crowdfund.feature.pledge.creator.dto.fulfill.CreatorPledgeFulfillRequest;
 import io.github.crowdfund.feature.pledge.creator.dto.fulfill.CreatorPledgeFulfillResponse;
+import io.github.crowdfund.feature.pledge.creator.dto.fulfill.FulfillmentInfo;
+import io.github.crowdfund.feature.project.creator.dto.extract.ShippingInfo;
 import io.github.crowdfund.global.security.SecurityUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,19 @@ public class CreatorPledgeService {
 
     private final PledgeRepository pledgeRepository;
     private final io.github.crowdfund.domain.project.ProjectRepository projectRepository;
+    private final io.github.crowdfund.domain.project.mapper.ProjectMapper projectMapper;
+
+    /**
+     * 창작자용 후원 상세 정보 조회
+     */
+    public ShippingInfo getDetailForCreator(SecurityUser securityUser, Long pledgeId) {
+        Pledge pledge = pledgeRepository.findById(pledgeId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 후원 내역입니다."));
+
+        projectRepository.validateProjectOwner(pledge.projectId(), securityUser.getUserId());
+
+        return projectMapper.findShippingInfoByPledgeId(pledgeId);
+    }
 
     /**
      * 보상 이행 상태 변경 도메인 로직

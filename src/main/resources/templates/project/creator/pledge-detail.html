@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>후원 상세 정보 (창작자용)</title>
+</head>
+<body>
+    <h1>후원 상세 정보</h1>
+
+    <div>
+        <h3>후원자 정보</h3>
+        <p>이름: <span th:text="${pledge.userName}"></span></p>
+        <p>이메일: <span th:text="${pledge.email}"></span></p>
+        <p>연락처: <span th:text="${pledge.phoneNumber}"></span></p>
+    </div>
+
+    <hr/>
+
+    <div>
+        <h3>리워드 정보</h3>
+        <p>리워드 제목: <span th:text="${pledge.rewardTitle}"></span></p>
+    </div>
+
+    <hr/>
+
+    <div>
+        <h3>이행 상태 관리</h3>
+        <p>현재 상태: <strong th:text="${pledge.fulfillmentStatus}"></strong></p>
+        
+        <form th:action="@{/creator/pledges/{id}/fulfill(id=${pledge.pledgeId})}" th:object="${fulfillRequest}" method="post">
+            <label>상태 변경:</label>
+            <select th:field="*{fulfillmentStatus}">
+                <option value="READY">READY (준비 중)</option>
+                <option value="FULFILLED">FULFILLED (배송 완료/이행 완료)</option>
+            </select>
+            <button type="submit">변경하기</button>
+        </form>
+    </div>
+
+    <p><a href="javascript:history.back()">뒤로 가기</a></p>
+</body>
+</html>
