@@ -40,9 +40,8 @@
             <div class="project-title" th:text="${p.title}">제목</div>
             <p>창작자: <span th:text="${p.creatorNickname}">닉네임</span></p>
             <p>목표 금액: <span th:text="${p.goalAmount}">0</span>원</p>
-            <p>현재 금액: <span th:text="${p.currentAmount}">0</span>원 (<span th:text="${p.achievementRate}">0</span>%)</p>
+            <p>현재 금액: <span th:text="${p.currentAmount}">0</span>원</p>
             <p>상태: <span th:text="${p.status}">상태</span></p>
-            <p>남은 기간: <span th:text="${p.remainingDays}">0</span>일</p>
             <a th:href="@{/projects/{id}(id=${p.projectId})}">상세보기</a>
         </div>
 

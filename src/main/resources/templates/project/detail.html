@@ -5,48 +5,54 @@
     <title>프로젝트 상세</title>
 </head>
 <body>
-    <h1 th:text="${project.title}">프로젝트 제목</h1>
-    <p>창작자: <span th:text="${project.creatorNickname}">창작자</span></p>
-    <p>카테고리: <span th:text="${project.categoryName}">카테고리</span></p>
-    <p>상태: <span th:text="${project.status}">상태</span></p>
-    
-    <hr/>
-    
-    <div>
-        <h3>프로젝트 소개</h3>
-        <p th:text="${project.content}">본문 내용</p>
+    <h1>프로젝트 상세</h1>
+
+    <div th:if="${errorMessage}" style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 20px;">
+        <p th:text="${errorMessage}"></p>
     </div>
-    
-    <hr/>
-    
-    <div>
-        <h3>펀딩 현황</h3>
-        <p>목표 금액: <span th:text="${project.goalAmount}">0</span>원</p>
-        <p>현재 금액: <span th:text="${project.currentAmount}">0</span>원</p>
-        <p>달성률: <span th:text="${project.achievementRate}">0</span>%</p>
-        <p>종료일: <span th:text="${project.deadline}">202X-XX-XX</span></p>
-    </div>
-    
-    <hr/>
-    
-    <div>
-        <h3>리워드 선택</h3>
-        <div th:each="reward : ${project.rewards}" style="border: 1px solid #eee; padding: 10px; margin-bottom: 5px;">
-            <p><strong th:text="${reward.title}">리워드명</strong></p>
-            <p th:text="${reward.content}">리워드 설명</p>
-            <p>금액: <span th:text="${reward.price}">0</span>원</p>
-            <p>남은 수량: <span th:text="${reward.stockQuantity}">0</span>개</p>
-            
-            <form th:action="@{/pledges/me}" method="post" sec:authorize="isAuthenticated()">
-                <input type="hidden" name="projectId" th:value="${project.projectId}"/>
-                <input type="hidden" name="rewardId" th:value="${reward.rewardId}"/>
-                <label>배송지:</label>
-                <input type="text" name="shippingAddress" required placeholder="배송지를 입력하세요"/>
-                <button type="submit" th:disabled="${reward.stockQuantity <= 0}">후원하기</button>
-            </form>
-            <p sec:authorize="isAnonymous()"><a th:href="@{/auth/login}">로그인 후 후원 가능합니다.</a></p>
+
+    <div th:if="${project != null}">
+        <h1 th:text="${project.title}">프로젝트 제목</h1>
+        <p>창작자: <span th:text="${project.creatorNickname}">창작자</span></p>
+        <p>카테고리: <span th:text="${project.categoryName}">카테고리</span></p>
+        <p>상태: <span th:text="${project.status}">상태</span></p>
+        
+        <hr/>
+        
+        <div>
+            <h3>프로젝트 소개</h3>
+            <p th:text="${project.contentBlocks}">본문 내용</p>
         </div>
-        <p><a th:href="@{/projects/{id}/rewards(id=${project.projectId})}">전체 리워드 보기</a></p>
+        
+        <hr/>
+        
+        <div>
+            <h3>펀딩 현황</h3>
+            <p>목표 금액: <span th:text="${project.goalAmount}">0</span>원</p>
+            <p>현재 금액: <span th:text="${project.currentAmount}">0</span>원</p>
+            <p>종료일: <span th:text="${project.endAt}">202X-XX-XX</span></p>
+        </div>
+        
+        <hr/>
+        
+        <div>
+            <h3>리워드 선택</h3>
+            <div th:each="reward : ${project.rewards}" style="border: 1px solid #eee; padding: 10px; margin-bottom: 5px;">
+                <p><strong th:text="${reward.title}">리워드명</strong></p>
+                <p th:text="${reward.description}">리워드 설명</p>
+                <p>금액: <span th:text="${reward.price}">0</span>원</p>
+                <p>남은 수량: <span th:text="${reward.stock}">0</span>개</p>
+                
+                <form th:action="@{/pledges/me}" method="post" sec:authorize="isAuthenticated()">
+                    <input type="hidden" name="projectId" th:value="${project.projectId}"/>
+                    <input type="hidden" name="rewardId" th:value="${reward.rewardId}"/>
+                    <p style="font-size: 0.9em; color: #666;">* 회원 정보에 등록된 이름과 연락처가 창작자에게 배송 정보로 제공됩니다.</p>
+                    <button type="submit" th:disabled="${reward.stock <= 0}">후원하기</button>
+                </form>
+                <p sec:authorize="isAnonymous()"><a th:href="@{/auth/login}">로그인 후 후원 가능합니다.</a></p>
+            </div>
+            <p><a th:href="@{/projects/{id}/rewards(id=${project.projectId})}">전체 리워드 보기</a></p>
+        </div>
     </div>
 
     <p><a th:href="@{/projects}">목록으로</a></p>

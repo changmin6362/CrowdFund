@@ -28,12 +28,6 @@ public record ProjectElement(
         @Schema(description = "프로젝트 현재 금액", example = "500000")
         BigDecimal currentAmount,
 
-        @Schema(description = "달성률 (%)", example = "50")
-        Integer achievementRate,
-
-        @Schema(description = "남은 기간 (일)", example = "10")
-        Long remainingDays,
-
         @Schema(description = "프로젝트 종료 시간", example = "2023-12-31T23:59:59")
         LocalDateTime endAt,
 

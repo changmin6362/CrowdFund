@@ -40,8 +40,6 @@ VALUES (
             p.title,
             p.goal_amount as goalAmount,
             p.current_amount as currentAmount,
-            CAST((p.current_amount / p.goal_amount * 100) AS SIGNED) as achievementRate,
-            DATEDIFF(p.end_at, NOW()) as remainingDays,
             p.end_at as endAt,
             p.status,
             p.created_at as createdAt
@@ -140,15 +138,16 @@ VALUES (
 
     <select id="findShippingInfosByProjectId" resultType="io.github.crowdfund.feature.project.creator.dto.extract.ShippingInfo">
         SELECT
-            pa.id as addressId,
-            pa.user_id as userId,
-            pa.recipient_name as recipientName,
-            pa.phone,
-            pa.postal_code as postalCode,
-            pa.address_main as addressMain,
-            pa.address_detail as addressDetail
-        FROM pledge_address pa
-        JOIN pledge p ON pa.pledge_id = p.id
+            p.id as pledgeId,
+            u.id as userId,
+            u.name as userName,
+            u.email as email,
+            u.phone as phoneNumber,
+            r.title as rewardTitle,
+            p.fulfillment_status as fulfillmentStatus
+        FROM pledge p
+        JOIN user u ON p.user_id = u.id
+        LEFT JOIN reward r ON p.reward_id = r.id
         WHERE p.project_id = #{projectId}
     </select>
 
