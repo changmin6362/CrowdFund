@@ -25,13 +25,20 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpStatus.FORBIDDEN.value());
+        String uri = request.getRequestURI();
 
-        String message = "해당 리소스에 접근할 권한이 없습니다.";
+        if (uri.startsWith("/api/")) {
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpStatus.FORBIDDEN.value());
 
-        ApiResult<Void> apiResult = ApiResult.error(message);
-        response.getWriter().write(objectMapper.writeValueAsString(apiResult));
+            String message = "해당 리소스에 접근할 권한이 없습니다.";
+
+            ApiResult<Void> apiResult = ApiResult.error(message);
+            response.getWriter().write(objectMapper.writeValueAsString(apiResult));
+        } else {
+            // SSR의 경우 에러 메시지를 담아 메인으로 리다이렉트하거나 전용 에러 페이지로 이동
+            response.sendRedirect("/?error=forbidden");
+        }
     }
 }

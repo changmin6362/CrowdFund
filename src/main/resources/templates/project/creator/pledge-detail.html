@@ -3,40 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <title>후원 상세 정보 (창작자용)</title>
+    <style>
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; font-family: sans-serif; }
+        .info-box { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .status-badge { display: inline-block; padding: 5px 10px; border-radius: 4px; font-weight: bold; background-color: #f0f0f0; }
+        .status-FULFILLED { background-color: #e6ffed; color: #22863a; }
+        .status-READY { background-color: #fffbdd; color: #735c0f; }
+    </style>
 </head>
 <body>
-    <h1>후원 상세 정보</h1>
+    <div class="container">
+        <h1>후원 상세 관리</h1>
 
-    <div>
-        <h3>후원자 정보</h3>
-        <p>이름: <span th:text="${pledge.userName}"></span></p>
-        <p>이메일: <span th:text="${pledge.email}"></span></p>
-        <p>연락처: <span th:text="${pledge.phoneNumber}"></span></p>
+        <div class="info-box">
+            <h3>👤 후원자 정보</h3>
+            <p><strong>이름:</strong> <span th:text="${pledge.userName}"></span></p>
+            <p><strong>이메일:</strong> <span th:text="${pledge.email}"></span></p>
+            <p><strong>연락처:</strong> <span th:text="${pledge.phoneNumber}"></span></p>
+        </div>
+
+        <div class="info-box">
+            <h3>🎁 리워드 정보</h3>
+            <p><strong>리워드 제목:</strong> <span th:text="${pledge.rewardTitle}"></span></p>
+            <p><strong>후원 금액:</strong> <span th:text="${pledge.pledgeAmount}"></span>원</p>
+        </div>
+
+        <div class="info-box">
+            <h3>🚚 이행 상태 관리</h3>
+            <p>현재 상태: 
+                <span th:class="'status-badge status-' + ${pledge.fulfillmentStatus}" 
+                      th:text="${pledge.fulfillmentStatus}"></span>
+            </p>
+            
+            <form th:action="@{/creator/pledges/{id}/fulfill(id=${pledge.pledgeId})}" th:object="${fulfillRequest}" method="post" style="margin-top: 15px;">
+                <label for="fulfillmentStatus">상태 변경:</label>
+                <select th:field="*{fulfillmentStatus}" id="fulfillmentStatus">
+                    <option value="READY">READY (준비 중)</option>
+                    <option value="FULFILLED">FULFILLED (이행 완료)</option>
+                </select>
+                <button type="submit">변경 적용</button>
+            </form>
+        </div>
+
+        <p><a th:href="@{/creator/projects/{id}/shipping(id=${pledge.projectId})}">← 배송지 목록으로 돌아가기</a></p>
     </div>
-
-    <hr/>
-
-    <div>
-        <h3>리워드 정보</h3>
-        <p>리워드 제목: <span th:text="${pledge.rewardTitle}"></span></p>
-    </div>
-
-    <hr/>
-
-    <div>
-        <h3>이행 상태 관리</h3>
-        <p>현재 상태: <strong th:text="${pledge.fulfillmentStatus}"></strong></p>
-        
-        <form th:action="@{/creator/pledges/{id}/fulfill(id=${pledge.pledgeId})}" th:object="${fulfillRequest}" method="post">
-            <label>상태 변경:</label>
-            <select th:field="*{fulfillmentStatus}">
-                <option value="READY">READY (준비 중)</option>
-                <option value="FULFILLED">FULFILLED (배송 완료/이행 완료)</option>
-            </select>
-            <button type="submit">변경하기</button>
-        </form>
-    </div>
-
-    <p><a href="javascript:history.back()">뒤로 가기</a></p>
 </body>
 </html>

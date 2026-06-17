@@ -22,6 +22,12 @@ public record ShippingInfo(
         String rewardTitle,
 
         @Schema(description = "이행 상태", example = "READY")
-        String fulfillmentStatus
+        String fulfillmentStatus,
+
+        @Schema(description = "후원 금액", example = "10000")
+        Long pledgeAmount,
+
+        @Schema(description = "프로젝트 ID", example = "1")
+        Long projectId
 ) {
 }

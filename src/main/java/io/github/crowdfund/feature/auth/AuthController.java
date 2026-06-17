@@ -12,10 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/auth")
@@ -56,7 +53,12 @@ public class AuthController {
      * 로그인 페이지 이동
      */
     @GetMapping("/login")
-    public String loginPage(@ModelAttribute("loginRequest") LoginRequest request) {
+    public String loginPage(@ModelAttribute("loginRequest") LoginRequest request,
+                            @RequestParam(value = "error", required = false) String error,
+                            Model model) {
+        if ("unauthorized".equals(error)) {
+            model.addAttribute("error", "인증이 필요한 서비스입니다. 로그인 후 이용해주세요.");
+        }
         return "auth/login";
     }
 
