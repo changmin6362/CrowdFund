@@ -1,100 +1,105 @@
 package io.github.crowdfund.feature.reward.creator;
 
 import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateRequest;
-import io.github.crowdfund.feature.reward.creator.dto.create.CreatorRewardCreateResponse;
-import io.github.crowdfund.feature.reward.creator.dto.delete.CreatorRewardDeleteResponse;
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateRequest;
-import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateResponse;
 import io.github.crowdfund.feature.reward.creator.dto.update.CreatorRewardUpdateStockRequest;
-import io.github.crowdfund.global.common.ApiResult;
 import io.github.crowdfund.global.security.SecurityUser;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/creator")
+@Controller
+@RequestMapping("/creator/projects/{projectId}/rewards")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "06. Reward - Creator", description = "창작자용 리워드 API")
 public class CreatorRewardController {
 
     private final CreatorRewardService service;
+    private final io.github.crowdfund.feature.reward.user.UserRewardService userRewardService;
+
+    /**
+     * 리워드 관리 페이지
+     */
+    @GetMapping
+    public String manage(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long projectId,
+            Model model) {
+        model.addAttribute("rewards", userRewardService.fetch(projectId).rewards());
+        model.addAttribute("projectId", projectId);
+        model.addAttribute("createRequest", new CreatorRewardCreateRequest("", "", java.math.BigDecimal.valueOf(1000), 1));
+        return "reward/creator/manage";
+    }
 
     /**
      * 프로젝트에 리워드 등록
-     *
-     * @param projectId 프로젝트 ID
-     * @param request   리워드 추가 요청 데이터
-     * @return message, createdReward
      */
-    @Operation(summary = "프로젝트에 리워드 등록")
-    @ApiResponse(responseCode = "201", description = "리워드 등록 성공 응답 예시")
-    @PostMapping("/projects/{projectId}/rewards")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResult<CreatorRewardCreateResponse> create(
+    @PostMapping
+    public String create(
             @AuthenticationPrincipal SecurityUser securityUser,
             @PathVariable Long projectId,
-            @Valid @RequestBody CreatorRewardCreateRequest request) {
-        return ApiResult.success("리워드 등록에 성공했습니다.", service.create(securityUser, projectId, request));
+            @Valid @ModelAttribute("createRequest") CreatorRewardCreateRequest request) {
+        service.create(securityUser, projectId, request);
+        return "redirect:/creator/projects/" + projectId + "/rewards";
+    }
+
+    /**
+     * 리워드 정보 수정 페이지
+     */
+    @GetMapping("/{rewardId}/edit")
+    public String editForm(
+            @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long projectId,
+            @PathVariable Long rewardId,
+            Model model) {
+        // 실제 운영 시에는 서비스에서 rewardId로 정보를 조회해야 함.
+        model.addAttribute("projectId", projectId);
+        model.addAttribute("rewardId", rewardId);
+        model.addAttribute("updateRequest", new CreatorRewardUpdateRequest("", "", java.math.BigDecimal.ZERO));
+        model.addAttribute("stockRequest", new CreatorRewardUpdateStockRequest(1));
+        return "reward/creator/edit";
     }
 
     /**
      * 리워드 정보 수정
-     *
-     * @param rewardId 리워드 ID
-     * @param request  리워드 수정 요청 데이터
-     * @return message, updatedReward
      */
-    @Operation(summary = "리워드 정보 수정")
-    @ApiResponse(responseCode = "200", description = "리워드 정보 수정 성공 응답 예시")
-    @PatchMapping("/rewards/{rewardId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<CreatorRewardUpdateResponse> update(
+    @PostMapping("/{rewardId}/update")
+    public String update(
             @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long projectId,
             @PathVariable Long rewardId,
-            @Valid @RequestBody CreatorRewardUpdateRequest request) {
-        return ApiResult.success("리워드 수정에 성공했습니다.", service.update(securityUser, rewardId, request));
+            @Valid @ModelAttribute("updateRequest") CreatorRewardUpdateRequest request) {
+        service.update(securityUser, rewardId, request);
+        return "redirect:/creator/projects/" + projectId + "/rewards";
     }
 
     /**
      * 리워드 재고 수정
-     *
-     * @param rewardId 리워드 ID
-     * @param request  리워드 재고 수정 요청 데이터
-     * @return message, updatedReward
      */
-    @Operation(summary = "리워드 재고 수정")
-    @ApiResponse(responseCode = "200", description = "리워드 재고 수정 성공 응답 예시")
-    @PatchMapping("/rewards/{rewardId}/stock")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<CreatorRewardUpdateResponse> updateStock(
+    @PostMapping("/{rewardId}/stock")
+    public String updateStock(
             @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long projectId,
             @PathVariable Long rewardId,
-            @Valid @RequestBody CreatorRewardUpdateStockRequest request) {
-        return ApiResult.success("리워드 재고 수정에 성공했습니다.", service.updateStock(securityUser, rewardId, request));
+            @Valid @ModelAttribute("stockRequest") CreatorRewardUpdateStockRequest request) {
+        service.updateStock(securityUser, rewardId, request);
+        return "redirect:/creator/projects/" + projectId + "/rewards";
     }
 
     /**
      * 리워드 삭제
-     *
-     * @param rewardId 리워드 ID
-     * @return message, deletedRewardId
      */
-    @Operation(summary = "리워드 삭제")
-    @ApiResponse(responseCode = "200", description = "리워드 삭제 성공 응답 예시")
-    @DeleteMapping("/rewards/{rewardId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<CreatorRewardDeleteResponse> delete(
+    @PostMapping("/{rewardId}/delete")
+    public String delete(
             @AuthenticationPrincipal SecurityUser securityUser,
+            @PathVariable Long projectId,
             @PathVariable Long rewardId) {
-        return ApiResult.success("리워드 삭제에 성공했습니다.", service.delete(securityUser, rewardId));
+        service.delete(securityUser, rewardId);
+        return "redirect:/creator/projects/" + projectId + "/rewards";
     }
 }
 

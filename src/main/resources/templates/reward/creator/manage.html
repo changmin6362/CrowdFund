@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>리워드 관리</title>
+</head>
+<body>
+    <h1>리워드 관리</h1>
+    <p>프로젝트 ID: <span th:text="${projectId}"></span></p>
+
+    <h2>새 리워드 등록</h2>
+    <form th:action="@{/creator/projects/{projectId}/rewards(projectId=${projectId})}" th:object="${createRequest}" method="post">
+        <div>
+            <label>제목:</label>
+            <input type="text" th:field="*{title}" required/>
+        </div>
+        <div>
+            <label>설명:</label>
+            <textarea th:field="*{description}" required></textarea>
+        </div>
+        <div>
+            <label>가격:</label>
+            <input type="number" th:field="*{price}" required/>
+        </div>
+        <div>
+            <label>재고:</label>
+            <input type="number" th:field="*{stock}" required/>
+        </div>
+        <button type="submit">등록</button>
+    </form>
+
+    <hr/>
+
+    <h2>등록된 리워드 목록</h2>
+    <div th:if="${#lists.isEmpty(rewards)}">
+        <p>등록된 리워드가 없습니다.</p>
+    </div>
+
+    <table border="1" th:if="${!#lists.isEmpty(rewards)}">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>제목</th>
+                <th>가격</th>
+                <th>재고</th>
+                <th>관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="r : ${rewards}">
+                <td th:text="${r.rewardId}"></td>
+                <td th:text="${r.title}"></td>
+                <td th:text="${r.price}"></td>
+                <td th:text="${r.stock}"></td>
+                <td>
+                    <a th:href="@{/creator/projects/{projectId}/rewards/{rewardId}/edit(projectId=${projectId}, rewardId=${r.rewardId})}">수정</a>
+                    <form th:action="@{/creator/projects/{projectId}/rewards/{rewardId}/delete(projectId=${projectId}, rewardId=${r.rewardId})}" method="post" style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                        <button type="submit">삭제</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p><a th:href="@{/creator/projects/me}">내 프로젝트 관리로 돌아가기</a></p>
+</body>
+</html>

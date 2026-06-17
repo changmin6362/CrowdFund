@@ -46,6 +46,7 @@
             </form>
             <p sec:authorize="isAnonymous()"><a th:href="@{/auth/login}">로그인 후 후원 가능합니다.</a></p>
         </div>
+        <p><a th:href="@{/projects/{id}/rewards(id=${project.projectId})}">전체 리워드 보기</a></p>
     </div>
 
     <p><a th:href="@{/projects}">목록으로</a></p>
