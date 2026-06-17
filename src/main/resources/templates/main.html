@@ -63,6 +63,7 @@
 
 <div sec:authorize="hasRole('ADMIN')">
     <h2>관리자 메뉴</h2>
+
     <ul>
         <li><a th:href="@{/admin/categories}" class="admin-link">카테고리 관리</a></li>
         <li><a th:href="@{/admin/pledges}" class="admin-link">전체 후원 관리</a></li>

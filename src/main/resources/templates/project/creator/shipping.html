@@ -7,11 +7,15 @@
 <body>
     <h1>후원자 배송지 목록</h1>
 
-    <div th:if="${#lists.isEmpty(shippingData.shippingInfos)}">
+    <div th:if="${errorMessage}" style="color: red;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <div th:if="${shippingData != null and #lists.isEmpty(shippingData.shippingInfos)}">
         <p>후원자가 없습니다.</p>
     </div>
 
-    <table border="1" th:if="${!#lists.isEmpty(shippingData.shippingInfos)}">
+    <table border="1" th:if="${shippingData != null and !#lists.isEmpty(shippingData.shippingInfos)}">
         <thead>
             <tr>
                 <th>후원 ID</th>

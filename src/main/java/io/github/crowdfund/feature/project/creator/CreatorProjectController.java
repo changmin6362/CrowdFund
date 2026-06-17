@@ -81,7 +81,11 @@ public class CreatorProjectController {
      */
     @GetMapping("/me")
     public String fetch(@AuthenticationPrincipal SecurityUser securityUser, Model model) {
-        model.addAttribute("projectData", service.fetch(securityUser.getUserId()));
+        try {
+            model.addAttribute("projectData", service.fetch(securityUser.getUserId()));
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+        }
         return "project/creator/list";
     }
 
@@ -93,7 +97,11 @@ public class CreatorProjectController {
             @PathVariable Long projectId,
             @AuthenticationPrincipal SecurityUser securityUser,
             Model model) {
-        model.addAttribute("shippingData", service.extract(securityUser, projectId));
+        try {
+            model.addAttribute("shippingData", service.extract(securityUser, projectId));
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+        }
         return "project/creator/shipping";
     }
 

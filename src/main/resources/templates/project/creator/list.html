@@ -8,11 +8,15 @@
     <h1>내 프로젝트 관리</h1>
     <p><a th:href="@{/creator/projects/create}">새 프로젝트 생성</a></p>
 
-    <div th:if="${#lists.isEmpty(projectData.projects)}">
+    <div th:if="${errorMessage}" style="color: red;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <div th:if="${projectData != null and #lists.isEmpty(projectData.projects)}">
         <p>등록한 프로젝트가 없습니다.</p>
     </div>
 
-    <table border="1" th:if="${!#lists.isEmpty(projectData.projects)}">
+    <table border="1" th:if="${projectData != null and !#lists.isEmpty(projectData.projects)}">
         <thead>
             <tr>
                 <th>ID</th>
