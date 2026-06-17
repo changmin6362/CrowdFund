@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>프로젝트 수정</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>프로젝트 수정</h1>
+    <div class="container">
+        <h1>프로젝트 수정</h1>
 
     <form th:action="@{/creator/projects/{id}/update(id=${projectId})}" th:object="${updateRequest}" method="post">
         <div>
@@ -20,5 +22,6 @@
     </form>
 
     <p><a th:href="@{/creator/projects/me}">목록으로</a></p>
+    </div>
 </body>
 </html>

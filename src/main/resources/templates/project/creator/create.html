@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>새 프로젝트 생성</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>새 프로젝트 생성</h1>
+    <div class="container">
+        <h1>새 프로젝트 생성</h1>
 
     <form th:action="@{/creator/projects}" th:object="${projectRequest}" method="post">
         <div>
@@ -32,5 +34,6 @@
     </form>
 
     <p><a th:href="@{/creator/projects/me}">목록으로</a></p>
+    </div>
 </body>
 </html>

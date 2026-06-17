@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>관리자 - 후원 목록</title>
-    <style>
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>전체 후원 목록 (관리자)</h1>
+    <div class="container">
+        <h1>전체 후원 목록 (관리자)</h1>
 
     <form th:action="@{/admin/pledges}" method="get">
         <label>이행 상태:</label>
@@ -59,5 +56,6 @@
     </table>
 
     <p><a th:href="@{/}">홈으로</a></p>
+    </div>
 </body>
 </html>

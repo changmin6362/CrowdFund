@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>내 정보 관리</title>
-    <style>
-        .error { color: red; font-size: 0.8em; }
-        .success { color: green; font-weight: bold; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>내 정보 관리</h1>
+    <div class="container">
+        <h1>내 정보 관리</h1>
 
     <div th:if="${param.success}" class="success">
         성공적으로 수정되었습니다.
@@ -51,10 +49,11 @@
         <h3>회원 탈퇴</h3>
         <p>탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.</p>
         <form th:action="@{/users/me/delete}" method="post" onsubmit="return confirm('정말 탈퇴하시겠습니까?');">
-            <button type="submit" style="color: red;">회원 탈퇴하기</button>
+            <button type="submit" class="danger-button">회원 탈퇴하기</button>
         </form>
     </div>
 
     <p><a th:href="@{/}">홈으로</a></p>
+    </div>
 </body>
 </html>

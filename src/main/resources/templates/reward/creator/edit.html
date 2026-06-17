@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>리워드 수정</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>리워드 수정</h1>
+    <div class="container">
+        <h1>리워드 수정</h1>
     <p>프로젝트 ID: <span th:text="${projectId}"></span></p>
     <p>리워드 ID: <span th:text="${rewardId}"></span></p>
 
@@ -37,5 +39,6 @@
     </form>
 
     <p><a th:href="@{/creator/projects/{projectId}/rewards(projectId=${projectId})}">리워드 관리로 돌아가기</a></p>
+    </div>
 </body>
 </html>

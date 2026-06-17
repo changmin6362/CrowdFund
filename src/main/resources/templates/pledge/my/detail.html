@@ -3,35 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>내 후원 상세</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>후원 상세 정보</h1>
+    <div class="container">
+        <h1>후원 상세 정보</h1>
 
-    <div>
-        <h3>프로젝트 정보</h3>
-        <p>프로젝트: <span th:text="${pledge.projectTitle}"></span></p>
-    </div>
+        <div class="info-box">
+            <h3>프로젝트 정보</h3>
+            <p>프로젝트: <span th:text="${pledge.projectTitle}"></span></p>
+        </div>
 
     <hr/>
 
-    <div>
-        <h3>후원 정보</h3>
-        <p>후원 ID: <span th:text="${pledge.pledgeId}"></span></p>
-        <p>선택한 리워드: <span th:text="${pledge.rewardName}"></span></p>
-        <p>결제 금액: <span th:text="${pledge.amount}"></span>원</p>
-        <p>후원 일시: <span th:text="${pledge.createdAt}"></span></p>
-        <p>후원 상태: <span th:text="${pledge.status}"></span></p>
-        <p>이행 상태: <span th:text="${pledge.fulfillmentStatus}"></span></p>
-    </div>
+        <div class="info-box">
+            <h3>후원 정보</h3>
+            <p>후원 ID: <span th:text="${pledge.pledgeId}"></span></p>
+            <p>선택한 리워드: <span th:text="${pledge.rewardName}"></span></p>
+            <p>결제 금액: <span th:text="${pledge.amount}"></span>원</p>
+            <p>후원 일시: <span th:text="${pledge.createdAt}"></span></p>
+            <p>후원 상태: <span th:text="${pledge.status}"></span></p>
+            <p>이행 상태: <span th:text="${pledge.fulfillmentStatus}"></span></p>
+        </div>
 
     <hr/>
 
     <div th:if="${pledge.status.name() == 'PENDING'}">
         <form th:action="@{/pledges/me/{id}/cancel(id=${pledge.pledgeId})}" method="post" onsubmit="return confirm('정말 취소하시겠습니까?');">
-            <button type="submit" style="color: red;">후원 취소하기</button>
+            <button type="submit" class="danger-button">후원 취소하기</button>
         </form>
     </div>
 
     <p><a th:href="@{/pledges/me}">목록으로</a></p>
+    </div>
 </body>
 </html>

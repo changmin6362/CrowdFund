@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>내 프로젝트 관리</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>내 프로젝트 관리</h1>
+    <div class="container">
+        <h1>내 프로젝트 관리</h1>
     <p><a th:href="@{/creator/projects/create}">새 프로젝트 생성</a></p>
 
-    <div th:if="${errorMessage}" style="color: red;">
+    <div th:if="${errorMessage}" class="error-msg">
         <p th:text="${errorMessage}"></p>
     </div>
 
@@ -16,7 +18,7 @@
         <p>등록한 프로젝트가 없습니다.</p>
     </div>
 
-    <table border="1" th:if="${projectData != null and !#lists.isEmpty(projectData.projects)}">
+    <table th:if="${projectData != null and !#lists.isEmpty(projectData.projects)}">
         <thead>
             <tr>
                 <th>ID</th>
@@ -50,5 +52,6 @@
     </table>
 
     <p><a th:href="@{/}">홈으로</a></p>
+    </div>
 </body>
 </html>

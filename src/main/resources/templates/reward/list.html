@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>리워드 목록</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>프로젝트 리워드 목록</h1>
+    <div class="container">
+        <h1>프로젝트 리워드 목록</h1>
     <p>프로젝트 ID: <span th:text="${projectId}"></span></p>
 
     <div th:if="${#lists.isEmpty(rewardData.rewards)}">
         <p>등록된 리워드가 없습니다.</p>
     </div>
 
-    <div th:each="reward : ${rewardData.rewards}" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+    <div th:each="reward : ${rewardData.rewards}" class="reward-item">
         <h3 th:text="${reward.title}">리워드 제목</h3>
         <p th:text="${reward.description}">리워드 설명</p>
         <p>가격: <span th:text="${reward.price}">0</span>원</p>
@@ -21,5 +23,6 @@
 
     <p><a th:href="@{/projects/{id}(id=${projectId})}">프로젝트 상세로 돌아가기</a></p>
     <p><a th:href="@{/projects}">프로젝트 목록으로</a></p>
+    </div>
 </body>
 </html>

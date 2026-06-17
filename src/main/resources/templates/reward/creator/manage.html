@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>리워드 관리</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>리워드 관리</h1>
+    <div class="container">
+        <h1>리워드 관리</h1>
     <p>프로젝트 ID: <span th:text="${projectId}"></span></p>
 
     <h2>새 리워드 등록</h2>
@@ -36,7 +38,7 @@
         <p>등록된 리워드가 없습니다.</p>
     </div>
 
-    <table border="1" th:if="${!#lists.isEmpty(rewards)}">
+    <table th:if="${!#lists.isEmpty(rewards)}">
         <thead>
             <tr>
                 <th>ID</th>
@@ -63,5 +65,6 @@
     </table>
 
     <p><a th:href="@{/creator/projects/me}">내 프로젝트 관리로 돌아가기</a></p>
+    </div>
 </body>
 </html>

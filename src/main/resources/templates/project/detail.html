@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>프로젝트 상세</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>프로젝트 상세</h1>
+    <div class="container">
+        <h1>프로젝트 상세</h1>
 
-    <div th:if="${errorMessage}" style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 20px;">
+    <div th:if="${errorMessage}" class="error-msg">
         <p th:text="${errorMessage}"></p>
     </div>
 
@@ -37,7 +39,7 @@
         
         <div>
             <h3>리워드 선택</h3>
-            <div th:each="reward : ${project.rewards}" style="border: 1px solid #eee; padding: 10px; margin-bottom: 5px;">
+            <div th:each="reward : ${project.rewards}" class="reward-item">
                 <p><strong th:text="${reward.title}">리워드명</strong></p>
                 <p th:text="${reward.description}">리워드 설명</p>
                 <p>금액: <span th:text="${reward.price}">0</span>원</p>
@@ -55,6 +57,7 @@
         </div>
     </div>
 
-    <p><a th:href="@{/projects}">목록으로</a></p>
+        <p><a th:href="@{/projects}">목록으로</a></p>
+    </div>
 </body>
 </html>

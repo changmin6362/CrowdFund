@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>프로젝트 목록</title>
-    <style>
-        .project-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
-        .project-title { font-size: 1.2em; font-weight: bold; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>프로젝트 목록</h1>
+    <div class="container">
+        <h1>프로젝트 목록</h1>
     
-    <div th:if="${errorMessage}" style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 20px;">
+    <div th:if="${errorMessage}" class="error-msg">
         <p th:text="${errorMessage}"></p>
     </div>
 
@@ -51,5 +49,6 @@
     </div>
 
     <p><a th:href="@{/}">홈으로</a></p>
+    </div>
 </body>
 </html>

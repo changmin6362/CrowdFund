@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>배송지 목록 조회</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>후원자 배송지 목록</h1>
+    <div class="container">
+        <h1>후원자 배송지 목록</h1>
 
-    <div th:if="${errorMessage}" style="color: red;">
+    <div th:if="${errorMessage}" class="error-msg">
         <p th:text="${errorMessage}"></p>
     </div>
 
@@ -15,7 +17,7 @@
         <p>후원자가 없습니다.</p>
     </div>
 
-    <table border="1" th:if="${shippingData != null and !#lists.isEmpty(shippingData.shippingInfos)}">
+    <table th:if="${shippingData != null and !#lists.isEmpty(shippingData.shippingInfos)}">
         <thead>
             <tr>
                 <th>후원 ID</th>
@@ -41,5 +43,6 @@
     </table>
 
     <p><a th:href="@{/creator/projects/me}">목록으로</a></p>
+    </div>
 </body>
 </html>

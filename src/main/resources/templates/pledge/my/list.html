@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>내 후원 목록</title>
-    <style>
-        .pledge-card { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
-        .status-cancel { color: red; }
-        .status-success { color: green; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <h1>내가 후원한 프로젝트</h1>
+    <div class="container">
+        <h1>내가 후원한 프로젝트</h1>
 
     <form th:action="@{/pledges/me}" method="get">
         <label>이행 상태:</label>
@@ -48,10 +45,11 @@
         <form th:if="${p.status.name() == 'PENDING'}" 
               th:action="@{/pledges/me/{id}/cancel(id=${p.pledgeId})}" method="post" 
               style="display: inline;" onsubmit="return confirm('정말 취소하시겠습니까?');">
-            <button type="submit" style="color: red;">후원 취소</button>
+            <button type="submit" class="danger-button">후원 취소</button>
         </form>
     </div>
 
     <p><a th:href="@{/}">홈으로</a></p>
+    </div>
 </body>
 </html>
