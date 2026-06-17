@@ -33,7 +33,11 @@ public class UserProjectController {
             @RequestParam(defaultValue = "10") @Positive Integer limit,
             Model model
     ) {
-        model.addAttribute("projectData", service.fetch(statuses, categoryId, cursorRequest, limit));
+        try {
+            model.addAttribute("projectData", service.fetch(statuses, categoryId, cursorRequest, limit));
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+        }
         model.addAttribute("statuses", statuses);
         model.addAttribute("categoryId", categoryId);
         return "project/list";

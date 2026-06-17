@@ -10,6 +10,10 @@
 </head>
 <body>
     <h1>프로젝트 목록</h1>
+    
+    <div th:if="${errorMessage}" style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 20px;">
+        <p th:text="${errorMessage}"></p>
+    </div>
 
     <form th:action="@{/projects}" method="get">
         <label>카테고리 ID:</label>
@@ -27,18 +31,24 @@
 
     <hr/>
 
-    <div th:if="${#lists.isEmpty(projectData.projects)}">
+    <div th:if="${projectData != null and #lists.isEmpty(projectData.projects)}">
         <p>조회된 프로젝트가 없습니다.</p>
     </div>
 
-    <div th:each="p : ${projectData.projects}" class="project-card">
-        <div class="project-title" th:text="${p.title}">제목</div>
-        <p>창작자: <span th:text="${p.creatorNickname}">닉네임</span></p>
-        <p>목표 금액: <span th:text="${p.goalAmount}">0</span>원</p>
-        <p>현재 금액: <span th:text="${p.currentAmount}">0</span>원 (<span th:text="${p.achievementRate}">0</span>%)</p>
-        <p>상태: <span th:text="${p.status}">상태</span></p>
-        <p>남은 기간: <span th:text="${p.remainingDays}">0</span>일</p>
-        <a th:href="@{/projects/{id}(id=${p.projectId})}">상세보기</a>
+    <div th:if="${projectData != null}">
+        <div th:each="p : ${projectData.projects}" class="project-card">
+            <div class="project-title" th:text="${p.title}">제목</div>
+            <p>창작자: <span th:text="${p.creatorNickname}">닉네임</span></p>
+            <p>목표 금액: <span th:text="${p.goalAmount}">0</span>원</p>
+            <p>현재 금액: <span th:text="${p.currentAmount}">0</span>원 (<span th:text="${p.achievementRate}">0</span>%)</p>
+            <p>상태: <span th:text="${p.status}">상태</span></p>
+            <p>남은 기간: <span th:text="${p.remainingDays}">0</span>일</p>
+            <a th:href="@{/projects/{id}(id=${p.projectId})}">상세보기</a>
+        </div>
+
+        <div th:if="${projectData.hasNext}">
+            <a th:href="@{/projects(statuses=${statuses}, categoryId=${categoryId}, createdAt=${projectData.nextCursor.createdAt}, id=${projectData.nextCursor.id})}">다음 페이지</a>
+        </div>
     </div>
 
     <p><a th:href="@{/}">홈으로</a></p>
