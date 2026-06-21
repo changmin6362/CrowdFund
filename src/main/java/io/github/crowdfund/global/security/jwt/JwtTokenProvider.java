@@ -20,19 +20,19 @@ import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
-
+    
     private final SecretKey key;
     private final long tokenValidityInMilliseconds;
 
     /**
-     * JWT 토큰 생성자: 유효 시간 1800초(30분)
+     * JWT 토큰 생성자
      */
     public JwtTokenProvider(
-            @Value("${jwt.secret:vmfhaltmskdlstkfkdgodydfksdlffksdlffksdlffksdlf}") String secret,
-            @Value("${jwt.token-validity-in-seconds:1800}") long tokenValidityInSeconds) {
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.access-token-expiration}") long tokenValidityInMilliseconds) {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.tokenValidityInMilliseconds = tokenValidityInMilliseconds;
     }
 
     /**
