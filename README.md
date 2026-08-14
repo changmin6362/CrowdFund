@@ -1,5 +1,5 @@
 # CrowdFund 프로젝트
-2026.05.08 ~ 2026.06.12(개발중)
+2026.05.08 ~ 2026.06.15(1차 개발 완료) - AWS 비용 청구 이슈로 인해 현재 배포 중단 중
 
 [![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=flat&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/spring%20boot-%236DB33F.svg?style=flat&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
