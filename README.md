@@ -43,29 +43,33 @@ graph TD
     classDef server fill:#2ecc71,stroke:#27ae60,stroke-width:2px,color:#fff;
     classDef db fill:#e67e22,stroke:#d35400,stroke-width:2px,color:#fff;
     classDef infra fill:#9b59b6,stroke:#8e44ad,stroke-width:2px,color:#fff;
+    classDef dev fill:#34495e,stroke:#2c3e50,stroke-width:2px,color:#fff;
 
-    subgraph Client ["📱 Client Layer"]
+    subgraph External ["🌐 Client & Developer Environment"]
         Web["💻 React / Next.js"]:::client
-    end
-
-    subgraph Infra ["🌐 Infrastructure & CI/CD"]
+        Dev["🛠️ Local PC (DBeaver)"]:::dev
         GH["🐙 GitHub Actions"]:::infra
-        EC2["🖥️ AWS EC2 (Docker)"]:::infra
     end
 
-    subgraph App ["⚙️ Application Layer (Backend)"]
-        Server["🚀 Spring Boot 3.5.14"]:::server
+    subgraph AWS_VPC ["☁️ AWS VPC (Private Network)"]
+        subgraph EC2_Node ["🖥️ AWS EC2 (Bastion / App Host)"]
+            Server["🚀 Spring Boot (Docker)"]:::server
+        end
+
+        subgraph RDS_Node ["💾 Data Storage Layer"]
+            RDS[("🗄️ AWS RDS (MariaDB)")]:::db
+        end
     end
 
-    subgraph Storage ["💾 Data Storage Layer"]
-        RDS[("🗄️ AWS RDS (MariaDB)")]:::db
-    end
+    Web -->|HTTPS REST API| EC2_Node
+    EC2_Node -->|Runs Container| Server
+    Server -->|"Internal JDBC (Port 3306)"| RDS
+    Dev -.->|"SSH Tunneling via Bastion"| RDS
+    GH -->|Deploy Workflow| EC2_Node
 
-    Web -->|HTTPS Requests| EC2
-    EC2 -->|Runs Container| Server
-    Server -->|SQL Queries via SSH Tunnel| RDS
-    GH -->|Deploy/Build| EC2
 ```
+
+- Data Storage Layer: AWS RDS(MariaDB) 퍼블릭 액세스를 차단하고 격리 구성. 애플리케이션은 동일 VPC 내부 사설 IP로 직접 통신하며, 로컬 개발 PC에서는 EC2를 Bastion Host로 삼아 SSH 터널링을 통해서만 안전하게 DB에 접근하도록 설계
 
 <img width="2448" height="4775" alt="mermaid-diagram-2026-09-18-182014" src="https://github.com/user-attachments/assets/ab59a954-0b95-4f4b-b3aa-580f6a716947" />
 
@@ -107,8 +111,6 @@ graph TD
 <details >
     <summary>RESTful API 엔드포인트 명세 (Swagger 목록 펼치기/접기)</summary>
     <img alt="swagger-ui-125%" src="https://github.com/user-attachments/assets/c82b4cd8-5698-4d2e-b0e2-f3c94f371c9b" />
-</details>
-
 </details>
 
 ---
