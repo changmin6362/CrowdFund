@@ -1,27 +1,41 @@
-# CrowdFund — 복합 커서 기반 페이징과 모듈형 아키텍처를 적용한 크라우드 펀딩 RESTful API
+# CrowdFund - RESTful API 서버
 
-- 2026.05.08 ~ 2026.06.15(1차 개발 완료)
+> **복합 커서 페이징과 모듈형 아키텍처를 적용한 크라우드 펀딩 RESTful API 백엔드 시스템**  
+> 대용량 데이터 조회의 성능 유지, 안전한 무상태 인증/인가 체계, 그리고 AWS 클라우드 기반의 격리 인프라 및 자동 배포 환경을 직접 설계하고 구현한 백엔드 프로젝트입니다.
 
-[![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=flat&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/spring%20boot-%236DB33F.svg?style=flat&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
-[![Gradle](https://img.shields.io/badge/gradle-%2302303A.svg?style=flat&logo=gradle&logoColor=white)](https://gradle.org/)
-[![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
-[![MariaDB](https://img.shields.io/badge/mariadb-%23003545.svg?style=flat&logo=mariadb&logoColor=white)](https://mariadb.org/)
+<table>
+  <tr>
+    <td align="center" valign="top">
+      <a href="https://github.com/changmin6362/CrowdFund">
+        <img width="256" height="256" alt="백엔드 프로젝트 주소" src="https://github.com/user-attachments/assets/8f3dce37-6295-4b7a-92a3-fbcfbad8ec7e" />
+        <div><strong>CrowdFund - RESTful API 서버 주소</strong></div>
+      </a>
+    </td>
+    <td align="center" valign="top">
+      <a href="https://github.com/changmin6362/CrowdFundFront">
+        <img width="256" height="256" alt="프론트 프로젝트 주소" src="https://github.com/user-attachments/assets/f93fca4c-ce5c-46ea-ba06-d25195a7637f" />
+        <div><strong>CrowdFundFront - 프론트 서버 주소</strong></div>
+      </a>
+    </td>
+  </tr>
+</table>
 
-## QR 코드 및 API Swagger 이미지
 
-<div >
-    <a href="https://github.com/changmin6362/CrowdFund">
-      <img width="256" height="256" alt="qr코드" src="https://github.com/user-attachments/assets/1e49eeb2-8d41-4bf4-9b7a-c1188e84a8e5" />
-    </a>
-</div>
 
-<details >
-    <summary>API Swagger 펼치기</summary>
-    <img alt="swagger-ui-125%" src="https://github.com/user-attachments/assets/c82b4cd8-5698-4d2e-b0e2-f3c94f371c9b" />
-</details>
 
-## 시스템 아키텍처(System Architecture)
+- **개발 기간**: 2026.05.08 ~ 2026.06.15 (1차 개발 완료 기간)
+- **담당 역할**: 백엔드 API 설계 및 개발, DB 모델링, 클라우드 인프라(AWS) 구축 및 CI/CD 배포 자동화
+- **기술 스택**:
+  - **Core & Framework**: Java 17, Spring Boot 3.x, Spring Security
+  - **Persistence**: Spring Data JDBC, MyBatis, MariaDB
+  - **Infra & DevOps**: AWS EC2, AWS RDS, Docker, GitHub Actions
+- **외부 연동 인터페이스**: 
+  - RESTful API (Swagger 연동)
+  - React 클라이언트 연동 (데모 UI는 상단 QR 코드로 확인 가능)
+
+---
+
+## 1. 백엔드 시스템 & 클라우드 인프라 아키텍처
 
 ```mermaid
 graph TD
@@ -53,79 +67,76 @@ graph TD
     GH -->|Deploy/Build| EC2
 ```
 
-## ERD
-
-<img width="5222" height="3856" alt="Image" src="https://github.com/user-attachments/assets/ed0ba577-fabb-4b34-8727-9e71e2e6448d" />
+<img width="2448" height="4775" alt="mermaid-diagram-2026-09-18-182014" src="https://github.com/user-attachments/assets/ab59a954-0b95-4f4b-b3aa-580f6a716947" />
 
 
-## 📂 패키지 분리 전략
+- **Client Layer**: React SPA 기반 비동기 HTTP 요청 (CORS 보안 설정 적용)
+- **Application Layer**: AWS EC2 내부 Docker 컨테이너 환경에서 Spring Boot 3.x 구동
+- **Storage Layer**: AWS RDS(MariaDB) 격리 구성 (보안 그룹 기반 인바운드 제어)
+- **CI/CD Pipeline**: GitHub Actions를 통한 빌드 및 SSH 기반 EC2 자동 배포 파이프라인
 
-- `io.github.crowdfund.global`: 전역 설정 (Security, 전역 예외 핸들러, 공통 응답 DTO, 페이지네이션처럼 재사용되는 공통 코드)
-- `io.github.crowdfund.domain`: Spring Data JDBC 엔티티, 도메인 인터페이스, MyBatis 도메인 매퍼
-- `io.github.crowdfund.feature`: 각 기능별 서비스 로직 및 API 컨트롤러 모듈화
+---
 
+## 2. 백엔드 핵심 설계 및 구현 기술
 
-## 💡 핵심 구현 기술
+### ① 대용량 데이터 조회를 위한 복합 커서 기반 페이지네이션
+- **도입 배경**: 전통적인 `OFFSET / LIMIT` 방식은 페이지 번호가 커질수록 불필요한 누적 데이터 스캔 비용이 발생하며, 신규 데이터 삽입 시 중복 조회 문제가 발생할 수 있음.
+- **구현 방식**:
+  - `(created_at < :cursorCreatedAt OR (created_at = :cursorCreatedAt AND id < :cursorId))` 조건식을 활용한 인덱스 기반 $O(1)$ 연속 조회 성능 보장.
+  - 별도의 카운트(COUNT) 쿼리 부하 없이 다음 데이터 존재 여부를 판별하는 **Limit + 1 전략** 채택.
+  - 제네릭과 함수형 인터페이스를 활용하여 도메인별 복합 커서 주체를 외부에서 주입할 수 있도록 `CursorPaginationProcessor` 공통 모듈화.
 
-### 1. 성능 최적화를 위한 복합 커서 기반 페이지네이션
+### ② 데이터 접근 계층 이원화 (Spring Data JDBC & MyBatis 혼용)
+- **도입 배경**: 단순 CRUD 작업의 개발 생산성과, 다중 조인 및 통계 처리를 위한 SQL 직접 제어력을 모두 확보하기 위해 설계.
+- **구현 방식**:
+  - 단순 단건 조회 및 기본 CRUD는 **Spring Data JDBC**의 메서드 이름 기반 쿼리를 활용해 코드 복잡도 최소화.
+  - 후원 집계, 정산 통계, 복합 검색 등 고비용 쿼리는 **MyBatis** 매퍼를 활용해 최적화된 SQL 작성.
+  - 별도의 영속성 컨텍스트 관리 없이 단일 데이터베이스 세션과 스프링 트랜잭션 범위 내에서 데이터 정합성 유지.
 
-> 도입 배경:
-> - 프론트엔드에서 무한스크롤을 구현하고 싶은데, 기존 OFFSET / LIMIT 방식의 페이지네이션을 사용하면 동일 데이터에 대한 중복 요청이 발생해서 성능 문제가 생김
-    
-> 구현 방식:
-> - 복합 커서 조건식: (created_at < :cursorCreatedAt OR (created_at = :cursorCreatedAt AND id < :cursorId))을 적용해 대용량 데이터에서도 일정한 조회 성능(O(1)) 및 데이터 정합성 보장
-> - hasNext 계산 방식: Limit + 1 전략: 다음 페이지 존재 여부(hasNext)를 별도의 COUNT 쿼리 없이 판단하여 DB 부하 최소화
-> - 공통 모듈화: 제네릭과 함수형 인터페이스(cursorExtractor)를 활용한 CursorPaginationProcessor로 복합 커서 주체를 주입해서 재사용 할 수 있게 별도 모듈로 분리
+### ③ 무상태(Stateless) JWT 기반 인증/인가 및 2차 도메인 권한 검증
+- **구현 방식**:
+  - `JwtAuthenticationFilter` 커스텀 구현을 통해 토큰 유효성 검증 및 `SecurityContext` 내 인증 객체 주입.
+  - **IDOR(부적절한 직접 객체 참조) 방지**: URL 경로 변수(Path Parameter) 변조 공격을 차단하기 위해, 서비스 계층에서 `SecurityUser.isOwner()`를 통한 사용자 리소스 2차 소유권 검증 수행.
+  - `JwtAuthenticationEntryPoint`와 `JwtAccessDeniedHandler`를 활용해 401/403 예외 응답 규격 일원화.
 
-### 2. Spring Data JDBC & MyBatis 혼용 도입
+### ④ 공통 응답 규격화 및 전역 예외 처리 체계
+- **구현 방식**:
+  - Java `Record` 기반의 `ApiResult` 공통 응답 포맷 정의 및 정적 팩토리 메서드(`success()`, `error()`) 적용.
+  - `@RestControllerAdvice`를 활용해 파라미터 유효성 검증 실패(`MethodArgumentNotValidException`) 및 비즈니스 예외(`IllegalArgumentException`)를 일괄 가로채 표준 에러 규격으로 변환.
 
-> 도입 배경:
-> - JPA와 MyBatis 혼용 설계를 구현해보고 싶었지만, 프로젝트 일정 내에 높은 학습 비용과 복잡한 영속성 컨텍스트 관리가 요구되는 JPA를 도입하기는 어려울 것이라고 판단이 들었음. 그래서 배우기 쉽고 향후 JPA로 마이그레이션이 용이한 Spring Data JDBC를 징검다리 기술로 채택함
-    
-> 도입 효과: 
-> - 개발 생산성 극대화: 단순 반복적인 CRUD 및 단건 조회는 Spring Data JDBC의 메서드 이름 기반 쿼리로 빠르게 쳐내고, 복잡한 통계나 다중 조인(Join)이 필요한 핵심 비즈니스 로직에만 MyBatis를 사용하여 전체적인 개발 기간을 단축했습니다.
-> - 안정적인 데이터 관리: Spring Data JDBC는 JPA와 달리 영속성 컨텍스트가 없어, MyBatis와 동일한 데이터베이스 세션 및 트랜잭션 범위 내에서 예기치 못한 데이터 정합성 오류나 동기화 문제없이 안정적으로 트랜잭션을 제어할 수 있었습니다.
-> - 성장 지향적 아키텍처 구축: 엔티티 중심의 도메인 설계와 리포지토리 패턴을 미리 적용해 둠으로써, 향후 학습 숙련도에 따라 JPA(Spring Data JPA)로 매끄럽게 마이그레이션할 수 있는 기술적 발판을 마련했습니다.
+<details >
+    <summary>RESTful API 엔드포인트 명세 (Swagger 목록 펼치기/접기)</summary>
+    <img alt="swagger-ui-125%" src="https://github.com/user-attachments/assets/c82b4cd8-5698-4d2e-b0e2-f3c94f371c9b" />
+</details>
 
-### 3. 무상태(Stateless) JWT 기반 인증/인가 및 세분화된 리소스 권한 제어
+</details>
 
-> 도입 배경:
-> - RESTful API 서버의 확장성을 위해 세션 클러스터링 의존 없이 무상태(Stateless) 아키텍처를 유지하면서, 사용자/창작자/관리자 간의 명확한 인가(Authorization) 처리가 필요함.
+---
 
-> 구현 방식:
-> - Spring Security + JWT 필터 체인: JwtAuthenticationFilter를 커스텀 구현하여 Access Token 검증 및 SecurityContext 주입
-> - 도메인 레벨 소유권 검증 (Ownership Validation): URL Path 파라미터 변조(IDOR 공격)를 방지하기 위해 SecurityUser.isOwner()를 통해 본인의 후원/프로젝트만 조회/취소/수정 가능하도록 서비스 계층에서 2차 인가 검증 수행
-> - 예외 핸들링 표준화: JwtAuthenticationEntryPoint, JwtAccessDeniedHandler를 통해 401/403 에러 응답 규격을 통일
+## 3. 심층 트러블슈팅 (Troubleshooting)
 
-> 도입 효과:
-> - 서버 수평 확장(Scale-out) 시 세션 동기화 문제 제거 및 안전한 사용자 리소스 격리 보장
-> - CD 구현 방식: GitHub Actions과 Docker Hub Repository 사용
+### [Issue 1] 외부 웹 클라이언트 연동 환경의 CORS(Cross-Origin Resource Sharing) 해결
 
-### 4. 공통 응답 구조 모듈화
+- **문제 현상**: 외부 React 클라이언트에서 Spring Boot REST API 서버로 비동기 요청 전송 시, 브라우저 콘솔에서 SOP(Same-Origin Policy) 위반으로 인한 통신 차단 및 Preflight(`OPTIONS`) 실패 발생.
+- **원인 분석**: 브라우저의 예비 요청에 대해 백엔드 서버가 허용 Origin 및 Method 헤더를 응답하지 않았으며, Spring Security 필터 체인 단에서 Preflight 요청에 대한 적절한 CORS 처리가 이루어지지 않음을 확인.
+- **해결 방법**:
+  - Spring Security 환경에 맞춰 SecurityConfig에 CorsConfigurationSource 빈을 정의하고 Security 필터 체인(HttpSecurity.cors())에 연동하여 보안 필터 단에서 CORS 정책을 일괄 처리.
+  - setAllowedOriginPatterns를 통해 로컬 환경(localhost:3000) 및 Vercel 프론트엔드 배포 도메인을 허용.
+  - 허용 HTTP 메서드(GET, POST, PUT, DELETE, PATCH, OPTIONS), 모든 헤더(*), 자격 증명 전송(allowCredentials(true))을 명시적으로 설정하고 /** 경로에 전역 매핑하여 정상 통신 수립.
 
-> 도입 배경:
-> - 엔드포인트마다 응답 포맷이 제각각이거나, 중복 선언되어서 프론트엔드에서 일관된 데이터 파싱 로직을 작성하기 어려운 문제가 발생함
+### [Issue 2] AWS EC2-RDS 간 보안 그룹(Security Group) 격리 및 연결 타임아웃 해결
+- **문제 현상**: AWS EC2에 백엔드 컨테이너를 기동한 뒤 RDS(MariaDB) 연결을 시도했으나, 지속적인 연결 타임아웃(`Connection timed out`) 발생으로 애플리케이션 시작 실패.
+- **원인 분석**: 
+  - RDS 인스턴스의 인바운드 방화벽(보안 그룹) 규칙이 비인가 IP를 차단하고 있어 EC2 컨테이너의 데이터베이스 접근 트래픽이 거부됨을 확인.
+- **해결 방법**:
+  - 보안 강화를 위해 RDS의 퍼블릭 액세스를 닫은 상태를 유지하고, RDS 보안 그룹의 인바운드 규칙에 '0.0.0.0/0' 전체 개방 대신 **'EC2 인스턴스의 보안 그룹 ID'를 소스(Source)로 직접 등록**.
+  - 동일 VPC 내 지정된 애플리케이션 서버에서만 3306 포트로 진입하도록 방화벽 체계를 구성하여 안전하고 안정적인 DB 통신 수립.
 
-> 구현 방식:
-> - Record를 사용해서 응답 DTO 객체를 정의하고 정적 팩토리 메서드(success(), error())를 선언하여 객체 생성 로직도 함께 다루도록 함
-> - @JsonInclude(NON_NULL)를 사용하여 응답 데이터에 null이 포함되지 않게 함
-
-> 도입 효과:
-> - 모든 API 응답이 일관된 규격(message, data 형태)을 갖추게 되어 프론트엔드의 API 응답 처리 로직이 단순화됨
-> - 불필요한 null 필드 전송을 방지하여 불필요한 데이터가 전송되지 않음
-
-### 5. 글로벌 예외 처리
-
-> 도입 배경:
-> - 서비스 계층에 try-catch로 예외를 처리하는 로직을 작성하면 비즈니스 로직과 예외 처리 로직이 뒤섞여 가독성이 떨어지고, 코드의 실행 흐름을 알기 힘들어지는 문제가 발생함
-
-> 구현 방식:
-> - RestControllerAdvice 어노테이션을 사용하여 Spring Security Filter Chain에 의해 호출되는 에러 핸들러 클래스를 정의함.
-> - 해당 에러 핸들러 클래스 내부에 RequestParam, RequestBody와 IllegalArgumentException 에러 발생 시 호출되는 메서드를 선언함.
-
-> 도입 효과:
-> - RequestParam, RequestBody 검증 로직을 DTO의 Bean Validation 어노테이션과 전역 핸들러에 위임하여, 컨트롤러와 서비스 계층의 중복 검증 코드를 제거하고 관심사를 명확히 분리함
-> - 서비스 계층에서는 비즈니스 예외 발생 시 try catch문을 선언하는 대신에 IllegalArgumentException을 thorw하는 것으로 클라이언트에 일관된 에러 메시지를 간편하게 전달할 수 있어 생산성과 가독성이 향상됨
-> - 모든 예외 상황이 표준화된 ApiResult 에러 규격으로 일괄 반환되어 프론트엔드와의 협업 및 클라이언트 측 에러 핸들링 편의성이 극대화됨
-
-
+### [Issue 3] GitHub Actions 자동 배포 시 비로그인 셸 환경 변수 누락 해결
+- **문제 현상**: 로컬 환경에서 정상 작동하던 컨테이너가 GitHub Actions 워크플로우를 통해 EC2에 배포된 직후 즉시 비정상 종료됨.
+- **원인 분석**:
+  - EC2 컨테이너 로그 추적 결과 DB 접속 정보 등 필수 환경 변수가 빈 값(Null)으로 주입됨을 발견.
+  - 직접 터미널 접속 시와 달리, CI 도구가 원격 SSH 접속을 실행할 때는 비로그인 세션(Non-login shell) 방식으로 명령을 구동하여 서버 프로파일에 등록된 환경 변수를 로드하지 못한다는 동작 메커니즘 차이를 규명.
+- **해결 방법**:
+  - 서버 로컬 환경 변수 의존도를 제거하고 GitHub Repository Secrets에 암호화된 변수들을 등록.
+  - 배포 워크플로우 실행 시 컨테이너 실행 파라미터로 값을 직접 주입하도록 파이프라인을 재설계하여 무중단 자동 배포 안정화 달성.
